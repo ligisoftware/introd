@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+
+# Environment
+.env*.local
+
+# Google Docs MCP – do not commit
+credentials.json
+token.json
