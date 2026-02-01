@@ -1,32 +1,40 @@
 # introd
+
 The introd application.
+
+## Getting started
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Start the dev server**
+   ```bash
+   npm run dev
+   ```
+
+3. **Open the site**  
+   In your browser go to [http://localhost:3000](http://localhost:3000). You’ll see the Intro’d home page. Edit `app/page.tsx` or `app/layout.tsx` and save; the page will hot-reload.
+
+To run a production build locally: `npm run build` then `npm start`.
 
 ## Tech Stack
 
-This document establishes the technology stack for the introd project to ensure consistency across development.
+MVP stack for Intro'd (consistent across development and deployment).
 
 ### Frontend / Website
-- **Framework**: Next.js
-  - Chosen for its ability to handle complex, dynamic features beyond static pages
-  - Provides server-side rendering (SSR), static site generation (SSG), and API routes
-  - Strong TypeScript support and excellent developer experience
-  - Mature ecosystem with extensive community support
+- **Framework**: Next.js (App Router)
+  - TypeScript, ESLint, Tailwind CSS
+  - Server and client components, API Route Handlers under `app/api/`
 
-### Backend
-- **Language**: Go
-  - High performance and excellent concurrency support
-  - Strong standard library and growing ecosystem
-  - Well-suited for scalable backend services
+### Backend / Data
+- **Supabase**: Postgres database and Magic Link auth
+  - Business logic lives in-repo under `services/` and `repositories/`
+  - Route Handlers call services; services call repositories (no business logic in route files)
 
-### Infrastructure
-- **Cloud Provider**: AWS
-  - Comprehensive service offerings
-  - Industry-standard cloud platform
-- **Infrastructure as Code**: Terraform
-  - Declarative infrastructure management
-  - Excellent AWS provider support
-  - Version-controlled infrastructure changes
+### Hosting
+- **Vercel**: Production and preview deployments
 
-### Mobile
-- **Platform**: iOS (native development)
-  - Swift and SwiftUI for native iOS applications
+### Future
+- Migration path to **Go** services and **AWS RDS** when needed; in-repo structure (services/repositories) is designed to support that move.

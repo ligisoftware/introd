@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "google-docs": {
+      "command": "npx",
+      "args": ["-y", "@xalia/mcp-googledocs-server"],
+      "env": {}
+    }
+  }
+}
