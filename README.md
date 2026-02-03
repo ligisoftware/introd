@@ -9,12 +9,15 @@ The introd application.
    npm install
    ```
 
-2. **Start the dev server**
+2. **Supabase (required for auth and data)**  
+   Copy `.env.example` to `.env.local`. Get the **Project URL** and **anon** (publishable) key from your team—we use one shared Supabase project for this repo. If you have access, they’re in [supabase.com](https://supabase.com) → project → **Project Settings** → **API**. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`.
+
+3. **Start the dev server**
    ```bash
    npm run dev
    ```
 
-3. **Open the site**  
+4. **Open the site**  
    In your browser go to [http://localhost:3000](http://localhost:3000). You’ll see the Intro’d home page. Edit `app/page.tsx` or `app/layout.tsx` and save; the page will hot-reload.
 
 To run a production build locally: `npm run build` then `npm start`.
