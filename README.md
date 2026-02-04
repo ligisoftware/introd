@@ -12,6 +12,8 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Prod locally: `npm run build` && `npm start`.
 
+**Lint & format:** `npm run lint`, `npm run format` (or `npm run format:check`). See [CONTRIBUTING.md](CONTRIBUTING.md) for where to add routes/services and conventions for AI-generated code.
+
 ## MCP (agents)
 
 **Next.js DevTools** + **Supabase** are in `.cursor/mcp.json`. Run `npm run dev` so Next DevTools can connect. Supabase MCP will prompt sign-in on first use.
