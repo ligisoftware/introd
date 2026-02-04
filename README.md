@@ -1,43 +1,25 @@
 # introd
 
-The introd application.
+Intro'd MVP: structured intro pages for founders, read-only for investors.
 
 ## Getting started
 
-1. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+cp .env.example .env.local   # add NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY from Supabase → Project Settings → API
+npm run dev
+```
 
-2. **Supabase (required for auth and data)**  
-   Copy `.env.example` to `.env.local`. Get the **Project URL** and **anon** (publishable) key from your team—we use one shared Supabase project for this repo. If you have access, they’re in [supabase.com](https://supabase.com) → project → **Project Settings** → **API**. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in `.env.local`.
+Open [http://localhost:3000](http://localhost:3000). Prod locally: `npm run build` && `npm start`.
 
-3. **Start the dev server**
-   ```bash
-   npm run dev
-   ```
+## MCP (agents)
 
-4. **Open the site**  
-   In your browser go to [http://localhost:3000](http://localhost:3000). You’ll see the Intro’d home page. Edit `app/page.tsx` or `app/layout.tsx` and save; the page will hot-reload.
+**Next.js DevTools** + **Supabase** are in `.cursor/mcp.json`. Run `npm run dev` so Next DevTools can connect. Supabase MCP will prompt sign-in on first use.
 
-To run a production build locally: `npm run build` then `npm start`.
+**If an agent says MCP isn’t connected:** Cursor **Settings → Tools & MCP** → turn on next-devtools (and supabase). Restart Cursor, run `npm run dev`, then start a new chat.
 
-## Tech Stack
+## Stack
 
-MVP stack for Intro'd (consistent across development and deployment).
-
-### Frontend / Website
-- **Framework**: Next.js (App Router)
-  - TypeScript, ESLint, Tailwind CSS
-  - Server and client components, API Route Handlers under `app/api/`
-
-### Backend / Data
-- **Supabase**: Postgres database and Magic Link auth
-  - Business logic lives in-repo under `services/` and `repositories/`
-  - Route Handlers call services; services call repositories (no business logic in route files)
-
-### Hosting
-- **Vercel**: Production and preview deployments
-
-### Future
-- Migration path to **Go** services and **AWS RDS** when needed; in-repo structure (services/repositories) is designed to support that move.
+- **Next.js** (App Router, TypeScript, Tailwind) — routes in `app/`, API in `app/api/`
+- **Supabase** — Postgres + Magic Link; logic in `services/` and `repositories/` (Route Handler → service → repository only)
+- **Vercel** — deploy. Future: Go + AWS RDS path via same repo structure.

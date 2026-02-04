@@ -4,6 +4,13 @@
       "command": "npx",
       "args": ["-y", "@xalia/mcp-googledocs-server"],
       "env": {}
+    },
+    "next-devtools": {
+      "command": "npx",
+      "args": ["-y", "next-devtools-mcp@latest"]
+    },
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp"
     }
   }
 }

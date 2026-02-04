@@ -1,0 +1,9 @@
+---
+description: Use Next.js DevTools MCP when connected; call init first and fallback to filesystem for routes
+alwaysApply: true
+---
+
+# Next.js DevTools MCP
+
+- **When the Next.js DevTools MCP is connected**: At the start of work on this Next.js app, call the `init` tool from the next-devtools-mcp server to set up context. To list app routes or page structure, use the MCP tools: first `nextjs_index` to discover the dev server, then `nextjs_call` with `toolName: "get_page_metadata"` (or the tool returned by `nextjs_index`).
+- **When Next.js DevTools MCP is not available** (e.g. the agent only has cursor-ide-browser / cursor-browser-extension): Say so clearly. Suggest the user restart Cursor and run `npm run dev`, and check Cursor Settings → MCP that "next-devtools" is enabled. As a fallback, list routes by reading the repo: e.g. describe or list `app/` (and `app/api/`) so the user still gets route/structure info.
