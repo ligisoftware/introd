@@ -6,6 +6,16 @@ export interface Founder {
   id: string;
   email: string;
   createdAt: string; // ISO date
+  // Profile (optional until set)
+  displayName?: string | null;
+  role?: string | null;
+  startupName?: string | null;
+  startupOneLiner?: string | null;
+  bio?: string | null;
+  websiteUrl?: string | null;
+  linkedinUrl?: string | null;
+  twitterUrl?: string | null;
+  updatedAt?: string | null; // ISO date
 }
 
 export interface IntroPage {
