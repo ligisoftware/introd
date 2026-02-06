@@ -6,7 +6,7 @@ import { NextResponse, type NextRequest } from "next/server";
  * and API routes see the current user. Does not protect routes; login/logout
  * are handled by presence of session.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

@@ -27,7 +27,15 @@ export default async function RootLayout({
               Intro&apos;d
             </Link>
             {founder ? (
-              <AuthBar email={founder.email} />
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/profile"
+                  className="text-sm text-gray-700 underline hover:no-underline"
+                >
+                  Edit profile
+                </Link>
+                <AuthBar email={founder.email} />
+              </div>
             ) : (
               <Link href="/login" className="text-sm text-gray-700 underline hover:no-underline">
                 Log in
