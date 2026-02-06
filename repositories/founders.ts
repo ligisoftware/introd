@@ -44,6 +44,7 @@ export interface FounderProfileUpdateRow {
   bio?: string | null;
   website_url?: string | null;
   linkedin_url?: string | null;
+  twitter_url?: string | null;
   updated_at?: string;
 }
 
