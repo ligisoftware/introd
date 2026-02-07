@@ -18,6 +18,15 @@ function orEmpty(s: string | null | undefined): string {
   return s ?? "";
 }
 
+const inputClass =
+  "w-full rounded-ds border border-ds-border bg-ds-surface px-3.5 py-2.5 text-ds-text placeholder-ds-text-subtle transition-[border-color,box-shadow] duration-ds-fast ease-ds focus:border-ds-accent focus:outline-none focus:ring-2 focus:ring-ds-accent/20 disabled:bg-ds-surface-hover disabled:text-ds-text-subtle";
+const labelClass = "block text-sm font-medium text-ds-text-muted";
+const sectionTitle = "text-sm font-semibold uppercase tracking-wider text-ds-text-subtle";
+const btnPrimary =
+  "rounded-ds bg-ds-accent px-4 py-2.5 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-accent-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
+const btnSecondary =
+  "rounded-ds border border-ds-border bg-ds-surface px-4 py-2.5 text-sm font-medium text-ds-text transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-surface-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
+
 export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
   const [displayName, setDisplayName] = useState(orEmpty(initialFounder.displayName));
   const [role, setRole] = useState(orEmpty(initialFounder.role));
@@ -31,7 +40,6 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
-  // Share link: full URL for display/copy (set from initial slug or after creating)
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareStatus, setShareStatus] = useState<"idle" | "creating" | "copied" | "error">("idle");
   const [shareError, setShareError] = useState("");
@@ -142,15 +150,11 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
     }
   }
 
-  const inputClass =
-    "w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 disabled:bg-gray-100 disabled:text-gray-500";
-  const labelClass = "block text-sm font-medium text-gray-700";
-
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+    <form onSubmit={handleSubmit} className="space-y-10 sm:space-y-12">
       {/* About you */}
-      <section>
-        <h2 className="text-lg font-medium text-gray-900">About you</h2>
+      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+        <h2 className={sectionTitle}>About you</h2>
         <div className="mt-4 space-y-4">
           <div>
             <label htmlFor="displayName" className={labelClass}>
@@ -191,17 +195,17 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               disabled={status === "saving"}
-              className={inputClass}
+              className={`${inputClass} min-h-[100px] resize-y`}
               maxLength={1000}
             />
-            <p className="mt-1 text-xs text-gray-500">{bio.length}/1000</p>
+            <p className="mt-1.5 text-xs text-ds-text-subtle">{bio.length}/1000</p>
           </div>
         </div>
       </section>
 
       {/* Startup */}
-      <section>
-        <h2 className="text-lg font-medium text-gray-900">Startup</h2>
+      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+        <h2 className={sectionTitle}>Startup</h2>
         <div className="mt-4 space-y-4">
           <div>
             <label htmlFor="startupName" className={labelClass}>
@@ -231,25 +235,25 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               className={inputClass}
               maxLength={300}
             />
-            <p className="mt-1 text-xs text-gray-500">{startupOneLiner.length}/300</p>
+            <p className="mt-1.5 text-xs text-ds-text-subtle">{startupOneLiner.length}/300</p>
           </div>
         </div>
       </section>
 
       {/* Share your page */}
-      <section>
-        <h2 className="text-lg font-medium text-gray-900">Share your page</h2>
-        <p className="mt-1 text-sm text-gray-600">
+      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+        <h2 className={sectionTitle}>Share your page</h2>
+        <p className="mt-2 text-sm text-ds-text-muted">
           Create a link to share your profile with others. The link is unlisted—only people you
           share it with can view it.
         </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
           {!shareUrl ? (
             <button
               type="button"
               onClick={handleCreateShareLink}
               disabled={shareStatus === "creating"}
-              className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={btnPrimary}
             >
               {shareStatus === "creating" ? "Creating…" : "Create share link"}
             </button>
@@ -259,34 +263,41 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
                 type="text"
                 readOnly
                 value={shareUrl}
-                className="min-w-0 flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+                className="min-w-0 flex-1 rounded-ds border border-ds-border bg-ds-surface-hover px-3.5 py-2.5 text-sm text-ds-text-muted transition-[border-color] duration-ds-fast ease-ds"
                 aria-label="Share link"
               />
-              <button
-                type="button"
-                onClick={handleCopyShareLink}
-                disabled={shareStatus === "copied"}
-                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {shareStatus === "copied" ? "Copied!" : "Copy link"}
-              </button>
-              <button
-                type="button"
-                onClick={handleRegenerateShareLink}
-                disabled={shareStatus === "creating"}
-                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {shareStatus === "creating" ? "Regenerating…" : "Regenerate link"}
-              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyShareLink}
+                  disabled={shareStatus === "copied"}
+                  className={btnSecondary}
+                >
+                  <span
+                    key={shareStatus}
+                    className={shareStatus === "copied" ? "ds-pop inline-block" : ""}
+                  >
+                    {shareStatus === "copied" ? "Copied!" : "Copy link"}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRegenerateShareLink}
+                  disabled={shareStatus === "creating"}
+                  className={btnSecondary}
+                >
+                  {shareStatus === "creating" ? "Regenerating…" : "Regenerate link"}
+                </button>
+              </div>
             </>
           )}
           {shareUrl && (
-            <p className="w-full text-xs text-gray-500">
+            <p className="w-full text-xs text-ds-text-subtle">
               Regenerating creates a new link; the previous link will stop working.
             </p>
           )}
           {shareStatus === "error" && shareError && (
-            <p role="alert" className="w-full text-sm text-red-600">
+            <p role="alert" className="ds-feedback-in w-full text-sm text-ds-error">
               {shareError}
             </p>
           )}
@@ -294,8 +305,8 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
       </section>
 
       {/* Links */}
-      <section>
-        <h2 className="text-lg font-medium text-gray-900">Links</h2>
+      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+        <h2 className={sectionTitle}>Links</h2>
         <div className="mt-4 space-y-4">
           <div>
             <label htmlFor="websiteUrl" className={labelClass}>
@@ -344,20 +355,16 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
 
       {/* Submit and feedback */}
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="submit"
-          disabled={status === "saving"}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <button type="submit" disabled={status === "saving"} className={btnPrimary}>
           {status === "saving" ? "Saving…" : "Save profile"}
         </button>
         {status === "success" && message && (
-          <p role="status" className="text-sm text-green-700">
+          <p role="status" className="ds-feedback-in text-sm text-ds-success">
             {message}
           </p>
         )}
         {status === "error" && message && (
-          <p role="alert" className="text-sm text-red-600">
+          <p role="alert" className="ds-feedback-in text-sm text-ds-error">
             {message}
           </p>
         )}

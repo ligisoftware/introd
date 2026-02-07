@@ -19,8 +19,8 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
   }
 
   return (
-    <main className="min-h-screen p-8">
-      <div className="mx-auto max-w-2xl">
+    <main className="min-h-[calc(100vh-3.5rem)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <div className="mx-auto max-w-container-md">
         <FounderProfileView profile={profile} />
         <FeedbackForm slug={slug} />
       </div>
