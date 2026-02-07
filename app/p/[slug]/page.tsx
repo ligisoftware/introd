@@ -1,4 +1,5 @@
 import { FounderProfileView } from "@/app/components/FounderProfileView";
+import { FeedbackForm } from "@/app/components/FeedbackForm";
 import { getByShareSlug } from "@/repositories/founders";
 import { createServiceRoleClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
@@ -21,6 +22,7 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
     <main className="min-h-screen p-8">
       <div className="mx-auto max-w-2xl">
         <FounderProfileView profile={profile} />
+        <FeedbackForm slug={slug} />
       </div>
     </main>
   );
