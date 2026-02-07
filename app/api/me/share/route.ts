@@ -16,6 +16,7 @@ function generateShareSlug(): string {
 /**
  * POST /api/me/share — Generate or return the founder's share link.
  * Authenticated only. If share_slug already exists, returns existing URL; otherwise generates and persists a new slug.
+ * Body: { regenerate?: boolean } — if true, generate a new slug (old link stops working).
  */
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -26,8 +27,15 @@ export async function POST(request: Request) {
   }
 
   const origin = new URL(request.url).origin;
+  let regenerate = false;
+  try {
+    const body = await request.json().catch(() => ({}));
+    regenerate = body?.regenerate === true;
+  } catch {
+    // no body or invalid JSON: keep regenerate false
+  }
 
-  if (founder.shareSlug) {
+  if (!regenerate && founder.shareSlug) {
     return NextResponse.json({ url: `${origin}/p/${founder.shareSlug}` });
   }
 

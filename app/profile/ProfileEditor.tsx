@@ -107,6 +107,29 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
     }
   }
 
+  async function handleRegenerateShareLink() {
+    setShareStatus("creating");
+    setShareError("");
+    try {
+      const res = await fetch("/api/me/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ regenerate: true }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setShareStatus("error");
+        setShareError(typeof data.error === "string" ? data.error : "Could not regenerate link.");
+        return;
+      }
+      if (data.url) setShareUrl(data.url);
+      setShareStatus("idle");
+    } catch {
+      setShareStatus("error");
+      setShareError("Something went wrong.");
+    }
+  }
+
   async function handleCopyShareLink() {
     if (!shareUrl) return;
     try {
@@ -247,7 +270,20 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               >
                 {shareStatus === "copied" ? "Copied!" : "Copy link"}
               </button>
+              <button
+                type="button"
+                onClick={handleRegenerateShareLink}
+                disabled={shareStatus === "creating"}
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {shareStatus === "creating" ? "Regenerating…" : "Regenerate link"}
+              </button>
             </>
+          )}
+          {shareUrl && (
+            <p className="w-full text-xs text-gray-500">
+              Regenerating creates a new link; the previous link will stop working.
+            </p>
           )}
           {shareStatus === "error" && shareError && (
             <p role="alert" className="w-full text-sm text-red-600">
