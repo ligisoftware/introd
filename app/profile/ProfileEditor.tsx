@@ -1,7 +1,7 @@
 "use client";
 
 import type { Founder } from "@/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type ProfilePayload = {
   displayName?: string;
@@ -30,6 +30,17 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
 
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  // Share link: full URL for display/copy (set from initial slug or after creating)
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [shareStatus, setShareStatus] = useState<"idle" | "creating" | "copied" | "error">("idle");
+  const [shareError, setShareError] = useState("");
+
+  useEffect(() => {
+    if (initialFounder.shareSlug && typeof window !== "undefined") {
+      setShareUrl(`${window.location.origin}/p/${initialFounder.shareSlug}`);
+    }
+  }, [initialFounder.shareSlug]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -74,6 +85,37 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
     } catch {
       setStatus("error");
       setMessage("Something went wrong.");
+    }
+  }
+
+  async function handleCreateShareLink() {
+    setShareStatus("creating");
+    setShareError("");
+    try {
+      const res = await fetch("/api/me/share", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setShareStatus("error");
+        setShareError(typeof data.error === "string" ? data.error : "Could not create link.");
+        return;
+      }
+      if (data.url) setShareUrl(data.url);
+      setShareStatus("idle");
+    } catch {
+      setShareStatus("error");
+      setShareError("Something went wrong.");
+    }
+  }
+
+  async function handleCopyShareLink() {
+    if (!shareUrl) return;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setShareStatus("copied");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    } catch {
+      setShareStatus("error");
+      setShareError("Copy failed.");
     }
   }
 
@@ -168,6 +210,50 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
             />
             <p className="mt-1 text-xs text-gray-500">{startupOneLiner.length}/300</p>
           </div>
+        </div>
+      </section>
+
+      {/* Share your page */}
+      <section>
+        <h2 className="text-lg font-medium text-gray-900">Share your page</h2>
+        <p className="mt-1 text-sm text-gray-600">
+          Create a link to share your profile with others. The link is unlisted—only people you
+          share it with can view it.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {!shareUrl ? (
+            <button
+              type="button"
+              onClick={handleCreateShareLink}
+              disabled={shareStatus === "creating"}
+              className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {shareStatus === "creating" ? "Creating…" : "Create share link"}
+            </button>
+          ) : (
+            <>
+              <input
+                type="text"
+                readOnly
+                value={shareUrl}
+                className="min-w-0 flex-1 rounded-md border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+                aria-label="Share link"
+              />
+              <button
+                type="button"
+                onClick={handleCopyShareLink}
+                disabled={shareStatus === "copied"}
+                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {shareStatus === "copied" ? "Copied!" : "Copy link"}
+              </button>
+            </>
+          )}
+          {shareStatus === "error" && shareError && (
+            <p role="alert" className="w-full text-sm text-red-600">
+              {shareError}
+            </p>
+          )}
         </div>
       </section>
 
