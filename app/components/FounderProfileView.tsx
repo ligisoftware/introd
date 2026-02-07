@@ -14,6 +14,10 @@ function isValidUrl(s: string | null | undefined): boolean {
   }
 }
 
+const sectionTitle = "text-sm font-semibold uppercase tracking-wider text-ds-text-subtle";
+const fieldLabel = "text-sm font-medium text-ds-text-muted";
+const fieldValue = "mt-1 text-ds-text";
+
 export function FounderProfileView({ profile }: { profile: PublicFounderProfile }) {
   const displayName = orEmpty(profile.displayName);
   const role = orEmpty(profile.role);
@@ -28,28 +32,31 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
   const hasStartup = startupName || startupOneLiner;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
 
+  const linkClass =
+    "inline-flex items-center font-medium text-ds-accent rounded-ds-sm transition-colors duration-ds ease-ds hover:text-ds-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg";
+
   return (
-    <div className="mt-8 space-y-8">
+    <div className="space-y-10 sm:space-y-12">
       {hasAbout && (
-        <section>
-          <h2 className="text-lg font-medium text-gray-900">About</h2>
-          <div className="mt-4 space-y-4">
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm sm:p-6">
+          <h2 className={sectionTitle}>About</h2>
+          <div className="mt-4 space-y-5">
             {displayName && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Display name</p>
-                <p className="mt-0.5 text-gray-900">{displayName}</p>
+                <p className={fieldLabel}>Display name</p>
+                <p className={fieldValue}>{displayName}</p>
               </div>
             )}
             {role && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Role</p>
-                <p className="mt-0.5 text-gray-900">{role}</p>
+                <p className={fieldLabel}>Role</p>
+                <p className={fieldValue}>{role}</p>
               </div>
             )}
             {bio && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Bio</p>
-                <p className="mt-0.5 whitespace-pre-wrap text-gray-900">{bio}</p>
+                <p className={fieldLabel}>Bio</p>
+                <p className={`${fieldValue} whitespace-pre-wrap`}>{bio}</p>
               </div>
             )}
           </div>
@@ -57,19 +64,19 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
       )}
 
       {hasStartup && (
-        <section>
-          <h2 className="text-lg font-medium text-gray-900">Startup</h2>
-          <div className="mt-4 space-y-4">
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm sm:p-6">
+          <h2 className={sectionTitle}>Startup</h2>
+          <div className="mt-4 space-y-5">
             {startupName && (
               <div>
-                <p className="text-sm font-medium text-gray-700">Company name</p>
-                <p className="mt-0.5 text-gray-900">{startupName}</p>
+                <p className={fieldLabel}>Company name</p>
+                <p className={fieldValue}>{startupName}</p>
               </div>
             )}
             {startupOneLiner && (
               <div>
-                <p className="text-sm font-medium text-gray-700">One-liner</p>
-                <p className="mt-0.5 text-gray-900">{startupOneLiner}</p>
+                <p className={fieldLabel}>One-liner</p>
+                <p className={fieldValue}>{startupOneLiner}</p>
               </div>
             )}
           </div>
@@ -77,16 +84,16 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
       )}
 
       {hasLinks && (
-        <section>
-          <h2 className="text-lg font-medium text-gray-900">Links</h2>
-          <ul className="mt-4 space-y-2">
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm sm:p-6">
+          <h2 className={sectionTitle}>Links</h2>
+          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 sm:gap-x-8">
             {isValidUrl(websiteUrl) && (
               <li>
                 <a
                   href={websiteUrl!.trim()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-700 underline hover:no-underline"
+                  className={linkClass}
                 >
                   Website
                 </a>
@@ -98,7 +105,7 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
                   href={linkedinUrl!.trim()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-700 underline hover:no-underline"
+                  className={linkClass}
                 >
                   LinkedIn
                 </a>
@@ -110,7 +117,7 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
                   href={twitterUrl!.trim()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-700 underline hover:no-underline"
+                  className={linkClass}
                 >
                   Twitter / X
                 </a>
@@ -121,7 +128,9 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
       )}
 
       {!hasAbout && !hasStartup && !hasLinks && (
-        <p className="text-gray-500">This profile hasn&apos;t been filled out yet.</p>
+        <div className="rounded-ds-lg border border-ds-border bg-ds-surface p-6 text-center">
+          <p className="text-ds-text-muted">This profile hasn&apos;t been filled out yet.</p>
+        </div>
       )}
     </div>
   );

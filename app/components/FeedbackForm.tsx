@@ -4,6 +4,10 @@ import { useState } from "react";
 
 const FEEDBACK_TO = "nic@ligi.app, jeff@ligi.app";
 
+const inputClass =
+  "w-full rounded-ds border border-ds-border bg-ds-surface px-3.5 py-2.5 text-ds-text placeholder-ds-text-subtle transition-[border-color,box-shadow] duration-ds-fast ease-ds focus:border-ds-accent focus:outline-none focus:ring-2 focus:ring-ds-accent/20 disabled:bg-ds-surface-hover disabled:text-ds-text-subtle";
+const labelClass = "block text-sm font-medium text-ds-text-muted";
+
 export function FeedbackForm({ slug }: { slug?: string }) {
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
@@ -41,13 +45,13 @@ export function FeedbackForm({ slug }: { slug?: string }) {
   }
 
   return (
-    <section className="mt-8 border-t border-gray-200 pt-8">
-      <h2 className="text-lg font-medium text-gray-900">Send feedback</h2>
-      <p className="mt-1 text-sm text-gray-600">Feedback is sent to {FEEDBACK_TO}.</p>
-      <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <section className="mt-10 border-t border-ds-border pt-10 sm:mt-12 sm:pt-12">
+      <h2 className="text-lg font-semibold tracking-tight text-ds-text">Send feedback</h2>
+      <p className="mt-1 text-sm text-ds-text-muted">Feedback is sent to {FEEDBACK_TO}.</p>
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
-          <label htmlFor="feedback-message" className="block text-sm font-medium text-gray-700">
-            Message <span className="text-gray-500">(required)</span>
+          <label htmlFor="feedback-message" className={labelClass}>
+            Message <span className="text-ds-text-subtle">(required)</span>
           </label>
           <textarea
             id="feedback-message"
@@ -56,13 +60,13 @@ export function FeedbackForm({ slug }: { slug?: string }) {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             disabled={status === "sending"}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 disabled:bg-gray-100"
+            className={`${inputClass} min-h-[100px] resize-y`}
             placeholder="Quick feedback, suggestions, or what you found useful..."
           />
         </div>
         <div>
-          <label htmlFor="feedback-email" className="block text-sm font-medium text-gray-700">
-            Your email <span className="text-gray-500">(optional, for reply)</span>
+          <label htmlFor="feedback-email" className={labelClass}>
+            Your email <span className="text-ds-text-subtle">(optional, for reply)</span>
           </label>
           <input
             id="feedback-email"
@@ -70,18 +74,27 @@ export function FeedbackForm({ slug }: { slug?: string }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={status === "sending"}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-900 shadow-sm focus:border-gray-500 focus:outline-none focus:ring-1 focus:ring-gray-500 disabled:bg-gray-100"
+            className={inputClass}
             placeholder="you@example.com"
           />
         </div>
-        {status === "error" && <p className="text-sm text-red-600">{errorMessage}</p>}
+        {status === "error" && (
+          <p
+            role="alert"
+            className="ds-feedback-in rounded-ds-sm bg-ds-error-muted/50 px-3 py-2 text-sm text-ds-error"
+          >
+            {errorMessage}
+          </p>
+        )}
         {status === "sent" && (
-          <p className="text-sm text-green-700">Thanks — your feedback was sent.</p>
+          <p className="ds-feedback-in rounded-ds-sm bg-ds-success-muted/50 px-3 py-2 text-sm text-ds-success">
+            Thanks — your feedback was sent.
+          </p>
         )}
         <button
           type="submit"
           disabled={status === "sending" || !message.trim()}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:bg-gray-400"
+          className="rounded-ds bg-ds-accent px-4 py-2.5 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-accent-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
         >
           {status === "sending" ? "Sending…" : "Send feedback"}
         </button>
