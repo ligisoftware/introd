@@ -14,9 +14,17 @@ function isValidUrl(s: string | null | undefined): boolean {
   }
 }
 
-const sectionTitle = "text-sm font-semibold uppercase tracking-wider text-ds-text-subtle";
-const fieldLabel = "text-sm font-medium text-ds-text-muted";
-const fieldValue = "mt-1 text-ds-text";
+function getInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
+const linkButtonClass =
+  "flex w-full items-center justify-center gap-3 rounded-ds-lg border border-ds-border bg-ds-surface px-5 py-3.5 font-medium text-ds-text shadow-ds-sm transition-all duration-ds ease-ds hover:shadow-ds hover:bg-ds-accent hover:text-ds-text-inverse hover:border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg";
 
 export function FounderProfileView({ profile }: { profile: PublicFounderProfile }) {
   const displayName = orEmpty(profile.displayName);
@@ -28,110 +36,102 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
   const linkedinUrl = orEmpty(profile.linkedinUrl);
   const twitterUrl = orEmpty(profile.twitterUrl);
 
-  const hasAbout = displayName || role || bio;
-  const hasStartup = startupName || startupOneLiner;
+  const hasIdentity = displayName || role || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
+  const isEmpty = !hasIdentity && !bio && !startupOneLiner && !hasLinks;
 
-  const linkClass =
-    "inline-flex items-center font-medium text-ds-accent rounded-ds-sm transition-colors duration-ds ease-ds hover:text-ds-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg";
+  if (isEmpty) {
+    return (
+      <div className="py-16 text-center">
+        <p className="text-ds-text-muted">This profile hasn&apos;t been filled out yet.</p>
+      </div>
+    );
+  }
+
+  const subtitle = [role, startupName].filter(Boolean).join(" at ");
 
   return (
-    <div className="space-y-10 sm:space-y-12">
-      {hasAbout && (
-        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm sm:p-6">
-          <h2 className={sectionTitle}>About</h2>
-          <div className="mt-4 space-y-5">
-            {displayName && (
-              <div>
-                <p className={fieldLabel}>Display name</p>
-                <p className={fieldValue}>{displayName}</p>
-              </div>
-            )}
-            {role && (
-              <div>
-                <p className={fieldLabel}>Role</p>
-                <p className={fieldValue}>{role}</p>
-              </div>
-            )}
-            {bio && (
-              <div>
-                <p className={fieldLabel}>Bio</p>
-                <p className={`${fieldValue} whitespace-pre-wrap`}>{bio}</p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {hasStartup && (
-        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm sm:p-6">
-          <h2 className={sectionTitle}>Startup</h2>
-          <div className="mt-4 space-y-5">
-            {startupName && (
-              <div>
-                <p className={fieldLabel}>Company name</p>
-                <p className={fieldValue}>{startupName}</p>
-              </div>
-            )}
-            {startupOneLiner && (
-              <div>
-                <p className={fieldLabel}>One-liner</p>
-                <p className={fieldValue}>{startupOneLiner}</p>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {hasLinks && (
-        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm sm:p-6">
-          <h2 className={sectionTitle}>Links</h2>
-          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 sm:gap-x-8">
-            {isValidUrl(websiteUrl) && (
-              <li>
-                <a
-                  href={websiteUrl!.trim()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkClass}
-                >
-                  Website
-                </a>
-              </li>
-            )}
-            {isValidUrl(linkedinUrl) && (
-              <li>
-                <a
-                  href={linkedinUrl!.trim()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkClass}
-                >
-                  LinkedIn
-                </a>
-              </li>
-            )}
-            {isValidUrl(twitterUrl) && (
-              <li>
-                <a
-                  href={twitterUrl!.trim()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkClass}
-                >
-                  Twitter / X
-                </a>
-              </li>
-            )}
-          </ul>
-        </section>
-      )}
-
-      {!hasAbout && !hasStartup && !hasLinks && (
-        <div className="rounded-ds-lg border border-ds-border bg-ds-surface p-6 text-center">
-          <p className="text-ds-text-muted">This profile hasn&apos;t been filled out yet.</p>
+    <div className="flex flex-col items-center gap-8">
+      {/* Avatar */}
+      {displayName && (
+        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-ds-accent text-3xl font-bold text-ds-text-inverse">
+          {getInitials(displayName)}
         </div>
       )}
+
+      {/* Identity */}
+      {hasIdentity && (
+        <div className="text-center">
+          {displayName && (
+            <h1 className="text-2xl font-bold text-ds-text sm:text-3xl">{displayName}</h1>
+          )}
+          {subtitle && (
+            <p className="mt-1 text-ds-text-muted">{subtitle}</p>
+          )}
+          {startupOneLiner && (
+            <p className="mt-2 text-sm text-ds-text-subtle">{startupOneLiner}</p>
+          )}
+        </div>
+      )}
+
+      {/* Bio */}
+      {bio && (
+        <div className="w-full rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
+          <p className="whitespace-pre-wrap text-ds-text">{bio}</p>
+        </div>
+      )}
+
+      {/* Links */}
+      {hasLinks && (
+        <div className="flex w-full flex-col gap-3">
+          {isValidUrl(websiteUrl) && (
+            <a
+              href={websiteUrl.trim()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkButtonClass}
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.6 9h16.8M3.6 15h16.8" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3a14.25 14.25 0 0 1 4 9 14.25 14.25 0 0 1-4 9 14.25 14.25 0 0 1-4-9 14.25 14.25 0 0 1 4-9Z" />
+              </svg>
+              Website
+            </a>
+          )}
+          {isValidUrl(linkedinUrl) && (
+            <a
+              href={linkedinUrl.trim()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkButtonClass}
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.123 2.062 2.062 0 0 1 0 4.123zM6.863 20.452H3.813V9h3.05v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+              LinkedIn
+            </a>
+          )}
+          {isValidUrl(twitterUrl) && (
+            <a
+              href={twitterUrl.trim()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={linkButtonClass}
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              X (Twitter)
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* Attachments placeholder */}
+      <div className="w-full rounded-ds-lg border-2 border-dashed border-ds-border px-5 py-8 text-center">
+        <p className="text-sm text-ds-text-subtle">Pitch deck &amp; materials coming soon</p>
+      </div>
     </div>
   );
 }
