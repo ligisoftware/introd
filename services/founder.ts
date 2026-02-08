@@ -25,8 +25,17 @@ export async function getCurrentFounder(supabase: SupabaseClient): Promise<Found
   const email = user.email ?? null;
   if (!email) return null;
 
-  const created = await create(supabase, user.id, email);
-  return created;
+  try {
+    const created = await create(supabase, user.id, email);
+    return created;
+  } catch (err: unknown) {
+    // Race condition: another concurrent request already created the row.
+    // Re-fetch instead of crashing.
+    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505") {
+      return getByAuthUserId(supabase, user.id);
+    }
+    throw err;
+  }
 }
 
 /**
