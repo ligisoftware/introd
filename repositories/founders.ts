@@ -16,6 +16,7 @@ interface FounderRow {
   website_url?: string | null;
   linkedin_url?: string | null;
   twitter_url?: string | null;
+  avatar_url?: string | null;
   updated_at?: string | null;
 }
 
@@ -33,6 +34,7 @@ function rowToFounder(row: FounderRow): Founder {
     websiteUrl: row.website_url ?? undefined,
     linkedinUrl: row.linkedin_url ?? undefined,
     twitterUrl: row.twitter_url ?? undefined,
+    avatarUrl: row.avatar_url ?? undefined,
     updatedAt: row.updated_at ?? undefined,
   };
 }
@@ -48,6 +50,7 @@ function rowToPublicProfile(
     | "website_url"
     | "linkedin_url"
     | "twitter_url"
+    | "avatar_url"
   >
 ): PublicFounderProfile {
   return {
@@ -59,6 +62,7 @@ function rowToPublicProfile(
     websiteUrl: row.website_url ?? undefined,
     linkedinUrl: row.linkedin_url ?? undefined,
     twitterUrl: row.twitter_url ?? undefined,
+    avatarUrl: row.avatar_url ?? undefined,
   };
 }
 
@@ -72,11 +76,12 @@ export interface FounderProfileUpdateRow {
   website_url?: string | null;
   linkedin_url?: string | null;
   twitter_url?: string | null;
+  avatar_url?: string | null;
   updated_at?: string;
 }
 
 const FOUNDER_SELECT =
-  "id, auth_user_id, email, created_at, share_slug, display_name, role, startup_name, startup_one_liner, bio, website_url, linkedin_url, twitter_url, updated_at";
+  "id, auth_user_id, email, created_at, share_slug, display_name, role, startup_name, startup_one_liner, bio, website_url, linkedin_url, twitter_url, avatar_url, updated_at";
 
 /**
  * Fetches a founder by auth user id. Uses the provided Supabase client so RLS applies.
@@ -139,7 +144,7 @@ export async function updateProfile(
 }
 
 const PUBLIC_PROFILE_SELECT =
-  "display_name, role, startup_name, startup_one_liner, bio, website_url, linkedin_url, twitter_url";
+  "display_name, role, startup_name, startup_one_liner, bio, website_url, linkedin_url, twitter_url, avatar_url";
 
 /**
  * Fetches public profile by share_slug. Intended for use with the service role client

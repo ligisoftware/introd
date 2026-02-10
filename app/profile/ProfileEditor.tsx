@@ -2,6 +2,7 @@
 
 import type { Founder } from "@/types";
 import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type ProfilePayload = {
   displayName?: string;
@@ -12,6 +13,7 @@ type ProfilePayload = {
   websiteUrl?: string;
   linkedinUrl?: string;
   twitterUrl?: string;
+  avatarUrl?: string;
 };
 
 function orEmpty(s: string | null | undefined): string {
@@ -36,9 +38,15 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
   const [websiteUrl, setWebsiteUrl] = useState(orEmpty(initialFounder.websiteUrl));
   const [linkedinUrl, setLinkedinUrl] = useState(orEmpty(initialFounder.linkedinUrl));
   const [twitterUrl, setTwitterUrl] = useState(orEmpty(initialFounder.twitterUrl));
+  const [avatarUrl, setAvatarUrl] = useState(orEmpty(initialFounder.avatarUrl));
 
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+
+  const [avatarStatus, setAvatarStatus] = useState<"idle" | "uploading" | "removing" | "error">(
+    "idle"
+  );
+  const [avatarMessage, setAvatarMessage] = useState("");
 
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareStatus, setShareStatus] = useState<"idle" | "creating" | "copied" | "error">("idle");
@@ -96,6 +104,144 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
     }
   }
 
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAvatarMessage("");
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarStatus("error");
+      setAvatarMessage("Please choose an image file.");
+      return;
+    }
+
+    const maxBytes = 2 * 1024 * 1024; // 2MB
+    if (file.size > maxBytes) {
+      setAvatarStatus("error");
+      setAvatarMessage("Image must be 2MB or smaller.");
+      return;
+    }
+
+    setAvatarStatus("uploading");
+
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        setAvatarStatus("error");
+        setAvatarMessage("You need to be signed in to upload an avatar.");
+        return;
+      }
+
+      const extFromType =
+        file.type === "image/png"
+          ? "png"
+          : file.type === "image/webp"
+            ? "webp"
+            : file.type === "image/jpeg"
+              ? "jpg"
+              : undefined;
+      const ext =
+        extFromType ?? (file.name.includes(".") ? (file.name.split(".").pop() ?? "jpg") : "jpg");
+
+      const path = `${user.id}/avatar.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("founder-avatars")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) {
+        console.error("Avatar upload error", uploadError);
+        setAvatarStatus("error");
+        setAvatarMessage("Upload failed. Please try again.");
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from("founder-avatars").getPublicUrl(path);
+      const publicUrl = publicUrlData?.publicUrl;
+
+      if (!publicUrl) {
+        setAvatarStatus("error");
+        setAvatarMessage("Could not get public URL for avatar.");
+        return;
+      }
+
+      const payload: ProfilePayload = { avatarUrl: publicUrl };
+
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setAvatarStatus("error");
+        setAvatarMessage(
+          typeof data.error === "string"
+            ? data.error
+            : data.details
+              ? "Please check the fields and try again."
+              : "Something went wrong."
+        );
+        return;
+      }
+
+      setAvatarUrl(publicUrl);
+      setAvatarStatus("idle");
+      setAvatarMessage("");
+    } catch (err) {
+      console.error("Avatar upload unexpected error", err);
+      setAvatarStatus("error");
+      setAvatarMessage("Something went wrong while uploading.");
+    } finally {
+      e.target.value = "";
+    }
+  }
+
+  async function handleAvatarRemove() {
+    if (!avatarUrl) return;
+
+    setAvatarStatus("removing");
+    setAvatarMessage("");
+
+    try {
+      const payload: ProfilePayload = { avatarUrl: "" };
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setAvatarStatus("error");
+        setAvatarMessage(
+          typeof data.error === "string"
+            ? data.error
+            : data.details
+              ? "Please check the fields and try again."
+              : "Something went wrong."
+        );
+        return;
+      }
+
+      setAvatarUrl("");
+      setAvatarStatus("idle");
+    } catch (err) {
+      console.error("Avatar remove unexpected error", err);
+      setAvatarStatus("error");
+      setAvatarMessage("Something went wrong while removing your avatar.");
+    }
+  }
+
   async function handleCreateShareLink() {
     setShareStatus("creating");
     setShareError("");
@@ -150,12 +296,61 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
     }
   }
 
+  const isSaving =
+    status === "saving" || avatarStatus === "uploading" || avatarStatus === "removing";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-10 sm:space-y-12">
       {/* About you */}
       <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
         <h2 className={sectionTitle}>About you</h2>
         <div className="mt-4 space-y-4">
+          <div className="flex items-center gap-4">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-ds-border bg-ds-surface-hover text-sm font-medium text-ds-text-subtle">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarUrl}
+                  alt={displayName ? `${displayName}'s avatar` : "Your avatar"}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span>Upload a photo</span>
+              )}
+            </div>
+            <div className="space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <label>
+                  <span className={btnSecondary}>
+                    {avatarStatus === "uploading" ? "Uploading…" : "Upload photo"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="sr-only"
+                    onChange={handleAvatarChange}
+                    disabled={isSaving}
+                  />
+                </label>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={handleAvatarRemove}
+                    disabled={isSaving}
+                    className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                  >
+                    {avatarStatus === "removing" ? "Removing…" : "Remove"}
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-ds-text-subtle">PNG, JPG, or WebP up to 2MB.</p>
+              {avatarStatus === "error" && avatarMessage && (
+                <p role="alert" className="ds-feedback-in text-xs text-ds-error">
+                  {avatarMessage}
+                </p>
+              )}
+            </div>
+          </div>
           <div>
             <label htmlFor="displayName" className={labelClass}>
               Display name
@@ -166,7 +361,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="Your name or handle"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={inputClass}
             />
           </div>
@@ -180,7 +375,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="e.g. CEO, Co-founder"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={inputClass}
             />
           </div>
@@ -194,7 +389,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="A short bio about you and what you're building."
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={`${inputClass} min-h-[100px] resize-y`}
               maxLength={1000}
             />
@@ -217,7 +412,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="Your startup name"
               value={startupName}
               onChange={(e) => setStartupName(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={inputClass}
             />
           </div>
@@ -231,7 +426,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="Short tagline for your company"
               value={startupOneLiner}
               onChange={(e) => setStartupOneLiner(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={inputClass}
               maxLength={300}
             />
@@ -318,7 +513,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="https://..."
               value={websiteUrl}
               onChange={(e) => setWebsiteUrl(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={inputClass}
             />
           </div>
@@ -332,7 +527,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="https://linkedin.com/in/..."
               value={linkedinUrl}
               onChange={(e) => setLinkedinUrl(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={inputClass}
             />
           </div>
@@ -346,7 +541,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
               placeholder="https://x.com/..."
               value={twitterUrl}
               onChange={(e) => setTwitterUrl(e.target.value)}
-              disabled={status === "saving"}
+              disabled={isSaving}
               className={inputClass}
             />
           </div>
@@ -355,7 +550,7 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
 
       {/* Submit and feedback */}
       <div className="flex flex-wrap items-center gap-3">
-        <button type="submit" disabled={status === "saving"} className={btnPrimary}>
+        <button type="submit" disabled={isSaving} className={btnPrimary}>
           {status === "saving" ? "Saving…" : "Save profile"}
         </button>
         {status === "success" && message && (
