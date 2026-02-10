@@ -29,6 +29,7 @@ export const FounderProfileUpdateSchema = z.object({
   websiteUrl: optionalUrl,
   linkedinUrl: optionalUrl,
   twitterUrl: optionalUrl,
+  avatarUrl: optionalUrl,
 });
 
 export type FounderProfileUpdateInput = z.infer<typeof FounderProfileUpdateSchema>;

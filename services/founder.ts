@@ -31,7 +31,12 @@ export async function getCurrentFounder(supabase: SupabaseClient): Promise<Found
   } catch (err: unknown) {
     // Race condition: another concurrent request already created the row.
     // Re-fetch instead of crashing.
-    if (typeof err === "object" && err !== null && "code" in err && (err as { code: string }).code === "23505") {
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "code" in err &&
+      (err as { code: string }).code === "23505"
+    ) {
       return getByAuthUserId(supabase, user.id);
     }
     throw err;
@@ -45,18 +50,39 @@ export async function getCurrentFounder(supabase: SupabaseClient): Promise<Found
 export async function updateFounderProfile(
   supabase: SupabaseClient,
   founderId: string,
-  payload: FounderProfileUpdateInput
+  payload: FounderProfileUpdateInput,
+  keys: (keyof FounderProfileUpdateInput)[]
 ): Promise<Founder> {
   const parsed = FounderProfileUpdateSchema.parse(payload);
-  const row: FounderProfileUpdateRow = {
-    display_name: parsed.displayName ?? null,
-    role: parsed.role ?? null,
-    startup_name: parsed.startupName ?? null,
-    startup_one_liner: parsed.startupOneLiner ?? null,
-    bio: parsed.bio ?? null,
-    website_url: parsed.websiteUrl ?? null,
-    linkedin_url: parsed.linkedinUrl ?? null,
-    twitter_url: parsed.twitterUrl ?? null,
-  };
+  const row: FounderProfileUpdateRow = {};
+
+  if (keys.includes("displayName")) {
+    row.display_name = parsed.displayName ?? null;
+  }
+  if (keys.includes("role")) {
+    row.role = parsed.role ?? null;
+  }
+  if (keys.includes("startupName")) {
+    row.startup_name = parsed.startupName ?? null;
+  }
+  if (keys.includes("startupOneLiner")) {
+    row.startup_one_liner = parsed.startupOneLiner ?? null;
+  }
+  if (keys.includes("bio")) {
+    row.bio = parsed.bio ?? null;
+  }
+  if (keys.includes("websiteUrl")) {
+    row.website_url = parsed.websiteUrl ?? null;
+  }
+  if (keys.includes("linkedinUrl")) {
+    row.linkedin_url = parsed.linkedinUrl ?? null;
+  }
+  if (keys.includes("twitterUrl")) {
+    row.twitter_url = parsed.twitterUrl ?? null;
+  }
+  if (keys.includes("avatarUrl")) {
+    row.avatar_url = parsed.avatarUrl ?? null;
+  }
+
   return updateProfile(supabase, founderId, row);
 }

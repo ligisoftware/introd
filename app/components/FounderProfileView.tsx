@@ -35,6 +35,7 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
   const websiteUrl = orEmpty(profile.websiteUrl);
   const linkedinUrl = orEmpty(profile.linkedinUrl);
   const twitterUrl = orEmpty(profile.twitterUrl);
+  const avatarUrl = orEmpty(profile.avatarUrl);
 
   const hasIdentity = displayName || role || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
@@ -53,9 +54,20 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
   return (
     <div className="flex flex-col items-center gap-8">
       {/* Avatar */}
-      {displayName && (
-        <div className="flex h-24 w-24 items-center justify-center rounded-full bg-ds-accent text-3xl font-bold text-ds-text-inverse">
-          {getInitials(displayName)}
+      {(displayName || avatarUrl) && (
+        <div className="h-24 w-24 overflow-hidden rounded-full border border-ds-border bg-ds-surface shadow-ds-sm">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={avatarUrl}
+              alt={displayName ? `${displayName}'s avatar` : "Founder avatar"}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-ds-accent text-3xl font-bold text-ds-text-inverse">
+              {getInitials(displayName)}
+            </div>
+          )}
         </div>
       )}
 
@@ -65,12 +77,8 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
           {displayName && (
             <h1 className="text-2xl font-bold text-ds-text sm:text-3xl">{displayName}</h1>
           )}
-          {subtitle && (
-            <p className="mt-1 text-ds-text-muted">{subtitle}</p>
-          )}
-          {startupOneLiner && (
-            <p className="mt-2 text-sm text-ds-text-subtle">{startupOneLiner}</p>
-          )}
+          {subtitle && <p className="mt-1 text-ds-text-muted">{subtitle}</p>}
+          {startupOneLiner && <p className="mt-2 text-sm text-ds-text-subtle">{startupOneLiner}</p>}
         </div>
       )}
 
@@ -91,10 +99,24 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
               rel="noopener noreferrer"
               className={linkButtonClass}
             >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z"
+                />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.6 9h16.8M3.6 15h16.8" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3a14.25 14.25 0 0 1 4 9 14.25 14.25 0 0 1-4 9 14.25 14.25 0 0 1-4-9 14.25 14.25 0 0 1 4-9Z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 3a14.25 14.25 0 0 1 4 9 14.25 14.25 0 0 1-4 9 14.25 14.25 0 0 1-4-9 14.25 14.25 0 0 1 4-9Z"
+                />
               </svg>
               Website
             </a>

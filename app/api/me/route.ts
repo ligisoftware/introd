@@ -43,8 +43,12 @@ export async function PATCH(request: Request) {
     );
   }
 
+  const keys = Array.isArray(body)
+    ? []
+    : (Object.keys(body as Record<string, unknown>) as (keyof typeof parsed.data)[]);
+
   try {
-    const updated = await updateFounderProfile(supabase, founder.id, parsed.data);
+    const updated = await updateFounderProfile(supabase, founder.id, parsed.data, keys);
     return NextResponse.json(updated);
   } catch (err) {
     console.error("PATCH /api/me error:", err);

@@ -44,6 +44,7 @@ Custom design tokens defined in `app/globals.css` and extended in `tailwind.conf
 ## PR guidelines
 
 ### Title
+
 - Imperative mood (e.g. "Add feature X" not "Added feature X")
 - Concise and descriptive
 - Include the area/component if relevant
@@ -51,18 +52,22 @@ Custom design tokens defined in `app/globals.css` and extended in `tailwind.conf
 ### Description
 
 #### Summary
+
 - High-level overview of what and why (2-3 sentences max)
 
 #### Changes
+
 - List main changes at a high level
 - Group related changes together
 - Focus on user-visible or architectural changes
 
 #### Testing
+
 - Note manual testing performed
 - Mention if automated tests were added/updated
 
 ### Include
+
 - High-level feature description
 - Breaking changes or migration notes
 - Dependencies added/removed
@@ -70,6 +75,7 @@ Custom design tokens defined in `app/globals.css` and extended in `tailwind.conf
 - User-facing changes
 
 ### Exclude
+
 - Don't list every file changed
 - Don't include implementation details obvious from code review
 - Don't document minor refactorings or code style changes

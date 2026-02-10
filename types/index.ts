@@ -16,6 +16,7 @@ export interface Founder {
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
+  avatarUrl?: string | null;
   updatedAt?: string | null; // ISO date
 }
 
@@ -29,6 +30,7 @@ export interface PublicFounderProfile {
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface IntroPage {
