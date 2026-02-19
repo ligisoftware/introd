@@ -31,6 +31,8 @@ interface PublicIntroJoinRow {
   users: {
     name?: string | null;
     avatar_url?: string | null;
+    linkedin_url?: string | null;
+    twitter_url?: string | null;
   };
 }
 
@@ -56,6 +58,8 @@ function joinedRowToPublicProfile(row: PublicIntroJoinRow): PublicIntroProfile {
   return {
     name: row.users?.name ?? undefined,
     avatarUrl: row.users?.avatar_url ?? undefined,
+    userLinkedinUrl: row.users?.linkedin_url ?? undefined,
+    userTwitterUrl: row.users?.twitter_url ?? undefined,
     startupName: row.startup_name ?? undefined,
     startupOneLiner: row.startup_one_liner ?? undefined,
     role: row.role ?? undefined,
@@ -133,7 +137,7 @@ export async function update(
 }
 
 const PUBLIC_PROFILE_JOIN_SELECT =
-  "startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, logo_url, users(name, avatar_url)";
+  "startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, logo_url, users(name, avatar_url, linkedin_url, twitter_url)";
 
 export async function getByShareSlug(
   supabase: SupabaseClient,

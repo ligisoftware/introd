@@ -7,6 +7,8 @@ export interface User {
   email: string;
   name?: string | null;
   avatarUrl?: string | null;
+  linkedinUrl?: string | null;
+  twitterUrl?: string | null;
   createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
 }
@@ -31,6 +33,8 @@ export interface Intro {
 export interface PublicIntroProfile {
   name?: string | null;
   avatarUrl?: string | null;
+  userLinkedinUrl?: string | null;
+  userTwitterUrl?: string | null;
   startupName?: string | null;
   startupOneLiner?: string | null;
   role?: string | null;

@@ -27,6 +27,8 @@ export function ProfileEditor({
   // User fields
   const [name, setName] = useState(orEmpty(initialUser.name));
   const [avatarUrl, setAvatarUrl] = useState(orEmpty(initialUser.avatarUrl));
+  const [userLinkedinUrl, setUserLinkedinUrl] = useState(orEmpty(initialUser.linkedinUrl));
+  const [userTwitterUrl, setUserTwitterUrl] = useState(orEmpty(initialUser.twitterUrl));
 
   // Intro fields
   const [logoUrl, setLogoUrl] = useState(orEmpty(initialIntro.logoUrl));
@@ -67,6 +69,8 @@ export function ProfileEditor({
     const payload = {
       user: {
         name: name.trim() || undefined,
+        linkedinUrl: userLinkedinUrl.trim() || undefined,
+        twitterUrl: userTwitterUrl.trim() || undefined,
       },
       intro: {
         logoUrl: logoUrl.trim() || undefined,
@@ -496,6 +500,34 @@ export function ProfileEditor({
                 placeholder="Your name or handle"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="userLinkedinUrl" className={labelClass}>
+                LinkedIn
+              </label>
+              <input
+                id="userLinkedinUrl"
+                type="url"
+                placeholder="https://linkedin.com/in/..."
+                value={userLinkedinUrl}
+                onChange={(e) => setUserLinkedinUrl(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="userTwitterUrl" className={labelClass}>
+                Twitter / X
+              </label>
+              <input
+                id="userTwitterUrl"
+                type="url"
+                placeholder="https://x.com/..."
+                value={userTwitterUrl}
+                onChange={(e) => setUserTwitterUrl(e.target.value)}
                 disabled={isSaving}
                 className={inputClass}
               />

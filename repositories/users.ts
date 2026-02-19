@@ -8,6 +8,8 @@ interface UserRow {
   email: string;
   name?: string | null;
   avatar_url?: string | null;
+  linkedin_url?: string | null;
+  twitter_url?: string | null;
   created_at: string;
   updated_at?: string | null;
 }
@@ -18,6 +20,8 @@ function rowToUser(row: UserRow): User {
     email: row.email,
     name: row.name ?? undefined,
     avatarUrl: row.avatar_url ?? undefined,
+    linkedinUrl: row.linkedin_url ?? undefined,
+    twitterUrl: row.twitter_url ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? undefined,
   };
@@ -27,10 +31,12 @@ function rowToUser(row: UserRow): User {
 export interface UserProfileUpdateRow {
   name?: string | null;
   avatar_url?: string | null;
+  linkedin_url?: string | null;
+  twitter_url?: string | null;
   updated_at?: string;
 }
 
-const USER_SELECT = "id, auth_user_id, email, name, avatar_url, created_at, updated_at";
+const USER_SELECT = "id, auth_user_id, email, name, avatar_url, linkedin_url, twitter_url, created_at, updated_at";
 
 export async function getByAuthUserId(
   supabase: SupabaseClient,

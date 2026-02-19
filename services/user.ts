@@ -59,6 +59,12 @@ export async function updateUserProfile(
   if (keys.includes("avatarUrl")) {
     row.avatar_url = parsed.avatarUrl ?? null;
   }
+  if (keys.includes("linkedinUrl")) {
+    row.linkedin_url = parsed.linkedinUrl ?? null;
+  }
+  if (keys.includes("twitterUrl")) {
+    row.twitter_url = parsed.twitterUrl ?? null;
+  }
 
   return updateProfile(supabase, userId, row);
 }
