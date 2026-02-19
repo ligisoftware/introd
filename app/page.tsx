@@ -7,7 +7,7 @@ export default async function Home() {
   const user = await getCurrentUser(supabase);
 
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+    <main className="flex-1 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto max-w-container-md">
         <div className="max-w-xl ds-hero-in">
           <h1 className="text-3xl font-bold tracking-tight text-ds-text sm:text-4xl">

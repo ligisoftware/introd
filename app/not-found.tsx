@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <main className="min-h-[calc(100vh-3.5rem)] flex flex-col items-center justify-center px-4 py-10 sm:px-6">
+    <main className="flex flex-1 flex-col items-center justify-center px-4 py-10 sm:px-6">
       <div className="mx-auto max-w-container-sm text-center">
         <h1 className="text-6xl font-bold tracking-tight text-ds-text sm:text-7xl">404</h1>
         <p className="mt-2 text-lg text-ds-text-muted">This page doesn&apos;t exist.</p>

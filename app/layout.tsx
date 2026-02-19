@@ -27,7 +27,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={plusJakartaSans.variable}>
-      <body className="min-h-screen bg-ds-bg text-ds-text font-sans antialiased">
+      <body className="flex min-h-screen flex-col bg-ds-bg text-ds-text font-sans antialiased">
         <header className="sticky top-0 z-50 border-b border-ds-border bg-ds-surface/95 backdrop-blur transition-colors duration-ds ease-ds supports-[backdrop-filter]:bg-ds-surface/80">
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <Link
@@ -58,7 +58,17 @@ export default async function RootLayout({
             </nav>
           </div>
         </header>
-        {children}
+        <div className="flex flex-1 flex-col">{children}</div>
+        <footer className="border-t border-ds-border py-6 px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto flex max-w-7xl items-center justify-center gap-6">
+            <Link
+              href="/feedback"
+              className="rounded-ds-sm text-sm text-ds-text-muted transition-colors duration-ds ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
+            >
+              Feedback
+            </Link>
+          </div>
+        </footer>
       </body>
     </html>
   );
