@@ -8,7 +8,7 @@ const inputClass =
   "w-full rounded-ds border border-ds-border bg-ds-surface px-3.5 py-2.5 text-ds-text placeholder-ds-text-subtle transition-[border-color,box-shadow] duration-ds-fast ease-ds focus:border-ds-accent focus:outline-none focus:ring-2 focus:ring-ds-accent/20 disabled:bg-ds-surface-hover disabled:text-ds-text-subtle";
 const labelClass = "block text-sm font-medium text-ds-text-muted";
 
-export function FeedbackForm({ slug }: { slug?: string }) {
+export function FeedbackForm() {
   const [message, setMessage] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -26,7 +26,6 @@ export function FeedbackForm({ slug }: { slug?: string }) {
         body: JSON.stringify({
           message: message.trim(),
           email: email.trim() || undefined,
-          slug: slug || undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -45,9 +44,8 @@ export function FeedbackForm({ slug }: { slug?: string }) {
   }
 
   return (
-    <section className="mt-10 border-t border-ds-border pt-10 sm:mt-12 sm:pt-12">
-      <h2 className="text-lg font-semibold tracking-tight text-ds-text">Send feedback</h2>
-      <p className="mt-1 text-sm text-ds-text-muted">Feedback is sent to {FEEDBACK_TO}.</p>
+    <div>
+      <p className="text-sm text-ds-text-muted">Feedback is sent to {FEEDBACK_TO}.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
           <label htmlFor="feedback-message" className={labelClass}>
@@ -99,6 +97,6 @@ export function FeedbackForm({ slug }: { slug?: string }) {
           {status === "sending" ? "Sending…" : "Send feedback"}
         </button>
       </form>
-    </section>
+    </div>
   );
 }
