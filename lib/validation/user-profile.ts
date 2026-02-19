@@ -23,6 +23,8 @@ function isValidUrl(s: string): boolean {
 export const UserProfileUpdateSchema = z.object({
   name: z.string().max(200).optional(),
   avatarUrl: optionalUrl,
+  linkedinUrl: optionalUrl,
+  twitterUrl: optionalUrl,
 });
 
 export type UserProfileUpdateInput = z.infer<typeof UserProfileUpdateSchema>;
