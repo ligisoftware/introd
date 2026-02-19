@@ -28,7 +28,7 @@ export const IntroUpdateSchema = z.object({
   websiteUrl: optionalUrl,
   linkedinUrl: optionalUrl,
   twitterUrl: optionalUrl,
-  avatarUrl: optionalUrl,
+  logoUrl: optionalUrl,
 });
 
 export type IntroUpdateInput = z.infer<typeof IntroUpdateSchema>;

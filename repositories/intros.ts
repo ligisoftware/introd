@@ -13,7 +13,7 @@ interface IntroRow {
   website_url?: string | null;
   linkedin_url?: string | null;
   twitter_url?: string | null;
-  avatar_url?: string | null;
+  logo_url?: string | null;
   created_at: string;
   updated_at?: string | null;
 }
@@ -27,7 +27,7 @@ interface PublicIntroJoinRow {
   website_url?: string | null;
   linkedin_url?: string | null;
   twitter_url?: string | null;
-  avatar_url?: string | null;
+  logo_url?: string | null;
   users: {
     name?: string | null;
     avatar_url?: string | null;
@@ -46,7 +46,7 @@ function rowToIntro(row: IntroRow): Intro {
     websiteUrl: row.website_url ?? undefined,
     linkedinUrl: row.linkedin_url ?? undefined,
     twitterUrl: row.twitter_url ?? undefined,
-    avatarUrl: row.avatar_url ?? undefined,
+    logoUrl: row.logo_url ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? undefined,
   };
@@ -63,7 +63,7 @@ function joinedRowToPublicProfile(row: PublicIntroJoinRow): PublicIntroProfile {
     websiteUrl: row.website_url ?? undefined,
     linkedinUrl: row.linkedin_url ?? undefined,
     twitterUrl: row.twitter_url ?? undefined,
-    introAvatarUrl: row.avatar_url ?? undefined,
+    logoUrl: row.logo_url ?? undefined,
   };
 }
 
@@ -76,12 +76,12 @@ export interface IntroUpdateRow {
   website_url?: string | null;
   linkedin_url?: string | null;
   twitter_url?: string | null;
-  avatar_url?: string | null;
+  logo_url?: string | null;
   updated_at?: string;
 }
 
 const INTRO_SELECT =
-  "id, user_id, share_slug, startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, avatar_url, created_at, updated_at";
+  "id, user_id, share_slug, startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, logo_url, created_at, updated_at";
 
 export async function getByUserId(
   supabase: SupabaseClient,
@@ -133,7 +133,7 @@ export async function update(
 }
 
 const PUBLIC_PROFILE_JOIN_SELECT =
-  "startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, avatar_url, users(name, avatar_url)";
+  "startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, logo_url, users(name, avatar_url)";
 
 export async function getByShareSlug(
   supabase: SupabaseClient,

@@ -52,12 +52,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ds-bg: #0c0a09;
-    --ds-bg-elevated: #1c1917;
-    --ds-surface: #1c1917;
-    --ds-surface-hover: #292524;
-    --ds-border: #292524;
-    --ds-border-strong: #44403c;
+    --ds-bg: #000000;
+    --ds-bg-elevated: #0a0a0a;
+    --ds-surface: #0a0a0a;
+    --ds-surface-hover: #171717;
+    --ds-border: #262626;
+    --ds-border-strong: #404040;
 
     --ds-text: #fafaf9;
     --ds-text-muted: #a8a29e;
@@ -81,12 +81,12 @@
 
 /* Optional: class-based dark mode (e.g. .dark on html) */
 .dark {
-  --ds-bg: #0c0a09;
-  --ds-bg-elevated: #1c1917;
-  --ds-surface: #1c1917;
-  --ds-surface-hover: #292524;
-  --ds-border: #292524;
-  --ds-border-strong: #44403c;
+  --ds-bg: #000000;
+  --ds-bg-elevated: #0a0a0a;
+  --ds-surface: #0a0a0a;
+  --ds-surface-hover: #171717;
+  --ds-border: #262626;
+  --ds-border-strong: #404040;
   --ds-text: #fafaf9;
   --ds-text-muted: #a8a29e;
   --ds-text-subtle: #78716c;
