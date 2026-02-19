@@ -24,7 +24,12 @@ export const IntroUpdateSchema = z.object({
   startupName: z.string().max(200).optional(),
   startupOneLiner: z.string().max(300).optional(),
   role: z.string().max(100).optional(),
-  introText: z.string().max(1000).optional(),
+  introText: z
+    .string()
+    .optional()
+    .refine((s) => !s || s.trim().split(/\s+/).length <= 500, {
+      message: "Intro must be 500 words or fewer",
+    }),
   websiteUrl: optionalUrl,
   linkedinUrl: optionalUrl,
   twitterUrl: optionalUrl,
