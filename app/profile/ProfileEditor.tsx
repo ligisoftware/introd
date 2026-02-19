@@ -29,6 +29,7 @@ export function ProfileEditor({
   const [avatarUrl, setAvatarUrl] = useState(orEmpty(initialUser.avatarUrl));
 
   // Intro fields
+  const [logoUrl, setLogoUrl] = useState(orEmpty(initialIntro.logoUrl));
   const [role, setRole] = useState(orEmpty(initialIntro.role));
   const [introText, setIntroText] = useState(orEmpty(initialIntro.introText));
   const [startupName, setStartupName] = useState(orEmpty(initialIntro.startupName));
@@ -44,6 +45,9 @@ export function ProfileEditor({
     "idle"
   );
   const [avatarMessage, setAvatarMessage] = useState("");
+
+  const [logoStatus, setLogoStatus] = useState<"idle" | "uploading" | "removing" | "error">("idle");
+  const [logoMessage, setLogoMessage] = useState("");
 
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareStatus, setShareStatus] = useState<"idle" | "creating" | "copied" | "error">("idle");
@@ -65,6 +69,7 @@ export function ProfileEditor({
         name: name.trim() || undefined,
       },
       intro: {
+        logoUrl: logoUrl.trim() || undefined,
         role: role.trim() || undefined,
         introText: introText.trim() || undefined,
         startupName: startupName.trim() || undefined,
@@ -240,6 +245,133 @@ export function ProfileEditor({
     }
   }
 
+  async function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLogoMessage("");
+
+    if (!file.type.startsWith("image/")) {
+      setLogoStatus("error");
+      setLogoMessage("Please choose an image file.");
+      return;
+    }
+
+    const maxBytes = 2 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setLogoStatus("error");
+      setLogoMessage("Image must be 2MB or smaller.");
+      return;
+    }
+
+    setLogoStatus("uploading");
+
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        setLogoStatus("error");
+        setLogoMessage("You need to be signed in to upload a logo.");
+        return;
+      }
+
+      const extFromType =
+        file.type === "image/png"
+          ? "png"
+          : file.type === "image/webp"
+            ? "webp"
+            : file.type === "image/jpeg"
+              ? "jpg"
+              : undefined;
+      const ext =
+        extFromType ?? (file.name.includes(".") ? (file.name.split(".").pop() ?? "jpg") : "jpg");
+
+      const path = `${user.id}/logo.${ext}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("intro-avatars")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) {
+        console.error("Logo upload error", uploadError);
+        setLogoStatus("error");
+        setLogoMessage("Upload failed. Please try again.");
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from("intro-avatars").getPublicUrl(path);
+      const publicUrl = publicUrlData?.publicUrl;
+
+      if (!publicUrl) {
+        setLogoStatus("error");
+        setLogoMessage("Could not get public URL for logo.");
+        return;
+      }
+
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intro: { logoUrl: publicUrl } }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setLogoStatus("error");
+        setLogoMessage(
+          typeof data.error === "string" ? data.error : "Something went wrong."
+        );
+        return;
+      }
+
+      setLogoUrl(publicUrl);
+      setLogoStatus("idle");
+      setLogoMessage("");
+    } catch (err) {
+      console.error("Logo upload unexpected error", err);
+      setLogoStatus("error");
+      setLogoMessage("Something went wrong while uploading.");
+    } finally {
+      e.target.value = "";
+    }
+  }
+
+  async function handleLogoRemove() {
+    if (!logoUrl) return;
+
+    setLogoStatus("removing");
+    setLogoMessage("");
+
+    try {
+      const res = await fetch("/api/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ intro: { logoUrl: "" } }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setLogoStatus("error");
+        setLogoMessage(
+          typeof data.error === "string" ? data.error : "Something went wrong."
+        );
+        return;
+      }
+
+      setLogoUrl("");
+      setLogoStatus("idle");
+    } catch (err) {
+      console.error("Logo remove unexpected error", err);
+      setLogoStatus("error");
+      setLogoMessage("Something went wrong while removing the logo.");
+    }
+  }
+
   async function handleCreateShareLink() {
     setShareStatus("creating");
     setShareError("");
@@ -295,7 +427,7 @@ export function ProfileEditor({
   }
 
   const isSaving =
-    status === "saving" || avatarStatus === "uploading" || avatarStatus === "removing";
+    status === "saving" || avatarStatus === "uploading" || avatarStatus === "removing" || logoStatus === "uploading" || logoStatus === "removing";
 
   return (
     <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-8">
@@ -378,6 +510,55 @@ export function ProfileEditor({
             The details that appear on your shareable intro page.
           </p>
           <div className="mt-4 space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
+                {logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logoUrl}
+                    alt="Company logo"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <span>Logo</span>
+                )}
+              </div>
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <label>
+                    <span className={btnSecondary}>
+                      {logoStatus === "uploading" ? "Uploading\u2026" : "Upload logo"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="sr-only"
+                      onChange={handleLogoChange}
+                      disabled={isSaving}
+                    />
+                  </label>
+                  {logoUrl && (
+                    <button
+                      type="button"
+                      onClick={handleLogoRemove}
+                      disabled={isSaving}
+                      className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                    >
+                      {logoStatus === "removing" ? "Removing\u2026" : "Remove"}
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-ds-text-subtle">Company logo — PNG, JPG, or WebP up to 2MB.</p>
+                {logoStatus === "error" && logoMessage && (
+                  <p role="alert" className="ds-feedback-in text-xs text-ds-error">
+                    {logoMessage}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <hr className="border-ds-border" />
+
             <div>
               <label htmlFor="role" className={labelClass}>
                 Role

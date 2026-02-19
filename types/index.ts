@@ -22,7 +22,7 @@ export interface Intro {
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
-  avatarUrl?: string | null;
+  logoUrl?: string | null;
   createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
 }
@@ -38,7 +38,7 @@ export interface PublicIntroProfile {
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
-  introAvatarUrl?: string | null;
+  logoUrl?: string | null;
 }
 
 export interface IntroPage {

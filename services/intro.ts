@@ -47,8 +47,8 @@ export async function updateIntro(
   if (keys.includes("twitterUrl")) {
     row.twitter_url = parsed.twitterUrl ?? null;
   }
-  if (keys.includes("avatarUrl")) {
-    row.avatar_url = parsed.avatarUrl ?? null;
+  if (keys.includes("logoUrl")) {
+    row.logo_url = parsed.logoUrl ?? null;
   }
 
   return update(supabase, introId, row);
