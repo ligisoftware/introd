@@ -618,9 +618,10 @@ export function ProfileEditor({
                 onChange={(e) => setIntroText(e.target.value)}
                 disabled={isSaving}
                 className={`${inputClass} min-h-[100px] resize-y`}
-                maxLength={1000}
               />
-              <p className="mt-1.5 text-xs text-ds-text-subtle">{introText.length}/1000</p>
+              <p className="mt-1.5 text-xs text-ds-text-subtle">
+                {introText.trim() ? introText.trim().split(/\s+/).length : 0}/500
+              </p>
             </div>
 
             <hr className="border-ds-border" />
