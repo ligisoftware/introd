@@ -1,6 +1,6 @@
 import { AuthBar } from "@/app/components/AuthBar";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentFounder } from "@/services/founder";
+import { getCurrentUser } from "@/services/user";
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import Link from "next/link";
@@ -23,7 +23,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const supabase = await createClient();
-  const founder = await getCurrentFounder(supabase);
+  const user = await getCurrentUser(supabase);
 
   return (
     <html lang="en" className={plusJakartaSans.variable}>
@@ -37,7 +37,7 @@ export default async function RootLayout({
               Intro&apos;d
             </Link>
             <nav className="flex items-center gap-3 sm:gap-6" aria-label="Account">
-              {founder ? (
+              {user ? (
                 <>
                   <Link
                     href="/profile"
@@ -45,7 +45,7 @@ export default async function RootLayout({
                   >
                     Edit profile
                   </Link>
-                  <AuthBar email={founder.email} />
+                  <AuthBar email={user.email} />
                 </>
               ) : (
                 <Link

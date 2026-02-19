@@ -1,20 +1,8 @@
 "use client";
 
-import type { Founder } from "@/types";
+import type { User, Intro } from "@/types";
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-
-type ProfilePayload = {
-  displayName?: string;
-  role?: string;
-  bio?: string;
-  startupName?: string;
-  startupOneLiner?: string;
-  websiteUrl?: string;
-  linkedinUrl?: string;
-  twitterUrl?: string;
-  avatarUrl?: string;
-};
 
 function orEmpty(s: string | null | undefined): string {
   return s ?? "";
@@ -29,16 +17,25 @@ const btnPrimary =
 const btnSecondary =
   "rounded-ds border border-ds-border bg-ds-surface px-4 py-2.5 text-sm font-medium text-ds-text transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-surface-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100";
 
-export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
-  const [displayName, setDisplayName] = useState(orEmpty(initialFounder.displayName));
-  const [role, setRole] = useState(orEmpty(initialFounder.role));
-  const [bio, setBio] = useState(orEmpty(initialFounder.bio));
-  const [startupName, setStartupName] = useState(orEmpty(initialFounder.startupName));
-  const [startupOneLiner, setStartupOneLiner] = useState(orEmpty(initialFounder.startupOneLiner));
-  const [websiteUrl, setWebsiteUrl] = useState(orEmpty(initialFounder.websiteUrl));
-  const [linkedinUrl, setLinkedinUrl] = useState(orEmpty(initialFounder.linkedinUrl));
-  const [twitterUrl, setTwitterUrl] = useState(orEmpty(initialFounder.twitterUrl));
-  const [avatarUrl, setAvatarUrl] = useState(orEmpty(initialFounder.avatarUrl));
+export function ProfileEditor({
+  initialUser,
+  initialIntro,
+}: {
+  initialUser: User;
+  initialIntro: Intro;
+}) {
+  // User fields
+  const [name, setName] = useState(orEmpty(initialUser.name));
+  const [avatarUrl, setAvatarUrl] = useState(orEmpty(initialUser.avatarUrl));
+
+  // Intro fields
+  const [role, setRole] = useState(orEmpty(initialIntro.role));
+  const [introText, setIntroText] = useState(orEmpty(initialIntro.introText));
+  const [startupName, setStartupName] = useState(orEmpty(initialIntro.startupName));
+  const [startupOneLiner, setStartupOneLiner] = useState(orEmpty(initialIntro.startupOneLiner));
+  const [websiteUrl, setWebsiteUrl] = useState(orEmpty(initialIntro.websiteUrl));
+  const [linkedinUrl, setLinkedinUrl] = useState(orEmpty(initialIntro.linkedinUrl));
+  const [twitterUrl, setTwitterUrl] = useState(orEmpty(initialIntro.twitterUrl));
 
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -53,25 +50,29 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
   const [shareError, setShareError] = useState("");
 
   useEffect(() => {
-    if (initialFounder.shareSlug && typeof window !== "undefined") {
-      setShareUrl(`${window.location.origin}/p/${initialFounder.shareSlug}`);
+    if (initialIntro.shareSlug && typeof window !== "undefined") {
+      setShareUrl(`${window.location.origin}/p/${initialIntro.shareSlug}`);
     }
-  }, [initialFounder.shareSlug]);
+  }, [initialIntro.shareSlug]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus("saving");
     setMessage("");
 
-    const payload: ProfilePayload = {
-      displayName: displayName.trim() || undefined,
-      role: role.trim() || undefined,
-      bio: bio.trim() || undefined,
-      startupName: startupName.trim() || undefined,
-      startupOneLiner: startupOneLiner.trim() || undefined,
-      websiteUrl: websiteUrl.trim() || undefined,
-      linkedinUrl: linkedinUrl.trim() || undefined,
-      twitterUrl: twitterUrl.trim() || undefined,
+    const payload = {
+      user: {
+        name: name.trim() || undefined,
+      },
+      intro: {
+        role: role.trim() || undefined,
+        introText: introText.trim() || undefined,
+        startupName: startupName.trim() || undefined,
+        startupOneLiner: startupOneLiner.trim() || undefined,
+        websiteUrl: websiteUrl.trim() || undefined,
+        linkedinUrl: linkedinUrl.trim() || undefined,
+        twitterUrl: twitterUrl.trim() || undefined,
+      },
     };
 
     try {
@@ -171,12 +172,10 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
         return;
       }
 
-      const payload: ProfilePayload = { avatarUrl: publicUrl };
-
       const res = await fetch("/api/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ user: { avatarUrl: publicUrl } }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -212,11 +211,10 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
     setAvatarMessage("");
 
     try {
-      const payload: ProfilePayload = { avatarUrl: "" };
       const res = await fetch("/api/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ user: { avatarUrl: "" } }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -300,270 +298,291 @@ export function ProfileEditor({ initialFounder }: { initialFounder: Founder }) {
     status === "saving" || avatarStatus === "uploading" || avatarStatus === "removing";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-10 sm:space-y-12">
-      {/* About you */}
-      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
-        <h2 className={sectionTitle}>About you</h2>
-        <div className="mt-4 space-y-4">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-ds-border bg-ds-surface-hover text-sm font-medium text-ds-text-subtle">
-              {avatarUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarUrl}
-                  alt={displayName ? `${displayName}'s avatar` : "Your avatar"}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span>Upload a photo</span>
-              )}
-            </div>
-            <div className="space-y-2">
-              <div className="flex flex-wrap items-center gap-2">
-                <label>
-                  <span className={btnSecondary}>
-                    {avatarStatus === "uploading" ? "Uploading…" : "Upload photo"}
-                  </span>
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    className="sr-only"
-                    onChange={handleAvatarChange}
-                    disabled={isSaving}
+    <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-8">
+      {/* ── Left column: form ── */}
+      <form onSubmit={handleSubmit} className="min-w-0 flex-1 space-y-10 sm:space-y-12">
+        {/* ── Profile ── */}
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+          <h2 className={sectionTitle}>Profile</h2>
+          <p className="mt-1.5 text-sm text-ds-text-muted">
+            Your account info — this stays the same across all your intros.
+          </p>
+          <div className="mt-4 space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-ds-border bg-ds-surface-hover text-sm font-medium text-ds-text-subtle">
+                {avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={avatarUrl}
+                    alt={name ? `${name}'s avatar` : "Your avatar"}
+                    className="h-full w-full object-cover"
                   />
-                </label>
-                {avatarUrl && (
-                  <button
-                    type="button"
-                    onClick={handleAvatarRemove}
-                    disabled={isSaving}
-                    className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
-                  >
-                    {avatarStatus === "removing" ? "Removing…" : "Remove"}
-                  </button>
+                ) : (
+                  <span>Upload a photo</span>
                 )}
               </div>
-              <p className="text-xs text-ds-text-subtle">PNG, JPG, or WebP up to 2MB.</p>
-              {avatarStatus === "error" && avatarMessage && (
-                <p role="alert" className="ds-feedback-in text-xs text-ds-error">
-                  {avatarMessage}
-                </p>
-              )}
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <label>
+                    <span className={btnSecondary}>
+                      {avatarStatus === "uploading" ? "Uploading…" : "Upload photo"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="sr-only"
+                      onChange={handleAvatarChange}
+                      disabled={isSaving}
+                    />
+                  </label>
+                  {avatarUrl && (
+                    <button
+                      type="button"
+                      onClick={handleAvatarRemove}
+                      disabled={isSaving}
+                      className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                    >
+                      {avatarStatus === "removing" ? "Removing…" : "Remove"}
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-ds-text-subtle">PNG, JPG, or WebP up to 2MB.</p>
+                {avatarStatus === "error" && avatarMessage && (
+                  <p role="alert" className="ds-feedback-in text-xs text-ds-error">
+                    {avatarMessage}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div>
+              <label htmlFor="name" className={labelClass}>
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Your name or handle"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
             </div>
           </div>
-          <div>
-            <label htmlFor="displayName" className={labelClass}>
-              Display name
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              placeholder="Your name or handle"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="role" className={labelClass}>
-              Role
-            </label>
-            <input
-              id="role"
-              type="text"
-              placeholder="e.g. CEO, Co-founder"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="bio" className={labelClass}>
-              Bio
-            </label>
-            <textarea
-              id="bio"
-              rows={4}
-              placeholder="A short bio about you and what you're building."
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              disabled={isSaving}
-              className={`${inputClass} min-h-[100px] resize-y`}
-              maxLength={1000}
-            />
-            <p className="mt-1.5 text-xs text-ds-text-subtle">{bio.length}/1000</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Startup */}
-      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
-        <h2 className={sectionTitle}>Startup</h2>
-        <div className="mt-4 space-y-4">
-          <div>
-            <label htmlFor="startupName" className={labelClass}>
-              Company name
-            </label>
-            <input
-              id="startupName"
-              type="text"
-              placeholder="Your startup name"
-              value={startupName}
-              onChange={(e) => setStartupName(e.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="startupOneLiner" className={labelClass}>
-              One-liner
-            </label>
-            <input
-              id="startupOneLiner"
-              type="text"
-              placeholder="Short tagline for your company"
-              value={startupOneLiner}
-              onChange={(e) => setStartupOneLiner(e.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-              maxLength={300}
-            />
-            <p className="mt-1.5 text-xs text-ds-text-subtle">{startupOneLiner.length}/300</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Share your page */}
-      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
-        <h2 className={sectionTitle}>Share your page</h2>
-        <p className="mt-2 text-sm text-ds-text-muted">
-          Create a link to share your profile with others. The link is unlisted—only people you
-          share it with can view it.
-        </p>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-          {!shareUrl ? (
-            <button
-              type="button"
-              onClick={handleCreateShareLink}
-              disabled={shareStatus === "creating"}
-              className={btnPrimary}
-            >
-              {shareStatus === "creating" ? "Creating…" : "Create share link"}
-            </button>
-          ) : (
-            <>
+        {/* ── Your Intro ── */}
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+          <h2 className={sectionTitle}>Your Intro</h2>
+          <p className="mt-1.5 text-sm text-ds-text-muted">
+            The details that appear on your shareable intro page.
+          </p>
+          <div className="mt-4 space-y-4">
+            <div>
+              <label htmlFor="role" className={labelClass}>
+                Role
+              </label>
               <input
+                id="role"
                 type="text"
-                readOnly
-                value={shareUrl}
-                className="min-w-0 flex-1 rounded-ds border border-ds-border bg-ds-surface-hover px-3.5 py-2.5 text-sm text-ds-text-muted transition-[border-color] duration-ds-fast ease-ds"
-                aria-label="Share link"
+                placeholder="e.g. CEO, Co-founder"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
               />
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={handleCopyShareLink}
-                  disabled={shareStatus === "copied"}
-                  className={btnSecondary}
-                >
-                  <span
-                    key={shareStatus}
-                    className={shareStatus === "copied" ? "ds-pop inline-block" : ""}
+            </div>
+
+            <hr className="border-ds-border" />
+
+            <div>
+              <label htmlFor="startupName" className={labelClass}>
+                Company name
+              </label>
+              <input
+                id="startupName"
+                type="text"
+                placeholder="Your startup name"
+                value={startupName}
+                onChange={(e) => setStartupName(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="startupOneLiner" className={labelClass}>
+                One-liner
+              </label>
+              <input
+                id="startupOneLiner"
+                type="text"
+                placeholder="Short tagline for your company"
+                value={startupOneLiner}
+                onChange={(e) => setStartupOneLiner(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+                maxLength={300}
+              />
+              <p className="mt-1.5 text-xs text-ds-text-subtle">{startupOneLiner.length}/300</p>
+            </div>
+            <div>
+              <label htmlFor="introText" className={labelClass}>
+                Intro
+              </label>
+              <textarea
+                id="introText"
+                rows={4}
+                placeholder="A short intro about you and what you're building."
+                value={introText}
+                onChange={(e) => setIntroText(e.target.value)}
+                disabled={isSaving}
+                className={`${inputClass} min-h-[100px] resize-y`}
+                maxLength={1000}
+              />
+              <p className="mt-1.5 text-xs text-ds-text-subtle">{introText.length}/1000</p>
+            </div>
+
+            <hr className="border-ds-border" />
+
+            <div>
+              <label htmlFor="websiteUrl" className={labelClass}>
+                Website
+              </label>
+              <input
+                id="websiteUrl"
+                type="url"
+                placeholder="https://..."
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="linkedinUrl" className={labelClass}>
+                LinkedIn
+              </label>
+              <input
+                id="linkedinUrl"
+                type="url"
+                placeholder="https://linkedin.com/in/..."
+                value={linkedinUrl}
+                onChange={(e) => setLinkedinUrl(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="twitterUrl" className={labelClass}>
+                Twitter / X
+              </label>
+              <input
+                id="twitterUrl"
+                type="url"
+                placeholder="https://x.com/..."
+                value={twitterUrl}
+                onChange={(e) => setTwitterUrl(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Submit and feedback */}
+        <div className="flex flex-wrap items-center gap-3">
+          <button type="submit" disabled={isSaving} className={btnPrimary}>
+            {status === "saving" ? "Saving…" : "Save profile"}
+          </button>
+          {status === "success" && message && (
+            <p role="status" className="ds-feedback-in text-sm text-ds-success">
+              {message}
+            </p>
+          )}
+          {status === "error" && message && (
+            <p role="alert" className="ds-feedback-in text-sm text-ds-error">
+              {message}
+            </p>
+          )}
+        </div>
+      </form>
+
+      {/* ── Right column: share (sticky) ── */}
+      <aside className="w-full lg:sticky lg:top-[4.5rem] lg:w-80 lg:shrink-0">
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+          <h2 className={sectionTitle}>Share your page</h2>
+          <p className="mt-2 text-sm text-ds-text-muted">
+            Create a link to share your intro with others. The link is unlisted—only people you
+            share it with can view it.
+          </p>
+          <div className="mt-4 flex flex-col gap-3">
+            {!shareUrl ? (
+              <button
+                type="button"
+                onClick={handleCreateShareLink}
+                disabled={shareStatus === "creating"}
+                className={btnPrimary}
+              >
+                {shareStatus === "creating" ? "Creating…" : "Create share link"}
+              </button>
+            ) : (
+              <>
+                <div className="relative">
+                  <input
+                    type="text"
+                    readOnly
+                    value={shareUrl}
+                    className="min-w-0 w-full rounded-ds border border-ds-border bg-ds-surface-hover pl-3.5 pr-10 py-2.5 text-sm text-ds-text-muted transition-[border-color] duration-ds-fast ease-ds"
+                    aria-label="Share link"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCopyShareLink}
+                    className="absolute inset-y-0 right-0 flex items-center px-2.5 text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring"
+                    aria-label={shareStatus === "copied" ? "Copied" : "Copy link"}
                   >
-                    {shareStatus === "copied" ? "Copied!" : "Copy link"}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleRegenerateShareLink}
-                  disabled={shareStatus === "creating"}
-                  className={btnSecondary}
-                >
-                  {shareStatus === "creating" ? "Regenerating…" : "Regenerate link"}
-                </button>
-              </div>
-            </>
-          )}
-          {shareUrl && (
-            <p className="w-full text-xs text-ds-text-subtle">
-              Regenerating creates a new link; the previous link will stop working.
-            </p>
-          )}
-          {shareStatus === "error" && shareError && (
-            <p role="alert" className="ds-feedback-in w-full text-sm text-ds-error">
-              {shareError}
-            </p>
-          )}
-        </div>
-      </section>
-
-      {/* Links */}
-      <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
-        <h2 className={sectionTitle}>Links</h2>
-        <div className="mt-4 space-y-4">
-          <div>
-            <label htmlFor="websiteUrl" className={labelClass}>
-              Website
-            </label>
-            <input
-              id="websiteUrl"
-              type="url"
-              placeholder="https://..."
-              value={websiteUrl}
-              onChange={(e) => setWebsiteUrl(e.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
+                    <span key={shareStatus} className={shareStatus === "copied" ? "ds-pop" : ""}>
+                      {shareStatus === "copied" ? (
+                        <svg className="h-4 w-4 text-ds-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                        </svg>
+                      )}
+                    </span>
+                  </button>
+                </div>
+                <details className="group">
+                  <summary className="cursor-pointer text-xs font-medium text-ds-text-subtle hover:text-ds-text-muted transition-colors duration-ds-fast ease-ds select-none">
+                    Regenerate link
+                  </summary>
+                  <div className="mt-2 rounded-ds border border-ds-border bg-ds-surface-hover p-3">
+                    <p className="text-xs text-ds-text-muted">
+                      This creates a new link and <strong className="font-semibold text-ds-text">permanently breaks the old one</strong>. Anyone with the previous link will no longer be able to view your intro.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleRegenerateShareLink}
+                      disabled={shareStatus === "creating"}
+                      className="mt-2 rounded-ds-sm border border-ds-border bg-ds-surface px-3 py-1.5 text-xs font-medium text-ds-text transition-[color,box-shadow] duration-ds ease-ds hover:bg-ds-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {shareStatus === "creating" ? "Regenerating…" : "I understand, regenerate"}
+                    </button>
+                  </div>
+                </details>
+              </>
+            )}
+            {shareStatus === "error" && shareError && (
+              <p role="alert" className="ds-feedback-in text-sm text-ds-error">
+                {shareError}
+              </p>
+            )}
           </div>
-          <div>
-            <label htmlFor="linkedinUrl" className={labelClass}>
-              LinkedIn
-            </label>
-            <input
-              id="linkedinUrl"
-              type="url"
-              placeholder="https://linkedin.com/in/..."
-              value={linkedinUrl}
-              onChange={(e) => setLinkedinUrl(e.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="twitterUrl" className={labelClass}>
-              Twitter / X
-            </label>
-            <input
-              id="twitterUrl"
-              type="url"
-              placeholder="https://x.com/..."
-              value={twitterUrl}
-              onChange={(e) => setTwitterUrl(e.target.value)}
-              disabled={isSaving}
-              className={inputClass}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Submit and feedback */}
-      <div className="flex flex-wrap items-center gap-3">
-        <button type="submit" disabled={isSaving} className={btnPrimary}>
-          {status === "saving" ? "Saving…" : "Save profile"}
-        </button>
-        {status === "success" && message && (
-          <p role="status" className="ds-feedback-in text-sm text-ds-success">
-            {message}
-          </p>
-        )}
-        {status === "error" && message && (
-          <p role="alert" className="ds-feedback-in text-sm text-ds-error">
-            {message}
-          </p>
-        )}
-      </div>
-    </form>
+        </section>
+      </aside>
+    </div>
   );
 }

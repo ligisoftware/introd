@@ -1,4 +1,4 @@
-import type { PublicFounderProfile } from "@/types";
+import type { PublicIntroProfile } from "@/types";
 
 function orEmpty(s: string | null | undefined): string {
   return s ?? "";
@@ -26,10 +26,10 @@ function getInitials(name: string): string {
 const linkButtonClass =
   "flex w-full items-center justify-center gap-3 rounded-ds-lg border border-ds-border bg-ds-surface px-5 py-3.5 font-medium text-ds-text shadow-ds-sm transition-all duration-ds ease-ds hover:shadow-ds hover:bg-ds-accent hover:text-ds-text-inverse hover:border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg";
 
-export function FounderProfileView({ profile }: { profile: PublicFounderProfile }) {
-  const displayName = orEmpty(profile.displayName);
+export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
+  const displayName = orEmpty(profile.name);
   const role = orEmpty(profile.role);
-  const bio = orEmpty(profile.bio);
+  const introText = orEmpty(profile.introText);
   const startupName = orEmpty(profile.startupName);
   const startupOneLiner = orEmpty(profile.startupOneLiner);
   const websiteUrl = orEmpty(profile.websiteUrl);
@@ -39,7 +39,7 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
 
   const hasIdentity = displayName || role || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
-  const isEmpty = !hasIdentity && !bio && !startupOneLiner && !hasLinks;
+  const isEmpty = !hasIdentity && !introText && !startupOneLiner && !hasLinks;
 
   if (isEmpty) {
     return (
@@ -60,7 +60,7 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={avatarUrl}
-              alt={displayName ? `${displayName}'s avatar` : "Founder avatar"}
+              alt={displayName ? `${displayName}'s avatar` : "Profile avatar"}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -82,10 +82,10 @@ export function FounderProfileView({ profile }: { profile: PublicFounderProfile 
         </div>
       )}
 
-      {/* Bio */}
-      {bio && (
+      {/* Intro */}
+      {introText && (
         <div className="w-full rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm">
-          <p className="whitespace-pre-wrap text-ds-text">{bio}</p>
+          <p className="whitespace-pre-wrap text-ds-text">{introText}</p>
         </div>
       )}
 

@@ -1,20 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentFounder } from "@/services/founder";
+import { getCurrentUser } from "@/services/user";
+import { getCurrentIntro } from "@/services/intro";
 import { redirect } from "next/navigation";
 import { ProfileEditor } from "./ProfileEditor";
-import type { Founder } from "@/types";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
-  const founder = await getCurrentFounder(supabase);
+  const user = await getCurrentUser(supabase);
 
-  if (!founder) {
+  if (!user) {
     redirect("/login?next=/profile");
   }
 
+  const intro = await getCurrentIntro(supabase, user.id);
+
   return (
     <main className="min-h-[calc(100vh-3.5rem)] px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-      <div className="mx-auto max-w-container-md">
+      <div className="mx-auto max-w-container-lg">
         <header className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
             Edit your profile
@@ -23,7 +25,7 @@ export default async function ProfilePage() {
             This is how you&apos;ll appear to others. You can come back anytime to update it.
           </p>
         </header>
-        <ProfileEditor initialFounder={founder as Founder} />
+        <ProfileEditor initialUser={user} initialIntro={intro} />
       </div>
     </main>
   );

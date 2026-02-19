@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentFounder } from "@/services/founder";
+import { getCurrentUser } from "@/services/user";
 import Link from "next/link";
 
 export default async function Home() {
   const supabase = await createClient();
-  const founder = await getCurrentFounder(supabase);
+  const user = await getCurrentUser(supabase);
 
   return (
     <main className="min-h-[calc(100vh-3.5rem)] px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
@@ -16,7 +16,7 @@ export default async function Home() {
           <p className="mt-3 text-base text-ds-text-muted sm:text-lg">
             Standardized first-impression layer for startup fundraising.
           </p>
-          {founder && (
+          {user && (
             <p className="mt-6">
               <Link
                 href="/profile"
