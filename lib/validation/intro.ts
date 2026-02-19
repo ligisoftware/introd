@@ -19,17 +19,16 @@ function isValidUrl(s: string): boolean {
   }
 }
 
-/** Schema for PATCH /api/me body. All fields optional; only profile fields allowed. */
-export const FounderProfileUpdateSchema = z.object({
-  displayName: z.string().max(200).optional(),
-  role: z.string().max(100).optional(),
+/** Schema for intro updates. */
+export const IntroUpdateSchema = z.object({
   startupName: z.string().max(200).optional(),
   startupOneLiner: z.string().max(300).optional(),
-  bio: z.string().max(1000).optional(),
+  role: z.string().max(100).optional(),
+  introText: z.string().max(1000).optional(),
   websiteUrl: optionalUrl,
   linkedinUrl: optionalUrl,
   twitterUrl: optionalUrl,
   avatarUrl: optionalUrl,
 });
 
-export type FounderProfileUpdateInput = z.infer<typeof FounderProfileUpdateSchema>;
+export type IntroUpdateInput = z.infer<typeof IntroUpdateSchema>;

@@ -1,7 +1,8 @@
 import { randomBytes } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentFounder } from "@/services/founder";
-import { setShareSlug } from "@/repositories/founders";
+import { getCurrentUser } from "@/services/user";
+import { getCurrentIntro } from "@/services/intro";
+import { setShareSlug } from "@/repositories/intros";
 import { NextResponse } from "next/server";
 
 /** Generate an unguessable URL-safe slug (base64url, ~28 chars). */
@@ -14,17 +15,18 @@ function generateShareSlug(): string {
 }
 
 /**
- * POST /api/me/share — Generate or return the founder's share link.
- * Authenticated only. If share_slug already exists, returns existing URL; otherwise generates and persists a new slug.
- * Body: { regenerate?: boolean } — if true, generate a new slug (old link stops working).
+ * POST /api/me/share — Generate or return the intro's share link.
+ * Body: { regenerate?: boolean } — if true, generate a new slug.
  */
 export async function POST(request: Request) {
   const supabase = await createClient();
-  const founder = await getCurrentFounder(supabase);
+  const user = await getCurrentUser(supabase);
 
-  if (!founder) {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const intro = await getCurrentIntro(supabase, user.id);
 
   const origin = new URL(request.url).origin;
   let regenerate = false;
@@ -35,11 +37,11 @@ export async function POST(request: Request) {
     // no body or invalid JSON: keep regenerate false
   }
 
-  if (!regenerate && founder.shareSlug) {
-    return NextResponse.json({ url: `${origin}/p/${founder.shareSlug}` });
+  if (!regenerate && intro.shareSlug) {
+    return NextResponse.json({ url: `${origin}/p/${intro.shareSlug}` });
   }
 
   const slug = generateShareSlug();
-  const updated = await setShareSlug(supabase, founder.id, slug);
+  const updated = await setShareSlug(supabase, intro.id, slug);
   return NextResponse.json({ url: `${origin}/p/${updated.shareSlug ?? slug}` });
 }

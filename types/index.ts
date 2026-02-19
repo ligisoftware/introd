@@ -1,36 +1,44 @@
 /**
- * Shared domain types for Intro'd. No persistence in Phase 0; used by services and API contracts in Phase 1–2.
+ * Shared domain types for Intro'd.
  */
 
-export interface Founder {
+export interface User {
   id: string;
   email: string;
-  createdAt: string; // ISO date
-  shareSlug?: string | null;
-  // Profile (optional until set)
-  displayName?: string | null;
-  role?: string | null;
-  startupName?: string | null;
-  startupOneLiner?: string | null;
-  bio?: string | null;
-  websiteUrl?: string | null;
-  linkedinUrl?: string | null;
-  twitterUrl?: string | null;
+  name?: string | null;
   avatarUrl?: string | null;
+  createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
 }
 
-/** Public profile payload for share viewer; no email or auth identifiers. */
-export interface PublicFounderProfile {
-  displayName?: string | null;
-  role?: string | null;
+export interface Intro {
+  id: string;
+  userId: string;
+  shareSlug?: string | null;
   startupName?: string | null;
   startupOneLiner?: string | null;
-  bio?: string | null;
+  role?: string | null;
+  introText?: string | null;
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
   avatarUrl?: string | null;
+  createdAt: string; // ISO date
+  updatedAt?: string | null; // ISO date
+}
+
+/** Public intro profile payload for share viewer; no id, no userId. */
+export interface PublicIntroProfile {
+  name?: string | null;
+  avatarUrl?: string | null;
+  startupName?: string | null;
+  startupOneLiner?: string | null;
+  role?: string | null;
+  introText?: string | null;
+  websiteUrl?: string | null;
+  linkedinUrl?: string | null;
+  twitterUrl?: string | null;
+  introAvatarUrl?: string | null;
 }
 
 export interface IntroPage {
