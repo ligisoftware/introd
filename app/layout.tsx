@@ -38,15 +38,7 @@ export default async function RootLayout({
             </Link>
             <nav className="flex items-center gap-3 sm:gap-6" aria-label="Account">
               {user ? (
-                <>
-                  <Link
-                    href="/profile"
-                    className="-mx-2 rounded-ds-sm py-2 px-2 text-sm font-medium text-ds-text-muted transition-colors duration-ds ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
-                  >
-                    Edit profile
-                  </Link>
-                  <AuthBar email={user.email} />
-                </>
+                <AuthBar email={user.email} avatarUrl={user.avatarUrl} />
               ) : (
                 <Link
                   href="/login"

@@ -126,10 +126,10 @@ export function ProfileEditor({
       return;
     }
 
-    const maxBytes = 2 * 1024 * 1024; // 2MB
+    const maxBytes = 8 * 1024 * 1024; // 8MB
     if (file.size > maxBytes) {
       setAvatarStatus("error");
-      setAvatarMessage("Image must be 2MB or smaller.");
+      setAvatarMessage("Image must be 8MB or smaller.");
       return;
     }
 
@@ -261,10 +261,10 @@ export function ProfileEditor({
       return;
     }
 
-    const maxBytes = 2 * 1024 * 1024;
+    const maxBytes = 8 * 1024 * 1024;
     if (file.size > maxBytes) {
       setLogoStatus("error");
-      setLogoMessage("Image must be 2MB or smaller.");
+      setLogoMessage("Image must be 8MB or smaller.");
       return;
     }
 
@@ -445,7 +445,7 @@ export function ProfileEditor({
           </p>
           <div className="mt-4 space-y-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-ds-border bg-ds-surface-hover text-sm font-medium text-ds-text-subtle">
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-ds-accent text-lg font-medium text-ds-text-inverse">
                 {avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -454,7 +454,7 @@ export function ProfileEditor({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span>Upload a photo</span>
+                  (name || initialUser.email).charAt(0).toUpperCase()
                 )}
               </div>
               <div className="space-y-2">
@@ -482,7 +482,7 @@ export function ProfileEditor({
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-ds-text-subtle">PNG, JPG, or WebP up to 2MB.</p>
+                <p className="text-xs text-ds-text-subtle">PNG, JPG, or WebP up to 8MB.</p>
                 {avatarStatus === "error" && avatarMessage && (
                   <p role="alert" className="ds-feedback-in text-xs text-ds-error">
                     {avatarMessage}
@@ -552,7 +552,10 @@ export function ProfileEditor({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span>Logo</span>
+                  <span className="flex flex-col items-center leading-tight">
+                    <span>No</span>
+                    <span>logo</span>
+                  </span>
                 )}
               </div>
               <div className="space-y-2">
@@ -580,7 +583,7 @@ export function ProfileEditor({
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-ds-text-subtle">Company logo — PNG, JPG, or WebP up to 2MB.</p>
+                <p className="text-xs text-ds-text-subtle">Company logo — PNG, JPG, or WebP up to 8MB.</p>
                 {logoStatus === "error" && logoMessage && (
                   <p role="alert" className="ds-feedback-in text-xs text-ds-error">
                     {logoMessage}
