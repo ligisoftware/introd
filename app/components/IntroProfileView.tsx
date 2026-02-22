@@ -42,7 +42,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   if (isEmpty) {
     return (
       <div className="py-16 text-center">
-        <p className="text-neutral-500">This profile hasn&apos;t been filled out yet.</p>
+        <p className="text-ds-text-subtle">This profile hasn&apos;t been filled out yet.</p>
       </div>
     );
   }
@@ -51,7 +51,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
     <div className="flex flex-col items-center gap-8">
       {/* Company logo */}
       {logoUrl && (
-        <div className="h-[72px] w-[72px] overflow-hidden rounded-xl border border-neutral-800 ring-1 ring-neutral-700/50">
+        <div className="h-[72px] w-[72px] overflow-hidden rounded-xl border border-ds-border ring-1 ring-ds-border-strong/50">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={logoUrl}
@@ -65,18 +65,18 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
       {(startupName || startupOneLiner) && (
         <div className="text-center">
           {startupName && (
-            <h1 className="text-3xl font-bold text-white sm:text-4xl">{startupName}</h1>
+            <h1 className="text-3xl font-bold text-ds-text sm:text-4xl">{startupName}</h1>
           )}
           {startupOneLiner && (
-            <p className="mt-2 text-lg text-neutral-400">{startupOneLiner}</p>
+            <p className="mt-2 text-lg text-ds-text-muted">{startupOneLiner}</p>
           )}
         </div>
       )}
 
       {/* Intro text card */}
       {introText && (
-        <div className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 p-6">
-          <p className="whitespace-pre-wrap leading-relaxed text-neutral-300">{introText}</p>
+        <div className="w-full rounded-2xl border border-ds-border bg-ds-surface p-6">
+          <p className="whitespace-pre-wrap leading-relaxed text-ds-text-muted">{introText}</p>
         </div>
       )}
 
@@ -89,7 +89,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
               target="_blank"
               rel="noopener noreferrer"
               title="Website"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-neutral-400 transition-all duration-200 ease-out hover:border-neutral-600 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-ds-border bg-ds-bg-elevated text-ds-text-muted transition-all duration-ds ease-ds-out hover:border-ds-border-strong hover:text-ds-text hover:shadow-ds-sm"
             >
               <svg
                 className="h-5 w-5"
@@ -118,7 +118,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
               target="_blank"
               rel="noopener noreferrer"
               title="LinkedIn"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-neutral-400 transition-all duration-200 ease-out hover:border-neutral-600 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-ds-border bg-ds-bg-elevated text-ds-text-muted transition-all duration-ds ease-ds-out hover:border-ds-border-strong hover:text-ds-text hover:shadow-ds-sm"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.123 2.062 2.062 0 0 1 0 4.123zM6.863 20.452H3.813V9h3.05v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
@@ -131,7 +131,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
               target="_blank"
               rel="noopener noreferrer"
               title="X (Twitter)"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-neutral-800 bg-neutral-900 text-neutral-400 transition-all duration-200 ease-out hover:border-neutral-600 hover:text-white hover:shadow-[0_0_12px_rgba(255,255,255,0.06)]"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-ds-border bg-ds-bg-elevated text-ds-text-muted transition-all duration-ds ease-ds-out hover:border-ds-border-strong hover:text-ds-text hover:shadow-ds-sm"
             >
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -143,14 +143,14 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
 
       {/* Separator */}
       {(displayName || role) && (
-        <div className="w-full border-t border-neutral-800" />
+        <div className="w-full border-t border-ds-border" />
       )}
 
       {/* Founder info — compact secondary section */}
       {(displayName || role) && (
         <div className="flex items-center gap-3">
           {(avatarUrl || displayName) && (
-            <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-neutral-800 bg-neutral-900">
+            <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
               {avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -159,16 +159,16 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-medium text-neutral-500">
+                <div className="flex h-full w-full items-center justify-center text-xs font-medium text-ds-text-subtle">
                   {getInitials(displayName)}
                 </div>
               )}
             </div>
           )}
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-ds-text-muted">
             {displayName}
             {displayName && role && (
-              <span className="text-neutral-600"> &middot; </span>
+              <span className="text-ds-text-subtle"> &middot; </span>
             )}
             {role}
           </p>
@@ -176,10 +176,10 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
       )}
 
       {/* Separator */}
-      <div className="w-full border-t border-neutral-800" />
+      <div className="w-full border-t border-ds-border" />
 
       {/* Attachments placeholder */}
-      <p className="text-sm text-neutral-600">Pitch deck &amp; materials coming soon</p>
+      <p className="text-sm text-ds-text-subtle">Pitch deck &amp; materials coming soon</p>
     </div>
   );
 }
