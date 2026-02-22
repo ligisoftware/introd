@@ -172,6 +172,26 @@
   .ds-hero-in {
     animation: ds-fade-in 0.4s var(--ds-ease-out) both;
   }
+
+  /* Dot grid background */
+  .ds-dot-grid {
+    background-image: radial-gradient(
+      circle,
+      var(--ds-border) 1.5px,
+      transparent 1.5px
+    );
+    background-size: 32px 32px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .ds-dot-grid {
+      background-image: radial-gradient(
+        circle,
+        #1a1a1a 1.5px,
+        transparent 1.5px
+      );
+    }
+  }
 }
 
 @keyframes ds-fade-in {
