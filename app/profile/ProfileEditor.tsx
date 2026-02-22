@@ -201,7 +201,7 @@ export function ProfileEditor({
         return;
       }
 
-      setAvatarUrl(publicUrl);
+      setAvatarUrl(`${publicUrl}?t=${Date.now()}`);
       setAvatarStatus("idle");
       setAvatarMessage("");
     } catch (err) {
@@ -332,7 +332,7 @@ export function ProfileEditor({
         return;
       }
 
-      setLogoUrl(publicUrl);
+      setLogoUrl(`${publicUrl}?t=${Date.now()}`);
       setLogoStatus("idle");
       setLogoMessage("");
     } catch (err) {

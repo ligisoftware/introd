@@ -18,8 +18,9 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
   }
 
   return (
-    <main className="flex flex-1 items-start justify-center bg-ds-bg px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
-      <div className="mx-auto w-full max-w-md ds-hero-in">
+    <main className="relative flex flex-1 items-start justify-center bg-ds-bg px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <div aria-hidden className="pointer-events-none fixed inset-0 ds-dot-grid" />
+      <div className="relative mx-auto w-full max-w-md ds-hero-in">
         <IntroProfileView profile={profile} />
       </div>
     </main>
