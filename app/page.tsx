@@ -11,7 +11,7 @@ export default async function Home() {
       <div className="mx-auto max-w-container-md">
         <div className="max-w-xl ds-hero-in">
           <h1 className="text-3xl font-bold tracking-tight text-ds-text sm:text-4xl">
-            Intro&apos;d
+            Introd
           </h1>
           <p className="mt-3 text-base text-ds-text-muted sm:text-lg">
             Standardized first-impression layer for startup fundraising.

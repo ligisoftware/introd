@@ -3,5 +3,5 @@
  * Called by app/api/health route only.
  */
 export function getHealth(): { status: "ok"; app: string } {
-  return { status: "ok", app: "Intro'd" };
+  return { status: "ok", app: "Introd" };
 }

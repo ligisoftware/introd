@@ -2,7 +2,7 @@ import { FeedbackForm } from "@/app/components/FeedbackForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Feedback — Intro'd",
+  title: "Feedback — Introd",
 };
 
 export default function FeedbackPage() {

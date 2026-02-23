@@ -1,6 +1,6 @@
 # introd
 
-Intro'd MVP: structured intro pages for founders, read-only for investors.
+Introd MVP: structured intro pages for founders, read-only for investors.
 
 ## Getting started
 
