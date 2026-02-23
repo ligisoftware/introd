@@ -1,4 +1,4 @@
-import type { PublicIntroProfile } from "@/types";
+import type { PublicIntroProfile, FundingRound } from "@/types";
 
 function orEmpty(s: string | null | undefined): string {
   return s ?? "";
@@ -12,6 +12,18 @@ function isValidUrl(s: string | null | undefined): boolean {
   } catch {
     return false;
   }
+}
+
+function formatFoundedDate(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+function formatRoundDate(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
 function getInitials(name: string): string {
@@ -36,11 +48,15 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const logoUrl = orEmpty(profile.logoUrl);
   const userLinkedinUrl = orEmpty(profile.userLinkedinUrl);
   const userTwitterUrl = orEmpty(profile.userTwitterUrl);
+  const foundedDate = orEmpty(profile.foundedDate);
+  const fundingRounds: FundingRound[] = profile.fundingRounds ?? [];
+  const validFundingRounds = fundingRounds.filter((r) => r.roundName?.trim());
 
   const hasIdentity = displayName || role || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
   const hasUserLinks = isValidUrl(userLinkedinUrl) || isValidUrl(userTwitterUrl);
-  const isEmpty = !hasIdentity && !introText && !startupOneLiner && !hasLinks;
+  const hasFunding = validFundingRounds.length > 0;
+  const isEmpty = !hasIdentity && !introText && !startupOneLiner && !hasLinks && !hasFunding;
 
   if (isEmpty) {
     return (
@@ -69,6 +85,11 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
         )}
         {startupOneLiner && (
           <p className="mt-2 text-lg text-ds-text-muted">{startupOneLiner}</p>
+        )}
+        {foundedDate && formatFoundedDate(foundedDate) && (
+          <p className="mt-2 text-sm text-ds-text-subtle">
+            Founded {formatFoundedDate(foundedDate)}
+          </p>
         )}
         {hasLinks && (
           <div className="mt-4 flex items-center gap-4">
@@ -138,6 +159,56 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
           <h2 className="mb-3 text-sm font-medium text-ds-text-muted">About us</h2>
           <div className="w-full rounded-2xl border border-ds-border bg-ds-surface p-6">
             <p className="whitespace-pre-wrap leading-relaxed text-ds-text-muted">{introText}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Funding rounds */}
+      {hasFunding && (
+        <div className="w-full">
+          <h2 className="mb-3 text-sm font-medium text-ds-text-muted">Funding</h2>
+          <div className="w-full rounded-2xl border border-ds-border bg-ds-surface p-6">
+            <div className="space-y-4">
+              {validFundingRounds.map((round, idx) => {
+                const isSafe = round.type === "safe";
+                return (
+                  <div key={idx} className="flex items-baseline justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-ds-text">{round.roundName}</p>
+                        {isSafe && (
+                          <span className="rounded-ds-sm bg-ds-surface-hover px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ds-text-subtle">
+                            SAFE
+                          </span>
+                        )}
+                      </div>
+                      {round.date && formatRoundDate(round.date) && (
+                        <p className="text-xs text-ds-text-subtle">
+                          {formatRoundDate(round.date)}
+                        </p>
+                      )}
+                    </div>
+                    <div className="shrink-0 text-right">
+                      {round.amount && (
+                        <p className="text-sm font-medium text-ds-text-muted">
+                          {round.amount}
+                        </p>
+                      )}
+                      {isSafe && round.valuationCap && (
+                        <p className="text-xs text-ds-text-subtle">
+                          {round.valuationCap} cap
+                        </p>
+                      )}
+                      {!isSafe && round.postValuation && (
+                        <p className="text-xs text-ds-text-subtle">
+                          {round.postValuation} post
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

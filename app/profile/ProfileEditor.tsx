@@ -1,7 +1,7 @@
 "use client";
 
-import type { User, Intro } from "@/types";
-import { useState, useEffect } from "react";
+import type { User, Intro, FundingRound } from "@/types";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 function orEmpty(s: string | null | undefined): string {
@@ -39,6 +39,150 @@ export function ProfileEditor({
   const [websiteUrl, setWebsiteUrl] = useState(orEmpty(initialIntro.websiteUrl));
   const [linkedinUrl, setLinkedinUrl] = useState(orEmpty(initialIntro.linkedinUrl));
   const [twitterUrl, setTwitterUrl] = useState(orEmpty(initialIntro.twitterUrl));
+  const [foundedDate, setFoundedDate] = useState(orEmpty(initialIntro.foundedDate));
+  const [fundingRounds, setFundingRounds] = useState<FundingRound[]>(
+    initialIntro.fundingRounds ?? []
+  );
+
+  const [dragState, setDragState] = useState<{
+    fromIdx: number;
+    currentIdx: number;
+    offsetY: number;
+    offsetX: number;
+    pointerY: number;
+    pointerX: number;
+    cardWidth: number;
+    cardHeight: number;
+  } | null>(null);
+  const fundingCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const fundingListRef = useRef<HTMLDivElement>(null);
+
+  // Refs so document-level listeners always see fresh values without re-registering
+  const fundingRoundsRef = useRef(fundingRounds);
+  fundingRoundsRef.current = fundingRounds;
+  const dragStateRef = useRef(dragState);
+  dragStateRef.current = dragState;
+  const isDragging = dragState !== null;
+
+  function handlePointerDown(e: React.PointerEvent, idx: number) {
+    if (e.button !== 0) return;
+    const card = fundingCardRefs.current[idx];
+    if (!card) return;
+
+    e.preventDefault();
+    const rect = card.getBoundingClientRect();
+
+    setDragState({
+      fromIdx: idx,
+      currentIdx: idx,
+      offsetY: e.clientY - rect.top,
+      offsetX: e.clientX - rect.left,
+      pointerY: e.clientY,
+      pointerX: e.clientX,
+      cardWidth: rect.width,
+      cardHeight: rect.height,
+    });
+  }
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const preventSelect = (e: Event) => e.preventDefault();
+    document.addEventListener("selectstart", preventSelect);
+
+    function onPointerMove(e: PointerEvent) {
+      e.preventDefault();
+      const ds = dragStateRef.current;
+      if (!ds) return;
+
+      const { fromIdx } = ds;
+      const listEl = fundingListRef.current;
+      let newCurrentIdx: number | null = null;
+
+      if (listEl) {
+        const listRect = listEl.getBoundingClientRect();
+        const insideList =
+          e.clientX >= listRect.left &&
+          e.clientX <= listRect.right &&
+          e.clientY >= listRect.top &&
+          e.clientY <= listRect.bottom;
+
+        if (insideList) {
+          let targetIdx = fromIdx;
+          const rounds = fundingRoundsRef.current;
+          const cards = fundingCardRefs.current;
+          for (let i = 0; i < rounds.length; i++) {
+            if (i === fromIdx) continue;
+            const el = cards[i];
+            if (!el) continue;
+            const rect = el.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            if (e.clientY < midY) {
+              targetIdx = i < fromIdx ? i : targetIdx;
+              break;
+            }
+            targetIdx = i >= fromIdx ? i : targetIdx;
+          }
+          newCurrentIdx = Math.max(0, Math.min(rounds.length - 1, targetIdx));
+        }
+      }
+
+      setDragState((prev) =>
+        prev
+          ? {
+              ...prev,
+              pointerY: e.clientY,
+              pointerX: e.clientX,
+              ...(newCurrentIdx !== null ? { currentIdx: newCurrentIdx } : {}),
+            }
+          : null
+      );
+    }
+
+    function onPointerUp() {
+      const ds = dragStateRef.current;
+      if (ds && ds.fromIdx !== ds.currentIdx) {
+        setFundingRounds((arr) => {
+          const next = [...arr];
+          const [moved] = next.splice(ds.fromIdx, 1);
+          next.splice(ds.currentIdx, 0, moved);
+          return next;
+        });
+      }
+      setDragState(null);
+    }
+
+    document.addEventListener("pointermove", onPointerMove);
+    document.addEventListener("pointerup", onPointerUp);
+
+    return () => {
+      document.removeEventListener("selectstart", preventSelect);
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
+    };
+  }, [isDragging]);
+
+  /** Build the visually-ordered list for rendering. */
+  function getDragReorderedIndices(): number[] {
+    const indices = fundingRounds.map((_, i) => i);
+    if (!dragState || dragState.fromIdx === dragState.currentIdx) return indices;
+    const { fromIdx, currentIdx } = dragState;
+    indices.splice(fromIdx, 1);
+    indices.splice(currentIdx, 0, fromIdx);
+    return indices;
+  }
+
+  const introTextRef = useRef<HTMLTextAreaElement>(null);
+  const autoResizeIntroText = useCallback(() => {
+    const el = introTextRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, []);
+
+  useEffect(() => {
+    autoResizeIntroText();
+  }, [introText, autoResizeIntroText]);
 
   const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -81,6 +225,8 @@ export function ProfileEditor({
         websiteUrl: websiteUrl.trim() || undefined,
         linkedinUrl: linkedinUrl.trim() || undefined,
         twitterUrl: twitterUrl.trim() || undefined,
+        foundedDate: foundedDate.trim() || undefined,
+        fundingRounds: fundingRounds.filter((r) => r.roundName.trim()),
       },
     };
 
@@ -642,21 +788,247 @@ export function ProfileEditor({
               <p className="mt-1.5 text-xs text-ds-text-subtle">{startupOneLiner.length}/300</p>
             </div>
             <div>
+              <label htmlFor="foundedDate" className={labelClass}>
+                Founded
+              </label>
+              <input
+                id="foundedDate"
+                type="date"
+                value={foundedDate}
+                onChange={(e) => setFoundedDate(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+              />
+            </div>
+            <div>
               <label htmlFor="introText" className={labelClass}>
                 Intro
               </label>
               <textarea
+                ref={introTextRef}
                 id="introText"
                 rows={4}
                 placeholder="A short intro about you and what you're building."
                 value={introText}
                 onChange={(e) => setIntroText(e.target.value)}
                 disabled={isSaving}
-                className={`${inputClass} min-h-[100px] resize-y`}
+                className={`${inputClass} min-h-[100px] resize-y overflow-hidden`}
               />
               <p className="mt-1.5 text-xs text-ds-text-subtle">
                 {introText.trim() ? introText.trim().split(/\s+/).length : 0}/500
               </p>
+            </div>
+
+            <hr className="border-ds-border" />
+
+            <div>
+              <div className="flex items-center justify-between">
+                <span className={labelClass}>Funding</span>
+                {fundingRounds.length < 20 && (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFundingRounds((prev) => [
+                          ...prev,
+                          { type: "round", roundName: "", amount: "", date: "" },
+                        ])
+                      }
+                      disabled={isSaving}
+                      className="text-xs font-medium text-ds-accent underline underline-offset-2"
+                    >
+                      + Round
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFundingRounds((prev) => [
+                          ...prev,
+                          { type: "safe", roundName: "", amount: "", date: "" },
+                        ])
+                      }
+                      disabled={isSaving}
+                      className="text-xs font-medium text-ds-accent underline underline-offset-2"
+                    >
+                      + SAFE
+                    </button>
+                  </div>
+                )}
+              </div>
+              {fundingRounds.length === 0 && (
+                <p className="mt-1.5 text-xs text-ds-text-subtle">
+                  No funding rounds or SAFEs added yet.
+                </p>
+              )}
+              <div
+                ref={fundingListRef}
+                className="mt-2 space-y-3"
+              >
+                {getDragReorderedIndices().map((idx) => {
+                  const round = fundingRounds[idx];
+                  const isSafe = round.type === "safe";
+                  const isDragged = dragState !== null && idx === dragState.fromIdx;
+
+                  if (isDragged) {
+                    return (
+                      <div
+                        key={idx}
+                        style={{ height: dragState.cardHeight }}
+                        className="rounded-ds border-2 border-dashed border-ds-accent/40 bg-ds-accent/5"
+                      />
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={idx}
+                      ref={(el) => { fundingCardRefs.current[idx] = el; }}
+                      className="rounded-ds border border-ds-border bg-ds-surface-hover p-3 space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            onPointerDown={(e) => handlePointerDown(e, idx)}
+                            className="cursor-grab touch-none select-none text-ds-text-subtle active:cursor-grabbing"
+                            title="Drag to reorder"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01" />
+                            </svg>
+                          </span>
+                          <span className="text-xs font-medium text-ds-text-muted">
+                            {isSafe ? "SAFE" : "Round"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFundingRounds((prev) => prev.filter((_, i) => i !== idx))
+                          }
+                          disabled={isSaving}
+                          className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder={isSafe ? "e.g. Investor name or note" : "e.g. Pre-seed, Seed, Series A"}
+                        value={round.roundName}
+                        onChange={(e) =>
+                          setFundingRounds((prev) =>
+                            prev.map((r, i) =>
+                              i === idx ? { ...r, roundName: e.target.value } : r
+                            )
+                          )
+                        }
+                        disabled={isSaving}
+                        className={inputClass}
+                        maxLength={100}
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="Amount (e.g. $2M)"
+                          value={orEmpty(round.amount)}
+                          onChange={(e) =>
+                            setFundingRounds((prev) =>
+                              prev.map((r, i) =>
+                                i === idx ? { ...r, amount: e.target.value } : r
+                              )
+                            )
+                          }
+                          disabled={isSaving}
+                          className={inputClass}
+                          maxLength={50}
+                        />
+                        <input
+                          type="date"
+                          value={orEmpty(round.date)}
+                          onChange={(e) =>
+                            setFundingRounds((prev) =>
+                              prev.map((r, i) =>
+                                i === idx ? { ...r, date: e.target.value } : r
+                              )
+                            )
+                          }
+                          disabled={isSaving}
+                          className={inputClass}
+                        />
+                      </div>
+                      {isSafe ? (
+                        <input
+                          type="text"
+                          placeholder="Valuation cap (e.g. $10M)"
+                          value={orEmpty(round.valuationCap)}
+                          onChange={(e) =>
+                            setFundingRounds((prev) =>
+                              prev.map((r, i) =>
+                                i === idx ? { ...r, valuationCap: e.target.value } : r
+                              )
+                            )
+                          }
+                          disabled={isSaving}
+                          className={inputClass}
+                          maxLength={50}
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="Post-money valuation (e.g. $10M)"
+                          value={orEmpty(round.postValuation)}
+                          onChange={(e) =>
+                            setFundingRounds((prev) =>
+                              prev.map((r, i) =>
+                                i === idx ? { ...r, postValuation: e.target.value } : r
+                              )
+                            )
+                          }
+                          disabled={isSaving}
+                          className={inputClass}
+                          maxLength={50}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              {dragState && (() => {
+                const round = fundingRounds[dragState.fromIdx];
+                const isSafe = round.type === "safe";
+                return (
+                  <div
+                    style={{
+                      position: "fixed",
+                      top: dragState.pointerY - dragState.offsetY,
+                      left: dragState.pointerX - dragState.offsetX,
+                      width: dragState.cardWidth,
+                      zIndex: 50,
+                      pointerEvents: "none",
+                    }}
+                    className="rounded-ds border border-ds-accent bg-ds-surface p-3 space-y-2 shadow-ds-md opacity-90"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-ds-text-subtle">
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01" />
+                        </svg>
+                      </span>
+                      <span className="text-xs font-medium text-ds-text-muted">
+                        {isSafe ? "SAFE" : "Round"}
+                      </span>
+                    </div>
+                    {round.roundName && (
+                      <p className="text-sm text-ds-text truncate">{round.roundName}</p>
+                    )}
+                    {(round.amount || (isSafe ? round.valuationCap : round.postValuation)) && (
+                      <p className="text-xs text-ds-text-muted truncate">
+                        {[round.amount, isSafe ? round.valuationCap && `${round.valuationCap} cap` : round.postValuation && `${round.postValuation} post`].filter(Boolean).join(" · ")}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             <hr className="border-ds-border" />

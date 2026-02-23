@@ -19,6 +19,25 @@ function isValidUrl(s: string): boolean {
   }
 }
 
+const optionalShortText = z
+  .string()
+  .max(50)
+  .optional()
+  .transform((s) => (s === "" ? undefined : s));
+
+const FundingRoundSchema = z.object({
+  type: z.enum(["round", "safe"]).optional(),
+  roundName: z.string().min(1).max(100),
+  amount: optionalShortText,
+  date: z
+    .string()
+    .max(10)
+    .optional()
+    .transform((s) => (s === "" ? undefined : s)),
+  postValuation: optionalShortText,
+  valuationCap: optionalShortText,
+});
+
 /** Schema for intro updates. */
 export const IntroUpdateSchema = z.object({
   startupName: z.string().max(200).optional(),
@@ -34,6 +53,15 @@ export const IntroUpdateSchema = z.object({
   linkedinUrl: optionalUrl,
   twitterUrl: optionalUrl,
   logoUrl: optionalUrl,
+  foundedDate: z
+    .string()
+    .max(10)
+    .optional()
+    .transform((s) => (s === "" ? undefined : s))
+    .refine((s) => s === undefined || /^\d{4}-\d{2}-\d{2}$/.test(s), {
+      message: "Must be a valid date (YYYY-MM-DD)",
+    }),
+  fundingRounds: z.array(FundingRoundSchema).max(20).optional(),
 });
 
 export type IntroUpdateInput = z.infer<typeof IntroUpdateSchema>;
