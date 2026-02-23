@@ -2,6 +2,15 @@
  * Shared domain types for Intro'd.
  */
 
+export interface FundingRound {
+  type?: "round" | "safe";
+  roundName: string;
+  amount?: string | null;
+  date?: string | null;
+  postValuation?: string | null;
+  valuationCap?: string | null;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -25,6 +34,8 @@ export interface Intro {
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
   logoUrl?: string | null;
+  foundedDate?: string | null;
+  fundingRounds?: FundingRound[] | null;
   createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
 }
@@ -43,6 +54,8 @@ export interface PublicIntroProfile {
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
   logoUrl?: string | null;
+  foundedDate?: string | null;
+  fundingRounds?: FundingRound[] | null;
 }
 
 export interface IntroPage {

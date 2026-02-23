@@ -50,6 +50,12 @@ export async function updateIntro(
   if (keys.includes("logoUrl")) {
     row.logo_url = parsed.logoUrl ?? null;
   }
+  if (keys.includes("foundedDate")) {
+    row.founded_date = parsed.foundedDate ?? null;
+  }
+  if (keys.includes("fundingRounds")) {
+    row.funding_rounds = parsed.fundingRounds ?? null;
+  }
 
   return update(supabase, introId, row);
 }
