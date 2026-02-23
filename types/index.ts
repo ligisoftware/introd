@@ -1,5 +1,5 @@
 /**
- * Shared domain types for Intro'd.
+ * Shared domain types for Introd.
  */
 
 export interface FundingRound {

@@ -1,6 +1,6 @@
 # Design System
 
-Design tokens and theming for Intro'd. Supports **light and dark mode** via `prefers-color-scheme` (and optional `.dark` class on `html`).
+Design tokens and theming for Introd. Supports **light and dark mode** via `prefers-color-scheme` (and optional `.dark` class on `html`).
 
 ## Usage
 

@@ -13,7 +13,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Intro'd",
+  title: "Introd",
   description: "Standardized first-impression layer for startup fundraising",
 };
 
@@ -34,7 +34,7 @@ export default async function RootLayout({
               href="/"
               className="rounded-ds-sm text-lg font-semibold tracking-tight text-ds-text transition-colors duration-ds ease-ds hover:text-ds-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
             >
-              Intro&apos;d
+              Introd
             </Link>
             <nav className="flex items-center gap-3 sm:gap-6" aria-label="Account">
               {user ? (

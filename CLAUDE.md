@@ -2,7 +2,7 @@
 
 ## Project
 
-Intro'd — a founder profile-sharing app built with Next.js (App Router), Supabase, and Tailwind CSS.
+Introd — a founder profile-sharing app built with Next.js (App Router), Supabase, and Tailwind CSS.
 
 ## Tech stack
 
