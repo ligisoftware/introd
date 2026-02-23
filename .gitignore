@@ -5,10 +5,23 @@ node_modules/
 .next/
 next-env.d.ts
 
+# TypeScript build info
+tsconfig.tsbuildinfo
+
 # Environment
 .env*.local
 
-# Google Docs MCP – do not commit
+# IDE / editor
+.cursor/
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Google Docs MCP
 credentials.json
 token.json
+
+# Vercel
 .vercel
