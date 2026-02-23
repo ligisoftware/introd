@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser, updateUserProfile } from "@/services/user";
-import { getCurrentIntro, updateIntro } from "@/services/intro";
+import { getCurrentIntro } from "@/services/intro";
 import { UserProfileUpdateSchema } from "@/lib/validation/user-profile";
-import { IntroUpdateSchema } from "@/lib/validation/intro";
 import { NextResponse } from "next/server";
 
 /**
@@ -43,10 +42,9 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Body must be an object" }, { status: 400 });
   }
 
-  const { user: userPayload, intro: introPayload } = body as Record<string, unknown>;
+  const { user: userPayload } = body as Record<string, unknown>;
 
   let updatedUser = currentUser;
-  let updatedIntro = await getCurrentIntro(supabase, currentUser.id);
 
   // Update user fields if provided
   if (userPayload !== undefined) {
@@ -63,25 +61,5 @@ export async function PATCH(request: Request) {
     updatedUser = await updateUserProfile(supabase, currentUser.id, parsed.data, keys);
   }
 
-  // Update intro fields if provided
-  if (introPayload !== undefined) {
-    const parsed = IntroUpdateSchema.safeParse(introPayload);
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Intro validation failed", details: parsed.error.flatten() },
-        { status: 400 }
-      );
-    }
-    const keys = Object.keys(
-      (introPayload as Record<string, unknown>) ?? {}
-    ) as (keyof typeof parsed.data)[];
-    try {
-      updatedIntro = await updateIntro(supabase, updatedIntro.id, parsed.data, keys);
-    } catch (err) {
-      console.error("PATCH /api/me intro error:", err);
-      return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
-    }
-  }
-
-  return NextResponse.json({ user: updatedUser, intro: updatedIntro });
+  return NextResponse.json({ user: updatedUser });
 }

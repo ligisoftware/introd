@@ -13,18 +13,25 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleMouseEnter() {
+    if (closeTimeout.current) {
+      clearTimeout(closeTimeout.current);
+      closeTimeout.current = null;
+    }
+    setOpen(true);
+  }
+
+  function handleMouseLeave() {
+    closeTimeout.current = setTimeout(() => setOpen(false), 150);
+  }
 
   useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [open]);
+    return () => {
+      if (closeTimeout.current) clearTimeout(closeTimeout.current);
+    };
+  }, []);
 
   useEffect(() => {
     function handleEscape(e: KeyboardEvent) {
@@ -45,12 +52,16 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
   }
 
   return (
-    <div ref={menuRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((prev) => !prev)}
-        aria-expanded={open}
+    <div
+      ref={menuRef}
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <Link
+        href="/profile"
         aria-haspopup="true"
+        aria-expanded={open}
         className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-ds-accent text-sm font-medium text-ds-text-inverse transition-opacity duration-ds ease-ds hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
       >
         {avatarUrl ? (
@@ -59,7 +70,7 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
         ) : (
           getInitial(email)
         )}
-      </button>
+      </Link>
 
       {open && (
         <div

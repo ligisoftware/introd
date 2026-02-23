@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
-import { getCurrentIntro } from "@/services/intro";
+import { getIntroById } from "@/services/intro";
 import { setShareSlug } from "@/repositories/intros";
 import { NextResponse } from "next/server";
 
@@ -15,10 +15,10 @@ function generateShareSlug(): string {
 }
 
 /**
- * POST /api/me/share — Generate or return the intro's share link.
- * Body: { regenerate?: boolean } — if true, generate a new slug.
+ * POST /api/intros/[id]/share — Generate or return the intro's share link.
+ * Each intro gets one permanent link; subsequent calls return the existing link.
  */
-export async function POST(request: Request) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
@@ -26,18 +26,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const intro = await getCurrentIntro(supabase, user.id);
+  const { id } = await params;
+  const intro = await getIntroById(supabase, id, user.id);
 
-  const origin = new URL(request.url).origin;
-  let regenerate = false;
-  try {
-    const body = await request.json().catch(() => ({}));
-    regenerate = body?.regenerate === true;
-  } catch {
-    // no body or invalid JSON: keep regenerate false
+  if (!intro) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  if (!regenerate && intro.shareSlug) {
+  const origin = new URL(request.url).origin;
+
+  if (intro.shareSlug) {
     return NextResponse.json({ url: `${origin}/i/${intro.shareSlug}` });
   }
 

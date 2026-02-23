@@ -1,14 +1,22 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
-import { redirect } from "next/navigation";
-import { ProfileEditor } from "./ProfileEditor";
+import { getIntroById } from "@/services/intro";
+import { redirect, notFound } from "next/navigation";
+import { IntroEditor } from "./IntroEditor";
 
-export default async function ProfilePage() {
+export default async function IntroEditPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
   if (!user) {
-    redirect("/login?next=/profile");
+    redirect("/login?next=/intro");
+  }
+
+  const { id } = await params;
+  const intro = await getIntroById(supabase, id, user.id);
+
+  if (!intro) {
+    notFound();
   }
 
   return (
@@ -16,13 +24,13 @@ export default async function ProfilePage() {
       <div className="mx-auto max-w-container-lg">
         <header className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
-            Edit your profile
+            Edit your intro
           </h1>
           <p className="mt-1.5 text-sm text-ds-text-muted">
-            This is how you&apos;ll appear to others. You can come back anytime to update it.
+            The details that appear on your shareable intro page.
           </p>
         </header>
-        <ProfileEditor initialUser={user} />
+        <IntroEditor initialIntro={intro} />
       </div>
     </main>
   );

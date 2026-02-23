@@ -1,4 +1,5 @@
 import { AuthBar } from "@/app/components/AuthBar";
+import { NavLinks } from "@/app/components/NavLinks";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import type { Metadata } from "next";
@@ -36,6 +37,7 @@ export default async function RootLayout({
             >
               Introd
             </Link>
+            {user && <NavLinks />}
             <nav className="flex items-center gap-3 sm:gap-6" aria-label="Account">
               {user ? (
                 <AuthBar email={user.email} avatarUrl={user.avatarUrl} />
