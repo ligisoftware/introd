@@ -1,7 +1,7 @@
 "use client";
 
 import type { User, Intro, FundingRound } from "@/types";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 function orEmpty(s: string | null | undefined): string {
@@ -56,6 +56,7 @@ export function ProfileEditor({
   } | null>(null);
   const fundingCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const fundingListRef = useRef<HTMLDivElement>(null);
+  const swapCooldown = useRef(0);
 
   // Refs so document-level listeners always see fresh values without re-registering
   const fundingRoundsRef = useRef(fundingRounds);
@@ -107,23 +108,61 @@ export function ProfileEditor({
           e.clientY >= listRect.top &&
           e.clientY <= listRect.bottom;
 
-        if (insideList) {
-          let targetIdx = fromIdx;
+        if (insideList && Date.now() > swapCooldown.current) {
           const rounds = fundingRoundsRef.current;
           const cards = fundingCardRefs.current;
-          for (let i = 0; i < rounds.length; i++) {
-            if (i === fromIdx) continue;
-            const el = cards[i];
-            if (!el) continue;
-            const rect = el.getBoundingClientRect();
-            const midY = rect.top + rect.height / 2;
-            if (e.clientY < midY) {
-              targetIdx = i < fromIdx ? i : targetIdx;
-              break;
+
+          // Check the card directly above and below the placeholder
+          // in the current visual order, and swap if pointer enters 15%
+          let targetIdx = ds.currentIdx;
+
+          // Build reduced list (without dragged item) to find neighbors
+          const withoutDragged = rounds.map((_, i) => i).filter((i) => i !== fromIdx);
+
+          // Card visually just below the placeholder: swap down if pointer enters 15% from its top
+          if (ds.currentIdx < withoutDragged.length) {
+            const belowIdx = withoutDragged[ds.currentIdx];
+            const el = cards[belowIdx];
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (e.clientY >= rect.top + rect.height * 0.15) {
+                targetIdx = ds.currentIdx + 1;
+              }
             }
-            targetIdx = i >= fromIdx ? i : targetIdx;
+          }
+
+          // Card visually just above the placeholder: swap up if pointer enters 15% from its bottom
+          if (ds.currentIdx > 0 && targetIdx === ds.currentIdx) {
+            const aboveIdx = withoutDragged[ds.currentIdx - 1];
+            const el = cards[aboveIdx];
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (e.clientY <= rect.bottom - rect.height * 0.15) {
+                targetIdx = ds.currentIdx - 1;
+              }
+            }
+          }
+
+          if (targetIdx !== ds.currentIdx) {
+            swapCooldown.current = Date.now() + 150;
           }
           newCurrentIdx = Math.max(0, Math.min(rounds.length - 1, targetIdx));
+        } else if (
+          !insideList &&
+          Date.now() > swapCooldown.current &&
+          e.clientX >= listRect.left &&
+          e.clientX <= listRect.right
+        ) {
+          // Pointer is in the center content column but above/below the list
+          const rounds = fundingRoundsRef.current;
+          const lastIdx = rounds.length - 1;
+          if (e.clientY < listRect.top && ds.currentIdx !== 0) {
+            newCurrentIdx = 0;
+            swapCooldown.current = Date.now() + 150;
+          } else if (e.clientY > listRect.bottom && ds.currentIdx !== lastIdx) {
+            newCurrentIdx = lastIdx;
+            swapCooldown.current = Date.now() + 150;
+          }
         }
       }
 
@@ -171,6 +210,53 @@ export function ProfileEditor({
     indices.splice(currentIdx, 0, fromIdx);
     return indices;
   }
+
+  // FLIP animation: only animate when currentIdx changes during an active drag
+  const prevCurrentIdx = useRef<number | null>(null);
+  const cardPositions = useRef<Map<number, number>>(new Map());
+
+  // Capture positions before render when a swap is about to happen
+  const shouldFlip = useRef(false);
+  const currentIdx = dragState?.currentIdx ?? null;
+
+  if (isDragging && prevCurrentIdx.current !== null && currentIdx !== prevCurrentIdx.current) {
+    // Snapshot positions right before React re-renders the new order
+    const snap = new Map<number, number>();
+    fundingCardRefs.current.forEach((el, idx) => {
+      if (el && (!dragState || idx !== dragState.fromIdx)) {
+        snap.set(idx, el.getBoundingClientRect().top);
+      }
+    });
+    cardPositions.current = snap;
+    shouldFlip.current = true;
+  }
+  prevCurrentIdx.current = currentIdx;
+
+  useLayoutEffect(() => {
+    if (!shouldFlip.current) return;
+    shouldFlip.current = false;
+
+    const prev = cardPositions.current;
+
+    fundingCardRefs.current.forEach((el, idx) => {
+      if (!el || (dragState && idx === dragState.fromIdx)) return;
+      const newTop = el.getBoundingClientRect().top;
+      const prevTop = prev.get(idx);
+      if (prevTop === undefined) return;
+      const delta = prevTop - newTop;
+      if (Math.abs(delta) < 1) return;
+
+      el.style.transition = "none";
+      el.style.transform = `translateY(${delta}px)`;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.style.transition = "transform 200ms ease";
+          el.style.transform = "";
+        });
+      });
+    });
+  });
 
   const introTextRef = useRef<HTMLTextAreaElement>(null);
   const autoResizeIntroText = useCallback(() => {
