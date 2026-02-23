@@ -29,12 +29,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const subject = body.slug ? `Introd feedback (page: /p/${body.slug})` : "Introd feedback";
+  const subject = body.slug ? `Introd feedback (page: /i/${body.slug})` : "Introd feedback";
   const from = process.env.RESEND_FROM_EMAIL ?? "Introd <onboarding@resend.dev>";
   const replyTo = body.email && body.email.trim() ? body.email.trim() : undefined;
 
   const text = [
-    body.slug ? `Page: /p/${body.slug}` : null,
+    body.slug ? `Page: /i/${body.slug}` : null,
     replyTo ? `From: ${replyTo}` : null,
     "",
     body.message,

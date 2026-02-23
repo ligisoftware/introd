@@ -1,6 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Intro } from "@/types";
-import { getByUserId, create, update } from "@/repositories/intros";
+import {
+  getByUserId,
+  listByUserId,
+  getById,
+  create,
+  update,
+  deleteById,
+  countByUserId,
+} from "@/repositories/intros";
 import type { IntroUpdateRow } from "@/repositories/intros";
 import { IntroUpdateSchema, type IntroUpdateInput } from "@/lib/validation/intro";
 
@@ -12,6 +20,59 @@ export async function getCurrentIntro(supabase: SupabaseClient, userId: string):
   if (existing) return existing;
 
   return create(supabase, userId);
+}
+
+/**
+ * Returns all intros for a user, ordered by created_at ascending.
+ */
+export async function listIntros(supabase: SupabaseClient, userId: string): Promise<Intro[]> {
+  return listByUserId(supabase, userId);
+}
+
+/**
+ * Fetches a single intro by ID and verifies ownership.
+ */
+export async function getIntroById(
+  supabase: SupabaseClient,
+  introId: string,
+  userId: string
+): Promise<Intro | null> {
+  const intro = await getById(supabase, introId);
+  if (!intro || intro.userId !== userId) return null;
+  return intro;
+}
+
+const MAX_INTROS = 3;
+
+/**
+ * Creates a new intro for the user, enforcing a maximum of 3.
+ */
+export async function createIntro(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<{ intro?: Intro; error?: string }> {
+  const count = await countByUserId(supabase, userId);
+  if (count >= MAX_INTROS) {
+    return { error: `You can have at most ${MAX_INTROS} intros` };
+  }
+  const intro = await create(supabase, userId);
+  return { intro };
+}
+
+/**
+ * Deletes an intro after verifying ownership.
+ */
+export async function deleteIntro(
+  supabase: SupabaseClient,
+  introId: string,
+  userId: string
+): Promise<{ error?: string }> {
+  const intro = await getById(supabase, introId);
+  if (!intro || intro.userId !== userId) {
+    return { error: "Not found" };
+  }
+  await deleteById(supabase, introId);
+  return {};
 }
 
 /**

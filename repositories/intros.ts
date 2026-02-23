@@ -115,6 +115,38 @@ export async function getByUserId(
   return rowToIntro(data as IntroRow);
 }
 
+export async function listByUserId(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<Intro[]> {
+  const { data, error } = await supabase
+    .from("intros")
+    .select(INTRO_SELECT)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  if (!data) return [];
+
+  return (data as IntroRow[]).map(rowToIntro);
+}
+
+export async function getById(
+  supabase: SupabaseClient,
+  id: string
+): Promise<Intro | null> {
+  const { data, error } = await supabase
+    .from("intros")
+    .select(INTRO_SELECT)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  return rowToIntro(data as IntroRow);
+}
+
 export async function create(supabase: SupabaseClient, userId: string): Promise<Intro> {
   const { data, error } = await supabase
     .from("intros")
@@ -163,6 +195,21 @@ export async function getByShareSlug(
   if (!data) return null;
 
   return joinedRowToPublicProfile(data as unknown as PublicIntroJoinRow);
+}
+
+export async function deleteById(supabase: SupabaseClient, id: string): Promise<void> {
+  const { error } = await supabase.from("intros").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function countByUserId(supabase: SupabaseClient, userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("intros")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId);
+
+  if (error) throw error;
+  return count ?? 0;
 }
 
 export async function setShareSlug(
