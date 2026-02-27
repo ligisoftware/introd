@@ -80,9 +80,42 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
           </div>
         )}
         <div className="min-w-0 flex-1">
-          {name && <p className="truncate font-medium text-ds-text">{name}</p>}
+          {name && (
+            <div className="flex items-center gap-2">
+              <p className="truncate font-medium text-ds-text">{name}</p>
+              {isValidUrl(memberLinkedin) && (
+                <a
+                  href={memberLinkedin.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`${name || "Team member"} on LinkedIn`}
+                  className="shrink-0 text-[#0A66C2] transition-opacity duration-ds ease-ds-out hover:opacity-80"
+                >
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24">
+                    <rect width="24" height="24" rx="4" fill="currentColor" />
+                    <path
+                      fill="white"
+                      d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z"
+                    />
+                  </svg>
+                </a>
+              )}
+              {isValidUrl(memberTwitter) && (
+                <a
+                  href={memberTwitter.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`${name || "Team member"} on X`}
+                  className="shrink-0 text-ds-text transition-opacity duration-ds ease-ds-out hover:opacity-70"
+                >
+                  <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          )}
           {memberTitle && <p className="truncate text-sm text-ds-text-muted">{memberTitle}</p>}
-          {memberBio && <p className="mt-0.5 text-sm text-ds-text-muted">{memberBio}</p>}
           {memberEmail && (
             <p className="truncate text-sm text-ds-text-muted">
               <a
@@ -98,39 +131,8 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
               Since {formatStartDate(memberStartDate)}
             </p>
           )}
-          {hasMemberLinks && (
-            <div className="mt-1.5 flex items-center gap-3">
-              {isValidUrl(memberLinkedin) && (
-                <a
-                  href={memberLinkedin.trim()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={`${name || "Team member"} on LinkedIn`}
-                  className="text-[#0A66C2] transition-opacity duration-ds ease-ds-out hover:opacity-80"
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24">
-                    <rect width="24" height="24" rx="4" fill="currentColor" />
-                    <path
-                      fill="white"
-                      d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z"
-                    />
-                  </svg>
-                </a>
-              )}
-              {isValidUrl(memberTwitter) && (
-                <a
-                  href={memberTwitter.trim()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={`${name || "Team member"} on X`}
-                  className="text-ds-text transition-opacity duration-ds ease-ds-out hover:opacity-70"
-                >
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                </a>
-              )}
-            </div>
+          {memberBio && (
+            <p className="mt-3 text-sm leading-relaxed text-ds-text-muted">{memberBio}</p>
           )}
         </div>
       </div>

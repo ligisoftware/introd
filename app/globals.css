@@ -35,9 +35,9 @@
   --ds-font-mono: ui-monospace, "SF Mono", monospace;
 
   /* Glass surfaces */
-  --ds-glass: rgba(255, 255, 255, 0.72);
-  --ds-glass-border: rgba(231, 229, 228, 0.6);
-  --ds-glass-highlight: rgba(255, 255, 255, 0.08);
+  --ds-glass: rgba(255, 255, 255, 0.42);
+  --ds-glass-border: rgba(231, 229, 228, 0.5);
+  --ds-glass-highlight: rgba(255, 255, 255, 0.12);
 
   /* Effects */
   --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
@@ -78,9 +78,9 @@
     --ds-error-muted: #450a0a;
     --ds-focus-ring: #3b82f6;
 
-    --ds-glass: rgba(10, 10, 10, 0.72);
-    --ds-glass-border: rgba(38, 38, 38, 0.6);
-    --ds-glass-highlight: rgba(255, 255, 255, 0.04);
+    --ds-glass: rgba(10, 10, 10, 0.58);
+    --ds-glass-border: rgba(38, 38, 38, 0.5);
+    --ds-glass-highlight: rgba(255, 255, 255, 0.06);
 
     --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
     --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
@@ -108,8 +108,8 @@
   --ds-error: #ef4444;
   --ds-error-muted: #450a0a;
   --ds-focus-ring: #3b82f6;
-  --ds-glass: rgba(10, 10, 10, 0.72);
-  --ds-glass-border: rgba(38, 38, 38, 0.6);
+  --ds-glass: rgba(10, 10, 10, 0.5);
+  --ds-glass-border: rgba(38, 38, 38, 0.45);
   --ds-glass-highlight: rgba(255, 255, 255, 0.04);
 
   --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
@@ -190,9 +190,6 @@
   .ds-glass {
     background: var(--ds-glass);
     border: 1px solid var(--ds-glass-border);
-    box-shadow:
-      var(--ds-shadow-sm),
-      inset 0 1px 0 0 var(--ds-glass-highlight);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
   }
