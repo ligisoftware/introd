@@ -34,6 +34,11 @@
   --ds-font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --ds-font-mono: ui-monospace, "SF Mono", monospace;
 
+  /* Glass surfaces */
+  --ds-glass: rgba(255, 255, 255, 0.72);
+  --ds-glass-border: rgba(231, 229, 228, 0.6);
+  --ds-glass-highlight: rgba(255, 255, 255, 0.08);
+
   /* Effects */
   --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
   --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
@@ -73,6 +78,10 @@
     --ds-error-muted: #450a0a;
     --ds-focus-ring: #3b82f6;
 
+    --ds-glass: rgba(10, 10, 10, 0.72);
+    --ds-glass-border: rgba(38, 38, 38, 0.6);
+    --ds-glass-highlight: rgba(255, 255, 255, 0.04);
+
     --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
     --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
     --ds-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.25), 0 2px 4px -2px rgb(0 0 0 / 0.2);
@@ -99,6 +108,10 @@
   --ds-error: #ef4444;
   --ds-error-muted: #450a0a;
   --ds-focus-ring: #3b82f6;
+  --ds-glass: rgba(10, 10, 10, 0.72);
+  --ds-glass-border: rgba(38, 38, 38, 0.6);
+  --ds-glass-highlight: rgba(255, 255, 255, 0.04);
+
   --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
   --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.25), 0 1px 2px -1px rgb(0 0 0 / 0.2);
   --ds-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.25), 0 2px 4px -2px rgb(0 0 0 / 0.2);
@@ -173,6 +186,21 @@
     animation: ds-fade-in 0.4s var(--ds-ease-out) both;
   }
 
+  /* Glass panel */
+  .ds-glass {
+    background: var(--ds-glass);
+    border: 1px solid var(--ds-glass-border);
+    box-shadow: var(--ds-shadow-sm), inset 0 1px 0 0 var(--ds-glass-highlight);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+
+  /* Staggered section entrance */
+  .ds-stagger-1 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.06s both; }
+  .ds-stagger-2 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.14s both; }
+  .ds-stagger-3 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.22s both; }
+  .ds-stagger-4 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.30s both; }
+
   /* Dot grid background */
   .ds-dot-grid {
     background-image: radial-gradient(
@@ -203,6 +231,17 @@
   }
 }
 
+@keyframes ds-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes ds-feedback-in {
   from {
     opacity: 0;
@@ -226,7 +265,11 @@
 @media (prefers-reduced-motion: reduce) {
   .ds-feedback-in,
   .ds-pop,
-  .ds-hero-in {
+  .ds-hero-in,
+  .ds-stagger-1,
+  .ds-stagger-2,
+  .ds-stagger-3,
+  .ds-stagger-4 {
     animation: none;
   }
 

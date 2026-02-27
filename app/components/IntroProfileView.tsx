@@ -67,11 +67,11 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   }
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-12">
       {/* Company header */}
-      <div className="flex flex-col">
+      <div className="ds-stagger-1 flex flex-col">
         {logoUrl && (
-          <div className="mb-5 h-[72px] w-[72px] overflow-hidden rounded-xl border border-ds-border">
+          <div className="ds-glass mb-5 h-[72px] w-[72px] overflow-hidden rounded-xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={logoUrl}
@@ -81,10 +81,10 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
           </div>
         )}
         {startupName && (
-          <h1 className="text-3xl font-bold text-ds-text sm:text-4xl">{startupName}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-ds-text sm:text-4xl">{startupName}</h1>
         )}
         {startupOneLiner && (
-          <p className="mt-2 text-lg text-ds-text-muted">{startupOneLiner}</p>
+          <p className="mt-2 text-lg leading-relaxed text-ds-text-muted">{startupOneLiner}</p>
         )}
         {foundedDate && formatFoundedDate(foundedDate) && (
           <p className="mt-2 text-sm text-ds-text-subtle">
@@ -153,26 +153,32 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
         )}
       </div>
 
-      {/* Intro text card */}
+      {/* About — editorial accent border */}
       {introText && (
-        <div className="w-full">
-          <h2 className="mb-3 text-sm font-medium text-ds-text-muted">About us</h2>
-          <div className="w-full rounded-2xl border border-ds-border bg-ds-surface p-6">
-            <p className="whitespace-pre-wrap leading-relaxed text-ds-text-muted">{introText}</p>
+        <div className="ds-stagger-2 w-full">
+          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+            About us
+          </h2>
+          <div className="border-l-2 border-ds-text pl-5">
+            <p className="whitespace-pre-wrap text-[15px] leading-[1.8] text-ds-text">
+              {introText}
+            </p>
           </div>
         </div>
       )}
 
-      {/* Funding rounds */}
+      {/* Funding — left border */}
       {hasFunding && (
-        <div className="w-full">
-          <h2 className="mb-3 text-sm font-medium text-ds-text-muted">Funding</h2>
-          <div className="w-full rounded-2xl border border-ds-border bg-ds-surface p-6">
-            <div className="space-y-4">
-              {validFundingRounds.map((round, idx) => {
-                const isSafe = round.type === "safe";
-                return (
-                  <div key={idx} className="flex items-baseline justify-between gap-4">
+        <div className="ds-stagger-3 w-full">
+          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+            Funding
+          </h2>
+          <div className="space-y-4">
+            {validFundingRounds.map((round, idx) => {
+              const isSafe = round.type === "safe";
+              return (
+                <div key={idx} className="border-l-2 border-ds-text pl-5">
+                  <div className="flex items-baseline justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-medium text-ds-text">{round.roundName}</p>
@@ -190,7 +196,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
                     </div>
                     <div className="shrink-0 text-right">
                       {round.amount && (
-                        <p className="text-sm font-medium text-ds-text-muted">
+                        <p className="text-sm font-medium text-ds-text">
                           {round.amount}
                         </p>
                       )}
@@ -206,84 +212,80 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
                       )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* Founder card */}
+      {/* Founder — glass panel */}
       {(displayName || role) && (
-        <div className="w-full">
-          <h2 className="mb-3 text-sm font-medium text-ds-text-muted">Founder</h2>
-        <div className="w-full rounded-2xl border border-ds-border bg-ds-surface p-5">
-          <div className="flex items-center gap-4">
-            {(avatarUrl || displayName) && (
-              <div className="h-11 w-11 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
-                {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={avatarUrl}
-                    alt={displayName ? `${displayName}'s avatar` : "Founder avatar"}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-sm font-medium text-ds-text-subtle">
-                    {getInitials(displayName)}
+        <div className="ds-stagger-4 w-full">
+          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+            Founder
+          </h2>
+          <div className="ds-glass rounded-2xl p-5">
+            <div className="flex items-start gap-4">
+              {(avatarUrl || displayName) && (
+                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
+                  {avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={avatarUrl}
+                      alt={displayName ? `${displayName}'s avatar` : "Founder avatar"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-sm font-medium text-ds-text-subtle">
+                      {getInitials(displayName)}
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                {displayName && (
+                  <p className="truncate font-medium text-ds-text">{displayName}</p>
+                )}
+                {role && (
+                  <p className="truncate text-sm text-ds-text">{role}</p>
+                )}
+                {hasUserLinks && (
+                  <div className="mt-1.5 flex items-center gap-3">
+                    {isValidUrl(userLinkedinUrl) && (
+                      <a
+                        href={userLinkedinUrl.trim()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`${displayName || "Founder"} on LinkedIn`}
+                        className="text-[#0A66C2] transition-opacity duration-ds ease-ds-out hover:opacity-80"
+                      >
+                        <svg className="h-4 w-4" viewBox="0 0 24 24">
+                          <rect width="24" height="24" rx="4" fill="currentColor" />
+                          <path fill="white" d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z" />
+                        </svg>
+                      </a>
+                    )}
+                    {isValidUrl(userTwitterUrl) && (
+                      <a
+                        href={userTwitterUrl.trim()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`${displayName || "Founder"} on X`}
+                        className="text-ds-text transition-opacity duration-ds ease-ds-out hover:opacity-70"
+                      >
+                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                        </svg>
+                      </a>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-            <div className="min-w-0 flex-1">
-              {displayName && (
-                <p className="truncate font-medium text-ds-text">{displayName}</p>
-              )}
-              {role && (
-                <p className="truncate text-sm text-ds-text-muted">{role}</p>
-              )}
             </div>
-            {hasUserLinks && (
-              <div className="flex shrink-0 items-center gap-3">
-                {isValidUrl(userLinkedinUrl) && (
-                  <a
-                    href={userLinkedinUrl.trim()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`${displayName || "Founder"} on LinkedIn`}
-                    className="text-[#0A66C2] transition-opacity duration-ds ease-ds-out hover:opacity-80"
-                  >
-                    <svg className="h-4 w-4" viewBox="0 0 24 24">
-                      <rect width="24" height="24" rx="4" fill="currentColor" />
-                      <path fill="white" d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z" />
-                    </svg>
-                  </a>
-                )}
-                {isValidUrl(userTwitterUrl) && (
-                  <a
-                    href={userTwitterUrl.trim()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    title={`${displayName || "Founder"} on X`}
-                    className="text-ds-text transition-opacity duration-ds ease-ds-out hover:opacity-70"
-                  >
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                    </svg>
-                  </a>
-                )}
-              </div>
-            )}
           </div>
         </div>
-        </div>
       )}
-
-      {/* Separator */}
-      <div className="w-full border-t border-ds-border" />
-
-      {/* Attachments placeholder */}
-      <p className="text-sm text-ds-text-subtle">Pitch deck &amp; materials coming soon</p>
     </div>
   );
 }

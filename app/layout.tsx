@@ -53,7 +53,7 @@ export default async function RootLayout({
           </div>
         </header>
         <div className="flex flex-1 flex-col">{children}</div>
-        <footer className="border-t border-ds-border py-6 px-4 sm:px-6 lg:px-8">
+        <footer className="relative z-10 border-t border-ds-border py-6 px-4 sm:px-6 lg:px-8">
           <div className="mx-auto flex max-w-7xl items-center justify-center gap-6">
             <Link
               href="/feedback"
