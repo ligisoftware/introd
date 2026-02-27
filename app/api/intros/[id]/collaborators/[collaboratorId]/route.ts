@@ -37,7 +37,7 @@ export async function DELETE(
 }
 
 const CollaboratorPatchSchema = z.object({
-  role: z.string().max(100).optional(),
+  title: z.string().max(100).optional(),
   startDate: z
     .string()
     .max(10)
@@ -46,11 +46,12 @@ const CollaboratorPatchSchema = z.object({
     .refine((s) => s === undefined || /^\d{4}-\d{2}-\d{2}$/.test(s), {
       message: "Must be a valid date (YYYY-MM-DD)",
     }),
+  bio: z.string().max(500).optional(),
   showEmail: z.boolean().optional(),
 });
 
 /**
- * PATCH /api/intros/[id]/collaborators/[collaboratorId] — Update a collaborator's role/startDate.
+ * PATCH /api/intros/[id]/collaborators/[collaboratorId] — Update a collaborator's title/startDate.
  * Any editor of the intro (owner or accepted collaborator) can update any collaborator.
  */
 export async function PATCH(
@@ -85,14 +86,21 @@ export async function PATCH(
     );
   }
 
-  const updatePayload: { role?: string | null; start_date?: string | null; show_email?: boolean } =
-    {};
+  const updatePayload: {
+    title?: string | null;
+    start_date?: string | null;
+    bio?: string | null;
+    show_email?: boolean;
+  } = {};
   const keys = Object.keys(body as Record<string, unknown>);
-  if (keys.includes("role")) {
-    updatePayload.role = parsed.data.role ?? null;
+  if (keys.includes("title")) {
+    updatePayload.title = parsed.data.title ?? null;
   }
   if (keys.includes("startDate")) {
     updatePayload.start_date = parsed.data.startDate ?? null;
+  }
+  if (keys.includes("bio")) {
+    updatePayload.bio = parsed.data.bio ?? null;
   }
   if (keys.includes("showEmail")) {
     updatePayload.show_email = parsed.data.showEmail ?? false;

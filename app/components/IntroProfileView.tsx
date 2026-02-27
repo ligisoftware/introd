@@ -45,14 +45,16 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
   const name = member.name ?? "";
   const memberAvatar = member.avatarUrl ?? "";
   const memberEmail = member.email ?? "";
-  const memberRole = member.role ?? "";
+  const memberTitle = member.title ?? "";
+  const memberBio = member.bio ?? "";
   const memberStartDate = member.startDate ?? "";
   const memberLinkedin = member.linkedinUrl ?? "";
   const memberTwitter = member.twitterUrl ?? "";
   const hasMemberLinks = isValidUrl(memberLinkedin) || isValidUrl(memberTwitter);
   const hasAvatar = !!(memberAvatar || name);
   const hasDetails = !!(
-    memberRole ||
+    memberTitle ||
+    memberBio ||
     memberEmail ||
     (memberStartDate && formatStartDate(memberStartDate)) ||
     hasMemberLinks
@@ -79,7 +81,8 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
         )}
         <div className="min-w-0 flex-1">
           {name && <p className="truncate font-medium text-ds-text">{name}</p>}
-          {memberRole && <p className="truncate text-sm text-ds-text-muted">{memberRole}</p>}
+          {memberTitle && <p className="truncate text-sm text-ds-text-muted">{memberTitle}</p>}
+          {memberBio && <p className="mt-0.5 text-sm text-ds-text-muted">{memberBio}</p>}
           {memberEmail && (
             <p className="truncate text-sm text-ds-text-muted">
               <a
@@ -137,7 +140,7 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
 
 export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const displayName = orEmpty(profile.name);
-  const role = orEmpty(profile.role);
+  const title = orEmpty(profile.title);
   const introText = orEmpty(profile.introText);
   const startupName = orEmpty(profile.startupName);
   const startupOneLiner = orEmpty(profile.startupOneLiner);
@@ -152,9 +155,9 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const fundingRounds: FundingRound[] = profile.fundingRounds ?? [];
   const validFundingRounds = fundingRounds.filter((r) => r.roundName?.trim());
   const teamMembers: TeamMember[] = profile.teamMembers ?? [];
-  const hasTeamMembers = teamMembers.some((m) => m.name || m.role);
+  const hasTeamMembers = teamMembers.some((m) => m.name || m.title);
 
-  const hasIdentity = displayName || role || startupName;
+  const hasIdentity = displayName || title || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
   const hasUserLinks = isValidUrl(userLinkedinUrl) || isValidUrl(userTwitterUrl);
   const hasFunding = validFundingRounds.length > 0;
@@ -326,14 +329,14 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
           </h2>
           <div className="space-y-3">
             {teamMembers
-              .filter((m) => m.name || m.role)
+              .filter((m) => m.name || m.title)
               .map((member, idx) => (
                 <TeamMemberCard key={idx} member={member} />
               ))}
           </div>
         </div>
       ) : (
-        (displayName || role) && (
+        (displayName || title) && (
           <div className="ds-stagger-4 w-full">
             <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
               Founder
@@ -342,7 +345,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
               member={{
                 name: displayName || undefined,
                 avatarUrl: avatarUrl || undefined,
-                role: role || undefined,
+                title: title || undefined,
                 linkedinUrl: userLinkedinUrl || undefined,
                 twitterUrl: userTwitterUrl || undefined,
               }}

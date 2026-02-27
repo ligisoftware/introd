@@ -39,7 +39,7 @@ export function IntroEditor({
   const introId = initialIntro.id;
 
   const [logoUrl, setLogoUrl] = useState(orEmpty(initialIntro.logoUrl));
-  const [role, setRole] = useState(orEmpty(initialIntro.role));
+  const [title, setTitle] = useState(orEmpty(initialIntro.title));
   const [introText, setIntroText] = useState(orEmpty(initialIntro.introText));
   const [startupName, setStartupName] = useState(orEmpty(initialIntro.startupName));
   const [startupOneLiner, setStartupOneLiner] = useState(orEmpty(initialIntro.startupOneLiner));
@@ -47,6 +47,7 @@ export function IntroEditor({
   const [linkedinUrl, setLinkedinUrl] = useState(orEmpty(initialIntro.linkedinUrl));
   const [twitterUrl, setTwitterUrl] = useState(orEmpty(initialIntro.twitterUrl));
   const [ownerStartDate, setOwnerStartDate] = useState(orEmpty(initialIntro.ownerStartDate));
+  const [ownerBio, setOwnerBio] = useState(orEmpty(initialIntro.ownerBio));
   const [showOwnerEmail, setShowOwnerEmail] = useState(initialIntro.showOwnerEmail ?? false);
   const [foundedDate, setFoundedDate] = useState(orEmpty(initialIntro.foundedDate));
   const [fundingRounds, setFundingRounds] = useState<FundingRound[]>(
@@ -332,7 +333,7 @@ export function IntroEditor({
 
   async function handleCollaboratorFieldSave(
     collaboratorId: string,
-    field: "role" | "startDate" | "showEmail",
+    field: "title" | "startDate" | "bio" | "showEmail",
     value: string | boolean
   ) {
     try {
@@ -374,9 +375,10 @@ export function IntroEditor({
 
     const payload = {
       logoUrl: logoUrl.trim() || undefined,
-      role: role.trim() || undefined,
+      title: title.trim() || undefined,
       showOwnerEmail,
       ownerStartDate: ownerStartDate.trim() || undefined,
+      ownerBio: ownerBio.trim() || undefined,
       introText: introText.trim() || undefined,
       startupName: startupName.trim() || undefined,
       startupOneLiner: startupOneLiner.trim() || undefined,
@@ -981,7 +983,7 @@ export function IntroEditor({
         <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
           <h2 className={sectionTitle}>Team</h2>
           <p className="mt-1.5 text-sm text-ds-text-muted">
-            Set each member&apos;s role and start date. These appear on your shared page.
+            Set each member&apos;s title and start date. These appear on your shared page.
           </p>
 
           <div className="mt-4 space-y-3">
@@ -1014,9 +1016,9 @@ export function IntroEditor({
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <input
                   type="text"
-                  placeholder="Role (e.g. CEO)"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
+                  placeholder="Title (e.g. CEO)"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
                   disabled={isSaving}
                   className={inputClass}
                   maxLength={100}
@@ -1030,6 +1032,15 @@ export function IntroEditor({
                   className={inputClass}
                 />
               </div>
+              <textarea
+                placeholder="What is your role? (e.g. Leading product strategy, Building the sales pipeline)"
+                value={ownerBio}
+                onChange={(e) => setOwnerBio(e.target.value)}
+                disabled={isSaving}
+                className={`${inputClass} mt-2`}
+                maxLength={500}
+                rows={2}
+              />
               <label className="mt-2 flex items-center gap-2 text-xs text-ds-text-muted">
                 <input
                   type="checkbox"
@@ -1079,10 +1090,10 @@ export function IntroEditor({
                     <div className="mt-3 grid grid-cols-2 gap-2">
                       <input
                         type="text"
-                        placeholder="Role"
-                        defaultValue={collab.role ?? ""}
+                        placeholder="Title"
+                        defaultValue={collab.title ?? ""}
                         onBlur={(e) =>
-                          handleCollaboratorFieldSave(collab.id, "role", e.target.value)
+                          handleCollaboratorFieldSave(collab.id, "title", e.target.value)
                         }
                         disabled={isSaving}
                         className={inputClass}
@@ -1099,6 +1110,15 @@ export function IntroEditor({
                         className={inputClass}
                       />
                     </div>
+                    <textarea
+                      placeholder="What is your role? (e.g. Leading product strategy, Building the sales pipeline)"
+                      defaultValue={collab.bio ?? ""}
+                      onBlur={(e) => handleCollaboratorFieldSave(collab.id, "bio", e.target.value)}
+                      disabled={isSaving}
+                      className={`${inputClass} mt-2`}
+                      maxLength={500}
+                      rows={2}
+                    />
                     <label className="mt-2 flex items-center gap-2 text-xs text-ds-text-muted">
                       <input
                         type="checkbox"

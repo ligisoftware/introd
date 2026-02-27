@@ -8,8 +8,9 @@ interface CollaboratorRow {
   user_id?: string | null;
   invite_token: string;
   status: "pending" | "accepted";
-  role?: string | null;
+  title?: string | null;
   start_date?: string | null;
+  bio?: string | null;
   show_email?: boolean;
   created_at: string;
   accepted_at?: string | null;
@@ -23,8 +24,9 @@ function rowToCollaborator(row: CollaboratorRow): Collaborator {
     userId: row.user_id ?? undefined,
     inviteToken: row.invite_token,
     status: row.status,
-    role: row.role ?? undefined,
+    title: row.title ?? undefined,
     startDate: row.start_date ?? undefined,
+    bio: row.bio ?? undefined,
     showEmail: row.show_email ?? false,
     createdAt: row.created_at,
     acceptedAt: row.accepted_at ?? undefined,
@@ -32,7 +34,7 @@ function rowToCollaborator(row: CollaboratorRow): Collaborator {
 }
 
 const COLLABORATOR_SELECT =
-  "id, intro_id, email, user_id, invite_token, status, role, start_date, show_email, created_at, accepted_at";
+  "id, intro_id, email, user_id, invite_token, status, title, start_date, bio, show_email, created_at, accepted_at";
 
 export async function listByIntroId(
   supabase: SupabaseClient,
@@ -204,7 +206,12 @@ export async function getByIntroAndUser(
 export async function updateCollaboratorFields(
   supabase: SupabaseClient,
   collaboratorId: string,
-  payload: { role?: string | null; start_date?: string | null; show_email?: boolean }
+  payload: {
+    title?: string | null;
+    start_date?: string | null;
+    bio?: string | null;
+    show_email?: boolean;
+  }
 ): Promise<Collaborator> {
   const { data, error } = await supabase
     .from("intro_collaborators")
@@ -218,8 +225,9 @@ export async function updateCollaboratorFields(
 }
 
 interface TeamMemberJoinRow {
-  role?: string | null;
+  title?: string | null;
   start_date?: string | null;
+  bio?: string | null;
   show_email?: boolean;
   email: string;
   users: {
@@ -237,7 +245,7 @@ export async function getTeamMembersForIntro(
   const { data, error } = await supabase
     .from("intro_collaborators")
     .select(
-      "role, start_date, show_email, email, users(name, avatar_url, linkedin_url, twitter_url)"
+      "title, start_date, bio, show_email, email, users(name, avatar_url, linkedin_url, twitter_url)"
     )
     .eq("intro_id", introId)
     .eq("status", "accepted")
@@ -250,8 +258,9 @@ export async function getTeamMembersForIntro(
     name: row.users?.name ?? undefined,
     avatarUrl: row.users?.avatar_url ?? undefined,
     email: row.show_email ? row.email : undefined,
-    role: row.role ?? undefined,
+    title: row.title ?? undefined,
     startDate: row.start_date ?? undefined,
+    bio: row.bio ?? undefined,
     linkedinUrl: row.users?.linkedin_url ?? undefined,
     twitterUrl: row.users?.twitter_url ?? undefined,
   }));

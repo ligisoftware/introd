@@ -27,8 +27,9 @@ export default async function ViewerPage({ params }: { params: Promise<{ slug: s
     name: profile.name,
     avatarUrl: profile.avatarUrl,
     email: showOwnerEmail ? ownerEmail : undefined,
-    role: profile.role,
+    title: profile.title,
     startDate: profile.ownerStartDate,
+    bio: profile.ownerBio,
     linkedinUrl: profile.userLinkedinUrl,
     twitterUrl: profile.userTwitterUrl,
   };

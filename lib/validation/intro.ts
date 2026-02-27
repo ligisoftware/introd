@@ -42,7 +42,7 @@ const FundingRoundSchema = z.object({
 export const IntroUpdateSchema = z.object({
   startupName: z.string().max(200).optional(),
   startupOneLiner: z.string().max(300).optional(),
-  role: z.string().max(100).optional(),
+  title: z.string().max(100).optional(),
   introText: z
     .string()
     .optional()
@@ -61,6 +61,7 @@ export const IntroUpdateSchema = z.object({
     .refine((s) => s === undefined || /^\d{4}-\d{2}-\d{2}$/.test(s), {
       message: "Must be a valid date (YYYY-MM-DD)",
     }),
+  ownerBio: z.string().max(500).optional(),
   showOwnerEmail: z.boolean().optional(),
   ownerStartDate: z
     .string()
