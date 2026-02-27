@@ -138,6 +138,12 @@ export async function updateIntro(
   if (keys.includes("foundedDate")) {
     row.founded_date = parsed.foundedDate ?? null;
   }
+  if (keys.includes("showOwnerEmail")) {
+    row.show_owner_email = parsed.showOwnerEmail ?? false;
+  }
+  if (keys.includes("ownerStartDate")) {
+    row.owner_start_date = parsed.ownerStartDate ?? null;
+  }
   if (keys.includes("fundingRounds")) {
     row.funding_rounds = parsed.fundingRounds ?? null;
   }

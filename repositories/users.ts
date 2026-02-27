@@ -36,7 +36,8 @@ export interface UserProfileUpdateRow {
   updated_at?: string;
 }
 
-const USER_SELECT = "id, auth_user_id, email, name, avatar_url, linkedin_url, twitter_url, created_at, updated_at";
+const USER_SELECT =
+  "id, auth_user_id, email, name, avatar_url, linkedin_url, twitter_url, created_at, updated_at";
 
 export async function getByAuthUserId(
   supabase: SupabaseClient,
@@ -46,6 +47,19 @@ export async function getByAuthUserId(
     .from("users")
     .select(USER_SELECT)
     .eq("auth_user_id", authUserId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  return rowToUser(data as UserRow);
+}
+
+export async function getById(supabase: SupabaseClient, userId: string): Promise<User | null> {
+  const { data, error } = await supabase
+    .from("users")
+    .select(USER_SELECT)
+    .eq("id", userId)
     .maybeSingle();
 
   if (error) throw error;

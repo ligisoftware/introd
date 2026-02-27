@@ -1,6 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { getIntroForEditing } from "@/services/intro";
+import { listCollaborators } from "@/services/collaborator";
+import { getById as getUserById } from "@/repositories/users";
 import { redirect, notFound } from "next/navigation";
 import { IntroEditor } from "./IntroEditor";
 
@@ -25,6 +27,16 @@ export default async function IntroEditPage({
     notFound();
   }
 
+  const serviceClient = createServiceRoleClient();
+
+  let ownerUser = user;
+  if (!result.isOwner) {
+    const owner = await getUserById(serviceClient, result.intro.userId);
+    if (owner) ownerUser = owner;
+  }
+
+  const collaborators = await listCollaborators(serviceClient, id);
+
   const { invited } = await searchParams;
 
   return (
@@ -43,7 +55,14 @@ export default async function IntroEditPage({
             The details that appear on your shareable intro page.
           </p>
         </header>
-        <IntroEditor initialIntro={result.intro} isOwner={result.isOwner} />
+        <IntroEditor
+          initialIntro={result.intro}
+          initialCollaborators={collaborators}
+          isOwner={result.isOwner}
+          ownerEmail={ownerUser.email}
+          ownerName={ownerUser.name ?? undefined}
+          ownerAvatarUrl={ownerUser.avatarUrl ?? undefined}
+        />
       </div>
     </main>
   );

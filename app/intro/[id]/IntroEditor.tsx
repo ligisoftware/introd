@@ -12,12 +12,29 @@ import {
   btnSecondary,
 } from "@/app/components/form-classes";
 
+function getInitials(name: string): string {
+  return name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
 export function IntroEditor({
   initialIntro,
+  initialCollaborators = [],
   isOwner = true,
+  ownerEmail,
+  ownerName,
+  ownerAvatarUrl,
 }: {
   initialIntro: Intro;
+  initialCollaborators?: Collaborator[];
   isOwner?: boolean;
+  ownerEmail: string;
+  ownerName?: string;
+  ownerAvatarUrl?: string;
 }) {
   const introId = initialIntro.id;
 
@@ -29,6 +46,8 @@ export function IntroEditor({
   const [websiteUrl, setWebsiteUrl] = useState(orEmpty(initialIntro.websiteUrl));
   const [linkedinUrl, setLinkedinUrl] = useState(orEmpty(initialIntro.linkedinUrl));
   const [twitterUrl, setTwitterUrl] = useState(orEmpty(initialIntro.twitterUrl));
+  const [ownerStartDate, setOwnerStartDate] = useState(orEmpty(initialIntro.ownerStartDate));
+  const [showOwnerEmail, setShowOwnerEmail] = useState(initialIntro.showOwnerEmail ?? false);
   const [foundedDate, setFoundedDate] = useState(orEmpty(initialIntro.foundedDate));
   const [fundingRounds, setFundingRounds] = useState<FundingRound[]>(
     initialIntro.fundingRounds ?? []
@@ -259,7 +278,7 @@ export function IntroEditor({
   const [shareStatus, setShareStatus] = useState<"idle" | "creating" | "copied" | "error">("idle");
   const [shareError, setShareError] = useState("");
 
-  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [collaborators, setCollaborators] = useState<Collaborator[]>(initialCollaborators);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteStatus, setInviteStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle"
@@ -271,16 +290,6 @@ export function IntroEditor({
       setShareUrl(`${window.location.origin}/i/${initialIntro.shareSlug}`);
     }
   }, [initialIntro.shareSlug]);
-
-  useEffect(() => {
-    if (!isOwner) return;
-    fetch(`/api/intros/${introId}/collaborators`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.collaborators) setCollaborators(data.collaborators);
-      })
-      .catch(() => {});
-  }, [introId, isOwner]);
 
   async function handleInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -321,6 +330,22 @@ export function IntroEditor({
     }
   }
 
+  async function handleCollaboratorFieldSave(
+    collaboratorId: string,
+    field: "role" | "startDate" | "showEmail",
+    value: string | boolean
+  ) {
+    try {
+      await fetch(`/api/intros/${introId}/collaborators/${collaboratorId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [field]: field === "showEmail" ? value : value || undefined }),
+      });
+    } catch {
+      // Silently fail — value persists in local state
+    }
+  }
+
   async function handleRemoveCollaborator(collaboratorId: string) {
     setCollaborators((prev) => prev.filter((c) => c.id !== collaboratorId));
 
@@ -350,6 +375,8 @@ export function IntroEditor({
     const payload = {
       logoUrl: logoUrl.trim() || undefined,
       role: role.trim() || undefined,
+      showOwnerEmail,
+      ownerStartDate: ownerStartDate.trim() || undefined,
       introText: introText.trim() || undefined,
       startupName: startupName.trim() || undefined,
       startupOneLiner: startupOneLiner.trim() || undefined,
@@ -602,23 +629,6 @@ export function IntroEditor({
                   </p>
                 )}
               </div>
-            </div>
-
-            <hr className="border-ds-border" />
-
-            <div>
-              <label htmlFor="role" className={labelClass}>
-                Role
-              </label>
-              <input
-                id="role"
-                type="text"
-                placeholder="e.g. CEO, Co-founder"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                disabled={isSaving}
-                className={inputClass}
-              />
             </div>
 
             <hr className="border-ds-border" />
@@ -967,6 +977,146 @@ export function IntroEditor({
           </div>
         </section>
 
+        {/* Team section */}
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+          <h2 className={sectionTitle}>Team</h2>
+          <p className="mt-1.5 text-sm text-ds-text-muted">
+            Set each member&apos;s role and start date. These appear on your shared page.
+          </p>
+
+          <div className="mt-4 space-y-3">
+            {/* Owner card */}
+            <div className="rounded-ds border border-ds-border bg-ds-surface-hover p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
+                  {ownerAvatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={ownerAvatarUrl}
+                      alt={ownerName ? `${ownerName}'s avatar` : "Owner avatar"}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs font-medium text-ds-text-subtle">
+                      {ownerName ? getInitials(ownerName) : ownerEmail[0].toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-ds-text">
+                    {ownerName || ownerEmail}
+                  </p>
+                  {ownerName && (
+                    <p className="truncate text-xs text-ds-text-subtle">{ownerEmail}</p>
+                  )}
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <input
+                  type="text"
+                  placeholder="Role (e.g. CEO)"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  disabled={isSaving}
+                  className={inputClass}
+                  maxLength={100}
+                />
+                <input
+                  type="date"
+                  placeholder="Start date"
+                  value={ownerStartDate}
+                  onChange={(e) => setOwnerStartDate(e.target.value)}
+                  disabled={isSaving}
+                  className={inputClass}
+                />
+              </div>
+              <label className="mt-2 flex items-center gap-2 text-xs text-ds-text-muted">
+                <input
+                  type="checkbox"
+                  checked={showOwnerEmail}
+                  onChange={(e) => setShowOwnerEmail(e.target.checked)}
+                  disabled={isSaving}
+                  className="rounded border-ds-border"
+                />
+                Show email on intro page
+              </label>
+            </div>
+
+            {/* Collaborator cards */}
+            {collaborators
+              .filter((c) => c.status === "accepted")
+              .map((collab) => {
+                const displayName = collab.userName || collab.email;
+                return (
+                  <div
+                    key={collab.id}
+                    className="rounded-ds border border-ds-border bg-ds-surface-hover p-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
+                        {collab.userAvatarUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={collab.userAvatarUrl}
+                            alt={`${displayName}'s avatar`}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-xs font-medium text-ds-text-subtle">
+                            {collab.userName
+                              ? getInitials(collab.userName)
+                              : collab.email[0].toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-ds-text">{displayName}</p>
+                        {collab.userName && (
+                          <p className="truncate text-xs text-ds-text-subtle">{collab.email}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        placeholder="Role"
+                        defaultValue={collab.role ?? ""}
+                        onBlur={(e) =>
+                          handleCollaboratorFieldSave(collab.id, "role", e.target.value)
+                        }
+                        disabled={isSaving}
+                        className={inputClass}
+                        maxLength={100}
+                      />
+                      <input
+                        type="date"
+                        placeholder="Start date"
+                        defaultValue={collab.startDate ?? ""}
+                        onBlur={(e) =>
+                          handleCollaboratorFieldSave(collab.id, "startDate", e.target.value)
+                        }
+                        disabled={isSaving}
+                        className={inputClass}
+                      />
+                    </div>
+                    <label className="mt-2 flex items-center gap-2 text-xs text-ds-text-muted">
+                      <input
+                        type="checkbox"
+                        defaultChecked={collab.showEmail ?? false}
+                        onChange={(e) =>
+                          handleCollaboratorFieldSave(collab.id, "showEmail", e.target.checked)
+                        }
+                        disabled={isSaving}
+                        className="rounded border-ds-border"
+                      />
+                      Show email on intro page
+                    </label>
+                  </div>
+                );
+              })}
+          </div>
+        </section>
+
         {/* Submit and feedback */}
         <div className="flex flex-wrap items-center gap-3">
           <button type="submit" disabled={isSaving} className={btnPrimary}>
@@ -1055,83 +1205,84 @@ export function IntroEditor({
           </div>
         </section>
 
-        {isOwner && (
-          <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
-            <h2 className={sectionTitle}>Collaborators</h2>
-            <p className="mt-2 text-sm text-ds-text-muted">
-              Invite a cofounder to edit this intro.
-            </p>
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+          <h2 className={sectionTitle}>Access</h2>
 
-            <form onSubmit={handleInvite} className="mt-4 flex gap-2">
-              <input
-                type="email"
-                placeholder="cofounder@example.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                disabled={inviteStatus === "sending"}
-                className={`${inputClass} min-w-0 flex-1`}
-              />
-              <button
-                type="submit"
-                disabled={inviteStatus === "sending" || !inviteEmail.trim()}
-                className={btnPrimary}
+          {isOwner && (
+            <>
+              <form onSubmit={handleInvite} className="mt-4 flex gap-2">
+                <input
+                  type="email"
+                  placeholder="cofounder@example.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  disabled={inviteStatus === "sending"}
+                  className={`${inputClass} min-w-0 flex-1`}
+                />
+                <button
+                  type="submit"
+                  disabled={inviteStatus === "sending" || !inviteEmail.trim()}
+                  className={btnPrimary}
+                >
+                  {inviteStatus === "sending" ? "Sending\u2026" : "Invite"}
+                </button>
+              </form>
+
+              {inviteStatus === "success" && inviteMessage && (
+                <p role="status" className="ds-feedback-in mt-2 text-xs text-ds-success">
+                  {inviteMessage}
+                </p>
+              )}
+              {inviteStatus === "error" && inviteMessage && (
+                <p role="alert" className="ds-feedback-in mt-2 text-xs text-ds-error">
+                  {inviteMessage}
+                </p>
+              )}
+            </>
+          )}
+
+          <ul className="mt-4 space-y-2">
+            <li className="flex items-center justify-between rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-ds-text">{ownerName || ownerEmail}</p>
+                <span className="text-xs font-medium text-ds-accent">Owner</span>
+              </div>
+            </li>
+            {collaborators.map((collab) => (
+              <li
+                key={collab.id}
+                className="flex items-center justify-between rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2"
               >
-                {inviteStatus === "sending" ? "Sending\u2026" : "Invite"}
-              </button>
-            </form>
-
-            {inviteStatus === "success" && inviteMessage && (
-              <p role="status" className="ds-feedback-in mt-2 text-xs text-ds-success">
-                {inviteMessage}
-              </p>
-            )}
-            {inviteStatus === "error" && inviteMessage && (
-              <p role="alert" className="ds-feedback-in mt-2 text-xs text-ds-error">
-                {inviteMessage}
-              </p>
-            )}
-
-            {collaborators.length > 0 && (
-              <ul className="mt-4 space-y-2">
-                {collaborators.map((collab) => (
-                  <li
-                    key={collab.id}
-                    className="flex items-center justify-between rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2"
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-ds-text">{collab.userName || collab.email}</p>
+                  <span
+                    className={`text-xs ${collab.status === "accepted" ? "text-ds-success" : "text-ds-text-subtle"}`}
                   >
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm text-ds-text">{collab.email}</p>
-                      <span
-                        className={`text-xs ${collab.status === "accepted" ? "text-ds-success" : "text-ds-text-subtle"}`}
-                      >
-                        {collab.status === "accepted" ? "Accepted" : "Pending"}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveCollaborator(collab.id)}
-                      className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-ds-sm text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:bg-ds-surface hover:text-ds-text"
-                      aria-label={`Remove ${collab.email}`}
+                    {collab.status === "accepted" ? "Collaborator" : "Pending"}
+                  </span>
+                </div>
+                {isOwner && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCollaborator(collab.id)}
+                    className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-ds-sm text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:bg-ds-surface hover:text-ds-text"
+                    aria-label={`Remove ${collab.userName || collab.email}`}
+                  >
+                    <svg
+                      className="h-3.5 w-3.5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
                     >
-                      <svg
-                        className="h-3.5 w-3.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-        )}
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       </aside>
     </div>
   );
