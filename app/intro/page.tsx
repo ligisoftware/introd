@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { listIntros } from "@/services/intro";
+import { listCollaboratedIntros } from "@/services/collaborator";
 import { redirect } from "next/navigation";
 import IntroCard from "./IntroCard";
 import NewIntroCard from "./NewIntroCard";
@@ -13,9 +14,12 @@ export default async function IntrosListPage() {
     redirect("/login?next=/intro");
   }
 
-  const intros = await listIntros(supabase, user.id);
+  const [intros, sharedIntros] = await Promise.all([
+    listIntros(supabase, user.id),
+    listCollaboratedIntros(supabase, user.id),
+  ]);
 
-  if (intros.length === 0) {
+  if (intros.length === 0 && sharedIntros.length === 0) {
     return (
       <main className="flex-1 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="mx-auto max-w-container-lg">
@@ -46,17 +50,34 @@ export default async function IntrosListPage() {
           <h1 className="text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
             Your intros
           </h1>
-          <p className="mt-1.5 text-sm text-ds-text-muted">
-            Manage your shareable founder intros.
-          </p>
+          <p className="mt-1.5 text-sm text-ds-text-muted">Manage your shareable founder intros.</p>
         </header>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {intros.map((intro) => (
-            <IntroCard key={intro.id} intro={intro} />
-          ))}
-          {intros.length < 3 && <NewIntroCard />}
-        </div>
+        {intros.length > 0 && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {intros.map((intro) => (
+              <IntroCard key={intro.id} intro={intro} />
+            ))}
+            {intros.length < 3 && <NewIntroCard />}
+          </div>
+        )}
+
+        {intros.length === 0 && (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <NewIntroCard />
+          </div>
+        )}
+
+        {sharedIntros.length > 0 && (
+          <section className="mt-12">
+            <h2 className="mb-4 text-lg font-semibold text-ds-text">Shared with you</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {sharedIntros.map((intro) => (
+                <IntroCard key={intro.id} intro={intro} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

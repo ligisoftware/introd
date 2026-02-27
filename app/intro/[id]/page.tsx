@@ -1,10 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
-import { getIntroById } from "@/services/intro";
+import { getIntroForEditing } from "@/services/intro";
 import { redirect, notFound } from "next/navigation";
 import { IntroEditor } from "./IntroEditor";
 
-export default async function IntroEditPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function IntroEditPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ invited?: string }>;
+}) {
   const supabase = await createClient();
   const user = await getCurrentUser(supabase);
 
@@ -13,15 +19,22 @@ export default async function IntroEditPage({ params }: { params: Promise<{ id: 
   }
 
   const { id } = await params;
-  const intro = await getIntroById(supabase, id, user.id);
+  const result = await getIntroForEditing(supabase, id, user.id);
 
-  if (!intro) {
+  if (!result) {
     notFound();
   }
+
+  const { invited } = await searchParams;
 
   return (
     <main className="flex-1 px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
       <div className="mx-auto max-w-container-lg">
+        {invited === "true" && (
+          <div className="ds-feedback-in mb-6 rounded-ds border border-ds-success/30 bg-ds-success-muted/50 px-4 py-3 text-sm text-ds-success">
+            You&apos;ve been added as a collaborator.
+          </div>
+        )}
         <header className="mb-8">
           <h1 className="text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">
             Edit your intro
@@ -30,7 +43,7 @@ export default async function IntroEditPage({ params }: { params: Promise<{ id: 
             The details that appear on your shareable intro page.
           </p>
         </header>
-        <IntroEditor initialIntro={intro} />
+        <IntroEditor initialIntro={result.intro} isOwner={result.isOwner} />
       </div>
     </main>
   );

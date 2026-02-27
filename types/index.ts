@@ -58,6 +58,17 @@ export interface PublicIntroProfile {
   fundingRounds?: FundingRound[] | null;
 }
 
+export interface Collaborator {
+  id: string;
+  introId: string;
+  email: string;
+  userId?: string | null;
+  inviteToken: string;
+  status: "pending" | "accepted";
+  createdAt: string; // ISO date
+  acceptedAt?: string | null; // ISO date
+}
+
 export interface IntroPage {
   team: string;
   problem: string;

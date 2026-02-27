@@ -11,6 +11,7 @@ import {
 } from "@/repositories/intros";
 import type { IntroUpdateRow } from "@/repositories/intros";
 import { IntroUpdateSchema, type IntroUpdateInput } from "@/lib/validation/intro";
+import { isCollaborator } from "@/services/collaborator";
 
 /**
  * Gets or auto-creates a single intro for the user.
@@ -40,6 +41,29 @@ export async function getIntroById(
   const intro = await getById(supabase, introId);
   if (!intro || intro.userId !== userId) return null;
   return intro;
+}
+
+/**
+ * Fetches a single intro by ID, allowing access for both owners and accepted collaborators.
+ */
+export async function getIntroForEditing(
+  supabase: SupabaseClient,
+  introId: string,
+  userId: string
+): Promise<{ intro: Intro; isOwner: boolean } | null> {
+  const intro = await getById(supabase, introId);
+  if (!intro) return null;
+
+  if (intro.userId === userId) {
+    return { intro, isOwner: true };
+  }
+
+  const collab = await isCollaborator(supabase, introId, userId);
+  if (collab) {
+    return { intro, isOwner: false };
+  }
+
+  return null;
 }
 
 const MAX_INTROS = 3;

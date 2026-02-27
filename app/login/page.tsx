@@ -8,6 +8,7 @@ import { useState } from "react";
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
+  const invited = searchParams.get("invited") === "true";
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     urlError ? "error" : "idle"
@@ -43,6 +44,12 @@ export default function LoginPage() {
             Enter your email and we&apos;ll send you a magic link.
           </p>
         </div>
+
+        {invited && (
+          <div className="ds-feedback-in rounded-ds border border-ds-success/30 bg-ds-success-muted/50 px-4 py-3 text-sm text-ds-success">
+            Invite accepted! Log in to start collaborating.
+          </div>
+        )}
 
         <div className="rounded-ds-lg border border-ds-border bg-ds-surface p-6 shadow-ds transition-shadow duration-ds ease-ds">
           <form onSubmit={handleSubmit} className="space-y-5">
