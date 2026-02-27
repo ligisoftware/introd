@@ -28,7 +28,7 @@ export interface Intro {
   shareSlug?: string | null;
   startupName?: string | null;
   startupOneLiner?: string | null;
-  role?: string | null;
+  title?: string | null;
   introText?: string | null;
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
@@ -37,6 +37,7 @@ export interface Intro {
   foundedDate?: string | null;
   fundingRounds?: FundingRound[] | null;
   ownerStartDate?: string | null;
+  ownerBio?: string | null;
   showOwnerEmail?: boolean;
   createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
@@ -50,7 +51,7 @@ export interface PublicIntroProfile {
   userTwitterUrl?: string | null;
   startupName?: string | null;
   startupOneLiner?: string | null;
-  role?: string | null;
+  title?: string | null;
   introText?: string | null;
   websiteUrl?: string | null;
   linkedinUrl?: string | null;
@@ -59,6 +60,7 @@ export interface PublicIntroProfile {
   foundedDate?: string | null;
   fundingRounds?: FundingRound[] | null;
   ownerStartDate?: string | null;
+  ownerBio?: string | null;
   teamMembers?: TeamMember[];
 }
 
@@ -71,8 +73,9 @@ export interface Collaborator {
   userAvatarUrl?: string | null;
   inviteToken: string;
   status: "pending" | "accepted";
-  role?: string | null;
+  title?: string | null;
   startDate?: string | null;
+  bio?: string | null;
   showEmail?: boolean;
   createdAt: string; // ISO date
   acceptedAt?: string | null; // ISO date
@@ -82,8 +85,9 @@ export interface TeamMember {
   name?: string | null;
   avatarUrl?: string | null;
   email?: string | null;
-  role?: string | null;
+  title?: string | null;
   startDate?: string | null;
+  bio?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
 }

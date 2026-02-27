@@ -8,7 +8,7 @@ interface IntroRow {
   share_slug?: string | null;
   startup_name?: string | null;
   startup_one_liner?: string | null;
-  role?: string | null;
+  title?: string | null;
   intro_text?: string | null;
   website_url?: string | null;
   linkedin_url?: string | null;
@@ -17,6 +17,7 @@ interface IntroRow {
   founded_date?: string | null;
   funding_rounds?: FundingRound[] | null;
   owner_start_date?: string | null;
+  owner_bio?: string | null;
   show_owner_email?: boolean;
   created_at: string;
   updated_at?: string | null;
@@ -26,7 +27,7 @@ interface IntroRow {
 interface PublicIntroJoinRow {
   startup_name?: string | null;
   startup_one_liner?: string | null;
-  role?: string | null;
+  title?: string | null;
   intro_text?: string | null;
   website_url?: string | null;
   linkedin_url?: string | null;
@@ -35,6 +36,7 @@ interface PublicIntroJoinRow {
   founded_date?: string | null;
   funding_rounds?: FundingRound[] | null;
   owner_start_date?: string | null;
+  owner_bio?: string | null;
   show_owner_email?: boolean;
   users: {
     name?: string | null;
@@ -52,7 +54,7 @@ function rowToIntro(row: IntroRow): Intro {
     shareSlug: row.share_slug ?? undefined,
     startupName: row.startup_name ?? undefined,
     startupOneLiner: row.startup_one_liner ?? undefined,
-    role: row.role ?? undefined,
+    title: row.title ?? undefined,
     introText: row.intro_text ?? undefined,
     websiteUrl: row.website_url ?? undefined,
     linkedinUrl: row.linkedin_url ?? undefined,
@@ -61,6 +63,7 @@ function rowToIntro(row: IntroRow): Intro {
     foundedDate: row.founded_date ?? undefined,
     fundingRounds: row.funding_rounds ?? undefined,
     ownerStartDate: row.owner_start_date ?? undefined,
+    ownerBio: row.owner_bio ?? undefined,
     showOwnerEmail: row.show_owner_email ?? false,
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? undefined,
@@ -78,7 +81,7 @@ function joinedRowToPublicProfile(
     ownerEmail: row.users?.email ?? undefined,
     startupName: row.startup_name ?? undefined,
     startupOneLiner: row.startup_one_liner ?? undefined,
-    role: row.role ?? undefined,
+    title: row.title ?? undefined,
     introText: row.intro_text ?? undefined,
     websiteUrl: row.website_url ?? undefined,
     linkedinUrl: row.linkedin_url ?? undefined,
@@ -87,6 +90,7 @@ function joinedRowToPublicProfile(
     foundedDate: row.founded_date ?? undefined,
     fundingRounds: row.funding_rounds ?? undefined,
     ownerStartDate: row.owner_start_date ?? undefined,
+    ownerBio: row.owner_bio ?? undefined,
     showOwnerEmail: row.show_owner_email ?? false,
   };
 }
@@ -95,7 +99,7 @@ function joinedRowToPublicProfile(
 export interface IntroUpdateRow {
   startup_name?: string | null;
   startup_one_liner?: string | null;
-  role?: string | null;
+  title?: string | null;
   intro_text?: string | null;
   website_url?: string | null;
   linkedin_url?: string | null;
@@ -104,12 +108,13 @@ export interface IntroUpdateRow {
   founded_date?: string | null;
   funding_rounds?: FundingRound[] | null;
   owner_start_date?: string | null;
+  owner_bio?: string | null;
   show_owner_email?: boolean;
   updated_at?: string;
 }
 
 const INTRO_SELECT =
-  "id, user_id, share_slug, startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, funding_rounds, owner_start_date, show_owner_email, created_at, updated_at";
+  "id, user_id, share_slug, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, funding_rounds, owner_start_date, owner_bio, show_owner_email, created_at, updated_at";
 
 export async function getByUserId(supabase: SupabaseClient, userId: string): Promise<Intro | null> {
   const { data, error } = await supabase
@@ -184,7 +189,7 @@ export async function update(
 }
 
 const PUBLIC_PROFILE_JOIN_SELECT =
-  "startup_name, startup_one_liner, role, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, funding_rounds, owner_start_date, show_owner_email, users(name, email, avatar_url, linkedin_url, twitter_url)";
+  "startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, funding_rounds, owner_start_date, owner_bio, show_owner_email, users(name, email, avatar_url, linkedin_url, twitter_url)";
 
 export async function getByShareSlug(
   supabase: SupabaseClient,

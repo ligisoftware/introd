@@ -117,8 +117,8 @@ export async function updateIntro(
   if (keys.includes("startupOneLiner")) {
     row.startup_one_liner = parsed.startupOneLiner ?? null;
   }
-  if (keys.includes("role")) {
-    row.role = parsed.role ?? null;
+  if (keys.includes("title")) {
+    row.title = parsed.title ?? null;
   }
   if (keys.includes("introText")) {
     row.intro_text = parsed.introText ?? null;
@@ -143,6 +143,9 @@ export async function updateIntro(
   }
   if (keys.includes("ownerStartDate")) {
     row.owner_start_date = parsed.ownerStartDate ?? null;
+  }
+  if (keys.includes("ownerBio")) {
+    row.owner_bio = parsed.ownerBio ?? null;
   }
   if (keys.includes("fundingRounds")) {
     row.funding_rounds = parsed.fundingRounds ?? null;
