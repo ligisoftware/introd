@@ -190,34 +190,36 @@
   .ds-glass {
     background: var(--ds-glass);
     border: 1px solid var(--ds-glass-border);
-    box-shadow: var(--ds-shadow-sm), inset 0 1px 0 0 var(--ds-glass-highlight);
+    box-shadow:
+      var(--ds-shadow-sm),
+      inset 0 1px 0 0 var(--ds-glass-highlight);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
   }
 
   /* Staggered section entrance */
-  .ds-stagger-1 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.06s both; }
-  .ds-stagger-2 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.14s both; }
-  .ds-stagger-3 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.22s both; }
-  .ds-stagger-4 { animation: ds-slide-up 0.5s var(--ds-ease-out) 0.30s both; }
+  .ds-stagger-1 {
+    animation: ds-slide-up 0.5s var(--ds-ease-out) 0.06s both;
+  }
+  .ds-stagger-2 {
+    animation: ds-slide-up 0.5s var(--ds-ease-out) 0.14s both;
+  }
+  .ds-stagger-3 {
+    animation: ds-slide-up 0.5s var(--ds-ease-out) 0.22s both;
+  }
+  .ds-stagger-4 {
+    animation: ds-slide-up 0.5s var(--ds-ease-out) 0.3s both;
+  }
 
   /* Dot grid background */
   .ds-dot-grid {
-    background-image: radial-gradient(
-      circle,
-      var(--ds-border) 1.5px,
-      transparent 1.5px
-    );
+    background-image: radial-gradient(circle, var(--ds-border) 1.5px, transparent 1.5px);
     background-size: 32px 32px;
   }
 
   @media (prefers-color-scheme: dark) {
     .ds-dot-grid {
-      background-image: radial-gradient(
-        circle,
-        #1a1a1a 1.5px,
-        transparent 1.5px
-      );
+      background-image: radial-gradient(circle, #1a1a1a 1.5px, transparent 1.5px);
     }
   }
 }

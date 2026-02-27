@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Collaborator, Intro } from "@/types";
 import {
   listByIntroId,
+  listByIntroIdWithUsers,
   getByInviteToken,
   create,
   deleteById,
@@ -14,7 +15,7 @@ export async function listCollaborators(
   supabase: SupabaseClient,
   introId: string
 ): Promise<Collaborator[]> {
-  return listByIntroId(supabase, introId);
+  return listByIntroIdWithUsers(supabase, introId);
 }
 
 export async function inviteCollaborator(

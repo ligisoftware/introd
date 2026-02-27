@@ -60,9 +60,7 @@ export default function IntroCard({ intro }: { intro: Intro }) {
               {intro.startupName || "Untitled intro"}
             </h2>
             {intro.startupOneLiner && (
-              <p className="mt-0.5 truncate text-xs text-ds-text-muted">
-                {intro.startupOneLiner}
-              </p>
+              <p className="mt-0.5 truncate text-xs text-ds-text-muted">{intro.startupOneLiner}</p>
             )}
           </div>
         </div>
@@ -85,7 +83,13 @@ export default function IntroCard({ intro }: { intro: Intro }) {
         className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-ds-sm text-ds-text-subtle opacity-0 transition-opacity duration-ds-fast ease-ds hover:bg-ds-surface-hover hover:text-ds-text group-hover:opacity-100 disabled:opacity-50"
         aria-label="Delete intro"
       >
-        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <svg
+          className="h-4 w-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.5}
+        >
           <path
             strokeLinecap="round"
             strokeLinejoin="round"

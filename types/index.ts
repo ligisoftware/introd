@@ -36,6 +36,8 @@ export interface Intro {
   logoUrl?: string | null;
   foundedDate?: string | null;
   fundingRounds?: FundingRound[] | null;
+  ownerStartDate?: string | null;
+  showOwnerEmail?: boolean;
   createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
 }
@@ -56,6 +58,8 @@ export interface PublicIntroProfile {
   logoUrl?: string | null;
   foundedDate?: string | null;
   fundingRounds?: FundingRound[] | null;
+  ownerStartDate?: string | null;
+  teamMembers?: TeamMember[];
 }
 
 export interface Collaborator {
@@ -63,10 +67,25 @@ export interface Collaborator {
   introId: string;
   email: string;
   userId?: string | null;
+  userName?: string | null;
+  userAvatarUrl?: string | null;
   inviteToken: string;
   status: "pending" | "accepted";
+  role?: string | null;
+  startDate?: string | null;
+  showEmail?: boolean;
   createdAt: string; // ISO date
   acceptedAt?: string | null; // ISO date
+}
+
+export interface TeamMember {
+  name?: string | null;
+  avatarUrl?: string | null;
+  email?: string | null;
+  role?: string | null;
+  startDate?: string | null;
+  linkedinUrl?: string | null;
+  twitterUrl?: string | null;
 }
 
 export interface IntroPage {

@@ -1,4 +1,4 @@
-import type { PublicIntroProfile, FundingRound } from "@/types";
+import type { PublicIntroProfile, FundingRound, TeamMember } from "@/types";
 
 function orEmpty(s: string | null | undefined): string {
   return s ?? "";
@@ -26,6 +26,12 @@ function formatRoundDate(dateStr: string): string {
   return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
+function formatStartDate(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
 function getInitials(name: string): string {
   return name
     .split(/\s+/)
@@ -33,6 +39,100 @@ function getInitials(name: string): string {
     .map((w) => w[0])
     .join("")
     .toUpperCase();
+}
+
+function TeamMemberCard({ member }: { member: TeamMember }) {
+  const name = member.name ?? "";
+  const memberAvatar = member.avatarUrl ?? "";
+  const memberEmail = member.email ?? "";
+  const memberRole = member.role ?? "";
+  const memberStartDate = member.startDate ?? "";
+  const memberLinkedin = member.linkedinUrl ?? "";
+  const memberTwitter = member.twitterUrl ?? "";
+  const hasMemberLinks = isValidUrl(memberLinkedin) || isValidUrl(memberTwitter);
+  const hasAvatar = !!(memberAvatar || name);
+  const hasDetails = !!(
+    memberRole ||
+    memberEmail ||
+    (memberStartDate && formatStartDate(memberStartDate)) ||
+    hasMemberLinks
+  );
+
+  return (
+    <div className="ds-glass rounded-2xl p-5">
+      <div className={`flex gap-4 ${hasDetails ? "items-start" : "items-center"}`}>
+        {hasAvatar && (
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
+            {memberAvatar ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={memberAvatar}
+                alt={name ? `${name}'s avatar` : "Team member avatar"}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-sm font-medium text-ds-text-subtle">
+                {getInitials(name)}
+              </div>
+            )}
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          {name && <p className="truncate font-medium text-ds-text">{name}</p>}
+          {memberRole && <p className="truncate text-sm text-ds-text-muted">{memberRole}</p>}
+          {memberEmail && (
+            <p className="truncate text-sm text-ds-text-muted">
+              <a
+                href={`mailto:${memberEmail}`}
+                className="transition-opacity duration-ds ease-ds-out hover:opacity-70"
+              >
+                {memberEmail}
+              </a>
+            </p>
+          )}
+          {memberStartDate && formatStartDate(memberStartDate) && (
+            <p className="mt-0.5 text-xs text-ds-text-subtle">
+              Since {formatStartDate(memberStartDate)}
+            </p>
+          )}
+          {hasMemberLinks && (
+            <div className="mt-1.5 flex items-center gap-3">
+              {isValidUrl(memberLinkedin) && (
+                <a
+                  href={memberLinkedin.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`${name || "Team member"} on LinkedIn`}
+                  className="text-[#0A66C2] transition-opacity duration-ds ease-ds-out hover:opacity-80"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24">
+                    <rect width="24" height="24" rx="4" fill="currentColor" />
+                    <path
+                      fill="white"
+                      d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z"
+                    />
+                  </svg>
+                </a>
+              )}
+              {isValidUrl(memberTwitter) && (
+                <a
+                  href={memberTwitter.trim()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`${name || "Team member"} on X`}
+                  className="text-ds-text transition-opacity duration-ds ease-ds-out hover:opacity-70"
+                >
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
@@ -51,6 +151,8 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const foundedDate = orEmpty(profile.foundedDate);
   const fundingRounds: FundingRound[] = profile.fundingRounds ?? [];
   const validFundingRounds = fundingRounds.filter((r) => r.roundName?.trim());
+  const teamMembers: TeamMember[] = profile.teamMembers ?? [];
+  const hasTeamMembers = teamMembers.some((m) => m.name || m.role);
 
   const hasIdentity = displayName || role || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
@@ -81,7 +183,9 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
           </div>
         )}
         {startupName && (
-          <h1 className="text-3xl font-bold tracking-tight text-ds-text sm:text-4xl">{startupName}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-ds-text sm:text-4xl">
+            {startupName}
+          </h1>
         )}
         {startupOneLiner && (
           <p className="mt-2 text-lg leading-relaxed text-ds-text-muted">{startupOneLiner}</p>
@@ -132,7 +236,10 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
               >
                 <svg className="h-5 w-5" viewBox="0 0 24 24">
                   <rect width="24" height="24" rx="4" fill="currentColor" />
-                  <path fill="white" d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z" />
+                  <path
+                    fill="white"
+                    d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z"
+                  />
                 </svg>
               </a>
             )}
@@ -189,26 +296,18 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
                         )}
                       </div>
                       {round.date && formatRoundDate(round.date) && (
-                        <p className="text-xs text-ds-text-subtle">
-                          {formatRoundDate(round.date)}
-                        </p>
+                        <p className="text-xs text-ds-text-subtle">{formatRoundDate(round.date)}</p>
                       )}
                     </div>
                     <div className="shrink-0 text-right">
                       {round.amount && (
-                        <p className="text-sm font-medium text-ds-text">
-                          {round.amount}
-                        </p>
+                        <p className="text-sm font-medium text-ds-text">{round.amount}</p>
                       )}
                       {isSafe && round.valuationCap && (
-                        <p className="text-xs text-ds-text-subtle">
-                          {round.valuationCap} cap
-                        </p>
+                        <p className="text-xs text-ds-text-subtle">{round.valuationCap} cap</p>
                       )}
                       {!isSafe && round.postValuation && (
-                        <p className="text-xs text-ds-text-subtle">
-                          {round.postValuation} post
-                        </p>
+                        <p className="text-xs text-ds-text-subtle">{round.postValuation} post</p>
                       )}
                     </div>
                   </div>
@@ -219,72 +318,37 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
         </div>
       )}
 
-      {/* Founder — glass panel */}
-      {(displayName || role) && (
+      {/* Team — glass panels */}
+      {hasTeamMembers ? (
         <div className="ds-stagger-4 w-full">
           <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
-            Founder
+            Team
           </h2>
-          <div className="ds-glass rounded-2xl p-5">
-            <div className="flex items-start gap-4">
-              {(avatarUrl || displayName) && (
-                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
-                  {avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={avatarUrl}
-                      alt={displayName ? `${displayName}'s avatar` : "Founder avatar"}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-sm font-medium text-ds-text-subtle">
-                      {getInitials(displayName)}
-                    </div>
-                  )}
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                {displayName && (
-                  <p className="truncate font-medium text-ds-text">{displayName}</p>
-                )}
-                {role && (
-                  <p className="truncate text-sm text-ds-text">{role}</p>
-                )}
-                {hasUserLinks && (
-                  <div className="mt-1.5 flex items-center gap-3">
-                    {isValidUrl(userLinkedinUrl) && (
-                      <a
-                        href={userLinkedinUrl.trim()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={`${displayName || "Founder"} on LinkedIn`}
-                        className="text-[#0A66C2] transition-opacity duration-ds ease-ds-out hover:opacity-80"
-                      >
-                        <svg className="h-4 w-4" viewBox="0 0 24 24">
-                          <rect width="24" height="24" rx="4" fill="currentColor" />
-                          <path fill="white" d="M7.077 19.452H4.027V9h3.05v10.452zM5.552 7.633a1.762 1.762 0 1 1 0-3.523 1.762 1.762 0 0 1 0 3.523zM19.447 19.452h-3.054v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h2.914v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v5.286z" />
-                        </svg>
-                      </a>
-                    )}
-                    {isValidUrl(userTwitterUrl) && (
-                      <a
-                        href={userTwitterUrl.trim()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title={`${displayName || "Founder"} on X`}
-                        className="text-ds-text transition-opacity duration-ds ease-ds-out hover:opacity-70"
-                      >
-                        <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                        </svg>
-                      </a>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+          <div className="space-y-3">
+            {teamMembers
+              .filter((m) => m.name || m.role)
+              .map((member, idx) => (
+                <TeamMemberCard key={idx} member={member} />
+              ))}
           </div>
         </div>
+      ) : (
+        (displayName || role) && (
+          <div className="ds-stagger-4 w-full">
+            <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+              Founder
+            </h2>
+            <TeamMemberCard
+              member={{
+                name: displayName || undefined,
+                avatarUrl: avatarUrl || undefined,
+                role: role || undefined,
+                linkedinUrl: userLinkedinUrl || undefined,
+                twitterUrl: userTwitterUrl || undefined,
+              }}
+            />
+          </div>
+        )
       )}
     </div>
   );

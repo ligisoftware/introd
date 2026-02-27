@@ -61,6 +61,15 @@ export const IntroUpdateSchema = z.object({
     .refine((s) => s === undefined || /^\d{4}-\d{2}-\d{2}$/.test(s), {
       message: "Must be a valid date (YYYY-MM-DD)",
     }),
+  showOwnerEmail: z.boolean().optional(),
+  ownerStartDate: z
+    .string()
+    .max(10)
+    .optional()
+    .transform((s) => (s === "" ? undefined : s))
+    .refine((s) => s === undefined || /^\d{4}-\d{2}-\d{2}$/.test(s), {
+      message: "Must be a valid date (YYYY-MM-DD)",
+    }),
   fundingRounds: z.array(FundingRoundSchema).max(20).optional(),
 });
 
