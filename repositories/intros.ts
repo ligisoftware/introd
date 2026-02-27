@@ -15,6 +15,7 @@ interface IntroRow {
   twitter_url?: string | null;
   logo_url?: string | null;
   founded_date?: string | null;
+  location?: string | null;
   funding_rounds?: FundingRound[] | null;
   owner_start_date?: string | null;
   owner_bio?: string | null;
@@ -34,6 +35,7 @@ interface PublicIntroJoinRow {
   twitter_url?: string | null;
   logo_url?: string | null;
   founded_date?: string | null;
+  location?: string | null;
   funding_rounds?: FundingRound[] | null;
   owner_start_date?: string | null;
   owner_bio?: string | null;
@@ -61,6 +63,7 @@ function rowToIntro(row: IntroRow): Intro {
     twitterUrl: row.twitter_url ?? undefined,
     logoUrl: row.logo_url ?? undefined,
     foundedDate: row.founded_date ?? undefined,
+    location: row.location ?? undefined,
     fundingRounds: row.funding_rounds ?? undefined,
     ownerStartDate: row.owner_start_date ?? undefined,
     ownerBio: row.owner_bio ?? undefined,
@@ -88,6 +91,7 @@ function joinedRowToPublicProfile(
     twitterUrl: row.twitter_url ?? undefined,
     logoUrl: row.logo_url ?? undefined,
     foundedDate: row.founded_date ?? undefined,
+    location: row.location ?? undefined,
     fundingRounds: row.funding_rounds ?? undefined,
     ownerStartDate: row.owner_start_date ?? undefined,
     ownerBio: row.owner_bio ?? undefined,
@@ -106,6 +110,7 @@ export interface IntroUpdateRow {
   twitter_url?: string | null;
   logo_url?: string | null;
   founded_date?: string | null;
+  location?: string | null;
   funding_rounds?: FundingRound[] | null;
   owner_start_date?: string | null;
   owner_bio?: string | null;
@@ -114,7 +119,7 @@ export interface IntroUpdateRow {
 }
 
 const INTRO_SELECT =
-  "id, user_id, share_slug, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, funding_rounds, owner_start_date, owner_bio, show_owner_email, created_at, updated_at";
+  "id, user_id, share_slug, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, created_at, updated_at";
 
 export async function getByUserId(supabase: SupabaseClient, userId: string): Promise<Intro | null> {
   const { data, error } = await supabase
@@ -189,7 +194,7 @@ export async function update(
 }
 
 const PUBLIC_PROFILE_JOIN_SELECT =
-  "startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, funding_rounds, owner_start_date, owner_bio, show_owner_email, users(name, email, avatar_url, linkedin_url, twitter_url)";
+  "startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, users(name, email, avatar_url, linkedin_url, twitter_url)";
 
 export async function getByShareSlug(
   supabase: SupabaseClient,

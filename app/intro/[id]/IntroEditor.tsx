@@ -50,6 +50,7 @@ export function IntroEditor({
   const [ownerBio, setOwnerBio] = useState(orEmpty(initialIntro.ownerBio));
   const [showOwnerEmail, setShowOwnerEmail] = useState(initialIntro.showOwnerEmail ?? false);
   const [foundedDate, setFoundedDate] = useState(orEmpty(initialIntro.foundedDate));
+  const [location, setLocation] = useState(orEmpty(initialIntro.location));
   const [fundingRounds, setFundingRounds] = useState<FundingRound[]>(
     initialIntro.fundingRounds ?? []
   );
@@ -386,6 +387,7 @@ export function IntroEditor({
       linkedinUrl: linkedinUrl.trim() || undefined,
       twitterUrl: twitterUrl.trim() || undefined,
       foundedDate: foundedDate.trim() || undefined,
+      location: location.trim() || undefined,
       fundingRounds: fundingRounds.filter((r) => r.roundName.trim()),
     };
 
@@ -664,6 +666,21 @@ export function IntroEditor({
                 maxLength={300}
               />
               <p className="mt-1.5 text-xs text-ds-text-subtle">{startupOneLiner.length}/300</p>
+            </div>
+            <div>
+              <label htmlFor="location" className={labelClass}>
+                Location
+              </label>
+              <input
+                id="location"
+                type="text"
+                placeholder="e.g. San Francisco, CA"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                disabled={isSaving}
+                className={inputClass}
+                maxLength={100}
+              />
             </div>
             <div>
               <label htmlFor="foundedDate" className={labelClass}>

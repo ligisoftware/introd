@@ -61,6 +61,7 @@ export const IntroUpdateSchema = z.object({
     .refine((s) => s === undefined || /^\d{4}-\d{2}-\d{2}$/.test(s), {
       message: "Must be a valid date (YYYY-MM-DD)",
     }),
+  location: z.string().max(100).optional(),
   ownerBio: z.string().max(500).optional(),
   showOwnerEmail: z.boolean().optional(),
   ownerStartDate: z

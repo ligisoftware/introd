@@ -35,6 +35,7 @@ export interface Intro {
   twitterUrl?: string | null;
   logoUrl?: string | null;
   foundedDate?: string | null;
+  location?: string | null;
   fundingRounds?: FundingRound[] | null;
   ownerStartDate?: string | null;
   ownerBio?: string | null;
@@ -58,6 +59,7 @@ export interface PublicIntroProfile {
   twitterUrl?: string | null;
   logoUrl?: string | null;
   foundedDate?: string | null;
+  location?: string | null;
   fundingRounds?: FundingRound[] | null;
   ownerStartDate?: string | null;
   ownerBio?: string | null;

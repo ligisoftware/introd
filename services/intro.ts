@@ -138,6 +138,9 @@ export async function updateIntro(
   if (keys.includes("foundedDate")) {
     row.founded_date = parsed.foundedDate ?? null;
   }
+  if (keys.includes("location")) {
+    row.location = parsed.location ?? null;
+  }
   if (keys.includes("showOwnerEmail")) {
     row.show_owner_email = parsed.showOwnerEmail ?? false;
   }

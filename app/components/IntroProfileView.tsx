@@ -32,6 +32,22 @@ function formatStartDate(dateStr: string): string {
   return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
 }
 
+function formatDuration(dateStr: string): string {
+  const start = new Date(dateStr + "T00:00:00");
+  if (isNaN(start.getTime())) return "";
+  const now = new Date();
+  let years = now.getFullYear() - start.getFullYear();
+  let months = now.getMonth() - start.getMonth();
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+  if (years > 0 && months > 0) return `${years} yr ${months} mo`;
+  if (years > 0) return `${years} yr`;
+  if (months > 0) return `${months} mo`;
+  return "< 1 mo";
+}
+
 function getInitials(name: string): string {
   return name
     .split(/\s+/)
@@ -41,7 +57,7 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function TeamMemberCard({ member }: { member: TeamMember }) {
+function TeamMemberCard({ member, foundedDate }: { member: TeamMember; foundedDate?: string }) {
   const name = member.name ?? "";
   const memberAvatar = member.avatarUrl ?? "";
   const memberEmail = member.email ?? "";
@@ -128,11 +144,16 @@ function TeamMemberCard({ member }: { member: TeamMember }) {
           )}
           {memberStartDate && formatStartDate(memberStartDate) && (
             <p className="mt-0.5 text-xs text-ds-text-subtle">
-              Since {formatStartDate(memberStartDate)}
+              {foundedDate && memberStartDate === foundedDate
+                ? "Since inception"
+                : `Since ${formatStartDate(memberStartDate)}`}
+              {formatDuration(memberStartDate)
+                ? `\u00A0\u00A0·\u00A0\u00A0${formatDuration(memberStartDate)}`
+                : ""}
             </p>
           )}
           {memberBio && (
-            <p className="mt-3 text-sm leading-relaxed text-ds-text-muted">{memberBio}</p>
+            <p className="mt-3 text-sm leading-relaxed text-ds-text">{memberBio}</p>
           )}
         </div>
       </div>
@@ -154,6 +175,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const userLinkedinUrl = orEmpty(profile.userLinkedinUrl);
   const userTwitterUrl = orEmpty(profile.userTwitterUrl);
   const foundedDate = orEmpty(profile.foundedDate);
+  const location = orEmpty(profile.location);
   const fundingRounds: FundingRound[] = profile.fundingRounds ?? [];
   const validFundingRounds = fundingRounds.filter((r) => r.roundName?.trim());
   const teamMembers: TeamMember[] = profile.teamMembers ?? [];
@@ -195,9 +217,13 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
         {startupOneLiner && (
           <p className="mt-2 text-lg leading-relaxed text-ds-text-muted">{startupOneLiner}</p>
         )}
-        {foundedDate && formatFoundedDate(foundedDate) && (
+        {(foundedDate || location) && (
           <p className="mt-2 text-sm text-ds-text-subtle">
-            Founded {formatFoundedDate(foundedDate)}
+            {location}
+            {location && foundedDate && formatFoundedDate(foundedDate) ? "\u00A0\u00A0·\u00A0\u00A0" : ""}
+            {foundedDate && formatFoundedDate(foundedDate)
+              ? `Founded ${formatFoundedDate(foundedDate)}`
+              : ""}
           </p>
         )}
         {hasLinks && (
@@ -333,7 +359,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
             {teamMembers
               .filter((m) => m.name || m.title)
               .map((member, idx) => (
-                <TeamMemberCard key={idx} member={member} />
+                <TeamMemberCard key={idx} member={member} foundedDate={foundedDate || undefined} />
               ))}
           </div>
         </div>
@@ -351,6 +377,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
                 linkedinUrl: userLinkedinUrl || undefined,
                 twitterUrl: userTwitterUrl || undefined,
               }}
+              foundedDate={foundedDate || undefined}
             />
           </div>
         )
