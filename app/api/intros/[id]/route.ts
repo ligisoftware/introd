@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
-import { getIntroById, updateIntro, deleteIntro } from "@/services/intro";
+import { getIntroById, updateIntro, deleteIntro, getIntroForEditing } from "@/services/intro";
 import { IntroUpdateSchema } from "@/lib/validation/intro";
 import { NextResponse } from "next/server";
 
@@ -43,9 +43,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const { id } = await params;
-  const intro = await getIntroById(supabase, id, user.id);
 
-  if (!intro) {
+  // Allow both owners and accepted collaborators to update
+  const result = await getIntroForEditing(supabase, id, user.id);
+  if (!result) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
@@ -71,7 +72,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const keys = Object.keys(body as Record<string, unknown>) as (keyof typeof parsed.data)[];
 
   try {
-    const updated = await updateIntro(supabase, intro.id, parsed.data, keys);
+    const updated = await updateIntro(supabase, result.intro.id, parsed.data, keys);
     return NextResponse.json({ intro: updated });
   } catch (err) {
     console.error("PATCH /api/intros/[id] error:", err);

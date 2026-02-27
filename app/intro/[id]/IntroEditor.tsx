@@ -1,6 +1,6 @@
 "use client";
 
-import type { Intro, FundingRound } from "@/types";
+import type { Intro, FundingRound, Collaborator } from "@/types";
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -12,7 +12,13 @@ import {
   btnSecondary,
 } from "@/app/components/form-classes";
 
-export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
+export function IntroEditor({
+  initialIntro,
+  isOwner = true,
+}: {
+  initialIntro: Intro;
+  isOwner?: boolean;
+}) {
   const introId = initialIntro.id;
 
   const [logoUrl, setLogoUrl] = useState(orEmpty(initialIntro.logoUrl));
@@ -253,11 +259,88 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
   const [shareStatus, setShareStatus] = useState<"idle" | "creating" | "copied" | "error">("idle");
   const [shareError, setShareError] = useState("");
 
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteStatus, setInviteStatus] = useState<"idle" | "sending" | "success" | "error">(
+    "idle"
+  );
+  const [inviteMessage, setInviteMessage] = useState("");
+
   useEffect(() => {
     if (initialIntro.shareSlug && typeof window !== "undefined") {
       setShareUrl(`${window.location.origin}/i/${initialIntro.shareSlug}`);
     }
   }, [initialIntro.shareSlug]);
+
+  useEffect(() => {
+    if (!isOwner) return;
+    fetch(`/api/intros/${introId}/collaborators`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.collaborators) setCollaborators(data.collaborators);
+      })
+      .catch(() => {});
+  }, [introId, isOwner]);
+
+  async function handleInvite(e: React.FormEvent) {
+    e.preventDefault();
+    const email = inviteEmail.trim().toLowerCase();
+    if (!email) return;
+
+    setInviteStatus("sending");
+    setInviteMessage("");
+
+    try {
+      const res = await fetch(`/api/intros/${introId}/collaborators`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setInviteStatus("error");
+        setInviteMessage(typeof data.error === "string" ? data.error : "Failed to send invite.");
+        return;
+      }
+
+      if (data.collaborator) {
+        setCollaborators((prev) => [...prev, data.collaborator]);
+      }
+      setInviteEmail("");
+      setInviteStatus("success");
+      setInviteMessage("Invite sent!");
+      setTimeout(() => {
+        setInviteStatus("idle");
+        setInviteMessage("");
+      }, 3000);
+    } catch {
+      setInviteStatus("error");
+      setInviteMessage("Something went wrong.");
+    }
+  }
+
+  async function handleRemoveCollaborator(collaboratorId: string) {
+    setCollaborators((prev) => prev.filter((c) => c.id !== collaboratorId));
+
+    try {
+      const res = await fetch(`/api/intros/${introId}/collaborators/${collaboratorId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        // Re-fetch on failure
+        const refetch = await fetch(`/api/intros/${introId}/collaborators`);
+        const data = await refetch.json().catch(() => ({}));
+        if (data.collaborators) setCollaborators(data.collaborators);
+      }
+    } catch {
+      // Re-fetch on error
+      const refetch = await fetch(`/api/intros/${introId}/collaborators`);
+      const data = await refetch.json().catch(() => ({}));
+      if (data.collaborators) setCollaborators(data.collaborators);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -384,9 +467,7 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
 
       if (!res.ok) {
         setLogoStatus("error");
-        setLogoMessage(
-          typeof data.error === "string" ? data.error : "Something went wrong."
-        );
+        setLogoMessage(typeof data.error === "string" ? data.error : "Something went wrong.");
         return;
       }
 
@@ -419,9 +500,7 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
 
       if (!res.ok) {
         setLogoStatus("error");
-        setLogoMessage(
-          typeof data.error === "string" ? data.error : "Something went wrong."
-        );
+        setLogoMessage(typeof data.error === "string" ? data.error : "Something went wrong.");
         return;
       }
 
@@ -465,8 +544,7 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
     }
   }
 
-  const isSaving =
-    status === "saving" || logoStatus === "uploading" || logoStatus === "removing";
+  const isSaving = status === "saving" || logoStatus === "uploading" || logoStatus === "removing";
 
   return (
     <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-8">
@@ -482,11 +560,7 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
               <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
                 {logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={logoUrl}
-                    alt="Company logo"
-                    className="h-full w-full object-cover"
-                  />
+                  <img src={logoUrl} alt="Company logo" className="h-full w-full object-cover" />
                 ) : (
                   <span className="flex flex-col items-center leading-tight">
                     <span>No</span>
@@ -519,7 +593,9 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                     </button>
                   )}
                 </div>
-                <p className="text-xs text-ds-text-subtle">Company logo — PNG, JPG, or WebP up to 8MB.</p>
+                <p className="text-xs text-ds-text-subtle">
+                  Company logo — PNG, JPG, or WebP up to 8MB.
+                </p>
                 {logoStatus === "error" && logoMessage && (
                   <p role="alert" className="ds-feedback-in text-xs text-ds-error">
                     {logoMessage}
@@ -650,10 +726,7 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                   No funding rounds or SAFEs added yet.
                 </p>
               )}
-              <div
-                ref={fundingListRef}
-                className="mt-2 space-y-3"
-              >
+              <div ref={fundingListRef} className="mt-2 space-y-3">
                 {getDragReorderedIndices().map((idx) => {
                   const round = fundingRounds[idx];
                   const isSafe = round.type === "safe";
@@ -672,7 +745,9 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                   return (
                     <div
                       key={idx}
-                      ref={(el) => { fundingCardRefs.current[idx] = el; }}
+                      ref={(el) => {
+                        fundingCardRefs.current[idx] = el;
+                      }}
                       className="rounded-ds border border-ds-border bg-ds-surface-hover p-3 space-y-2"
                     >
                       <div className="flex items-center justify-between">
@@ -682,8 +757,17 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                             className="cursor-grab touch-none select-none text-ds-text-subtle active:cursor-grabbing"
                             title="Drag to reorder"
                           >
-                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01" />
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={2}
+                            >
+                              <path
+                                strokeLinecap="round"
+                                d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"
+                              />
                             </svg>
                           </span>
                           <span className="text-xs font-medium text-ds-text-muted">
@@ -703,7 +787,9 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                       </div>
                       <input
                         type="text"
-                        placeholder={isSafe ? "e.g. Investor name or note" : "e.g. Pre-seed, Seed, Series A"}
+                        placeholder={
+                          isSafe ? "e.g. Investor name or note" : "e.g. Pre-seed, Seed, Series A"
+                        }
                         value={round.roundName}
                         onChange={(e) =>
                           setFundingRounds((prev) =>
@@ -723,9 +809,7 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                           value={orEmpty(round.amount)}
                           onChange={(e) =>
                             setFundingRounds((prev) =>
-                              prev.map((r, i) =>
-                                i === idx ? { ...r, amount: e.target.value } : r
-                              )
+                              prev.map((r, i) => (i === idx ? { ...r, amount: e.target.value } : r))
                             )
                           }
                           disabled={isSaving}
@@ -737,9 +821,7 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                           value={orEmpty(round.date)}
                           onChange={(e) =>
                             setFundingRounds((prev) =>
-                              prev.map((r, i) =>
-                                i === idx ? { ...r, date: e.target.value } : r
-                              )
+                              prev.map((r, i) => (i === idx ? { ...r, date: e.target.value } : r))
                             )
                           }
                           disabled={isSaving}
@@ -783,42 +865,59 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                   );
                 })}
               </div>
-              {dragState && (() => {
-                const round = fundingRounds[dragState.fromIdx];
-                const isSafe = round.type === "safe";
-                return (
-                  <div
-                    style={{
-                      position: "fixed",
-                      top: dragState.pointerY - dragState.offsetY,
-                      left: dragState.pointerX - dragState.offsetX,
-                      width: dragState.cardWidth,
-                      zIndex: 50,
-                      pointerEvents: "none",
-                    }}
-                    className="rounded-ds border border-ds-accent bg-ds-surface p-3 space-y-2 shadow-ds-md opacity-90"
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-ds-text-subtle">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01" />
-                        </svg>
-                      </span>
-                      <span className="text-xs font-medium text-ds-text-muted">
-                        {isSafe ? "SAFE" : "Round"}
-                      </span>
+              {dragState &&
+                (() => {
+                  const round = fundingRounds[dragState.fromIdx];
+                  const isSafe = round.type === "safe";
+                  return (
+                    <div
+                      style={{
+                        position: "fixed",
+                        top: dragState.pointerY - dragState.offsetY,
+                        left: dragState.pointerX - dragState.offsetX,
+                        width: dragState.cardWidth,
+                        zIndex: 50,
+                        pointerEvents: "none",
+                      }}
+                      className="rounded-ds border border-ds-accent bg-ds-surface p-3 space-y-2 shadow-ds-md opacity-90"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-ds-text-subtle">
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"
+                            />
+                          </svg>
+                        </span>
+                        <span className="text-xs font-medium text-ds-text-muted">
+                          {isSafe ? "SAFE" : "Round"}
+                        </span>
+                      </div>
+                      {round.roundName && (
+                        <p className="text-sm text-ds-text truncate">{round.roundName}</p>
+                      )}
+                      {(round.amount || (isSafe ? round.valuationCap : round.postValuation)) && (
+                        <p className="text-xs text-ds-text-muted truncate">
+                          {[
+                            round.amount,
+                            isSafe
+                              ? round.valuationCap && `${round.valuationCap} cap`
+                              : round.postValuation && `${round.postValuation} post`,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </p>
+                      )}
                     </div>
-                    {round.roundName && (
-                      <p className="text-sm text-ds-text truncate">{round.roundName}</p>
-                    )}
-                    {(round.amount || (isSafe ? round.valuationCap : round.postValuation)) && (
-                      <p className="text-xs text-ds-text-muted truncate">
-                        {[round.amount, isSafe ? round.valuationCap && `${round.valuationCap} cap` : round.postValuation && `${round.postValuation} post`].filter(Boolean).join(" · ")}
-                      </p>
-                    )}
-                  </div>
-                );
-              })()}
+                  );
+                })()}
             </div>
 
             <hr className="border-ds-border" />
@@ -886,8 +985,8 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
         </div>
       </form>
 
-      {/* -- Right column: share (sticky) -- */}
-      <aside className="w-full lg:sticky lg:top-[4.5rem] lg:w-80 lg:shrink-0">
+      {/* -- Right column: share + collaborators (sticky) -- */}
+      <aside className="w-full space-y-5 lg:sticky lg:top-[4.5rem] lg:w-80 lg:shrink-0">
         <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
           <h2 className={sectionTitle}>Share your page</h2>
           <p className="mt-2 text-sm text-ds-text-muted">
@@ -922,11 +1021,23 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
                   >
                     <span key={shareStatus} className={shareStatus === "copied" ? "ds-pop" : ""}>
                       {shareStatus === "copied" ? (
-                        <svg className="h-4 w-4 text-ds-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <svg
+                          className="h-4 w-4 text-ds-success"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       ) : (
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
                           <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                         </svg>
@@ -943,6 +1054,84 @@ export function IntroEditor({ initialIntro }: { initialIntro: Intro }) {
             )}
           </div>
         </section>
+
+        {isOwner && (
+          <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+            <h2 className={sectionTitle}>Collaborators</h2>
+            <p className="mt-2 text-sm text-ds-text-muted">
+              Invite a cofounder to edit this intro.
+            </p>
+
+            <form onSubmit={handleInvite} className="mt-4 flex gap-2">
+              <input
+                type="email"
+                placeholder="cofounder@example.com"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                disabled={inviteStatus === "sending"}
+                className={`${inputClass} min-w-0 flex-1`}
+              />
+              <button
+                type="submit"
+                disabled={inviteStatus === "sending" || !inviteEmail.trim()}
+                className={btnPrimary}
+              >
+                {inviteStatus === "sending" ? "Sending\u2026" : "Invite"}
+              </button>
+            </form>
+
+            {inviteStatus === "success" && inviteMessage && (
+              <p role="status" className="ds-feedback-in mt-2 text-xs text-ds-success">
+                {inviteMessage}
+              </p>
+            )}
+            {inviteStatus === "error" && inviteMessage && (
+              <p role="alert" className="ds-feedback-in mt-2 text-xs text-ds-error">
+                {inviteMessage}
+              </p>
+            )}
+
+            {collaborators.length > 0 && (
+              <ul className="mt-4 space-y-2">
+                {collaborators.map((collab) => (
+                  <li
+                    key={collab.id}
+                    className="flex items-center justify-between rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm text-ds-text">{collab.email}</p>
+                      <span
+                        className={`text-xs ${collab.status === "accepted" ? "text-ds-success" : "text-ds-text-subtle"}`}
+                      >
+                        {collab.status === "accepted" ? "Accepted" : "Pending"}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveCollaborator(collab.id)}
+                      className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-ds-sm text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:bg-ds-surface hover:text-ds-text"
+                      aria-label={`Remove ${collab.email}`}
+                    >
+                      <svg
+                        className="h-3.5 w-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
       </aside>
     </div>
   );
