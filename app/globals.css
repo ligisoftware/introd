@@ -35,8 +35,9 @@
   --ds-font-mono: ui-monospace, "SF Mono", monospace;
 
   /* Glass surfaces */
-  --ds-glass: rgba(255, 255, 255, 0.42);
-  --ds-glass-border: rgba(231, 229, 228, 0.5);
+  --ds-glass: rgba(255, 255, 255, 0.85);
+  --ds-glass-blur: rgba(255, 255, 255, 0.3);
+  --ds-glass-border: #e7e5e4;
   --ds-glass-highlight: rgba(255, 255, 255, 0.12);
 
   /* Effects */
@@ -78,8 +79,9 @@
     --ds-error-muted: #450a0a;
     --ds-focus-ring: #3b82f6;
 
-    --ds-glass: rgba(10, 10, 10, 0.58);
-    --ds-glass-border: rgba(38, 38, 38, 0.5);
+    --ds-glass: rgba(10, 10, 10, 0.85);
+    --ds-glass-blur: rgba(0, 0, 0, 0.3);
+    --ds-glass-border: rgba(255, 255, 255, 0.12);
     --ds-glass-highlight: rgba(255, 255, 255, 0.06);
 
     --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
@@ -108,8 +110,9 @@
   --ds-error: #ef4444;
   --ds-error-muted: #450a0a;
   --ds-focus-ring: #3b82f6;
-  --ds-glass: rgba(10, 10, 10, 0.5);
-  --ds-glass-border: rgba(38, 38, 38, 0.45);
+  --ds-glass: rgba(10, 10, 10, 0.85);
+  --ds-glass-blur: rgba(0, 0, 0, 0.3);
+  --ds-glass-border: rgba(255, 255, 255, 0.12);
   --ds-glass-highlight: rgba(255, 255, 255, 0.04);
 
   --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
@@ -133,13 +136,23 @@
     line-height: 1.6;
   }
 
-  /* Touch-friendly minimum tap target */
+  /* Touch-friendly minimum tap target — use a pseudo-element so the
+     hit area grows without affecting layout or spacing. */
   @media (pointer: coarse) {
     button:not([aria-hidden]),
     a:not([aria-hidden]),
     [role="button"] {
+      position: relative;
+    }
+    button:not([aria-hidden])::after,
+    a:not([aria-hidden])::after,
+    [role="button"]::after {
+      content: "";
+      position: absolute;
+      inset: 50% auto auto 50%;
       min-height: 44px;
       min-width: 44px;
+      transform: translate(-50%, -50%);
     }
   }
 
@@ -186,12 +199,18 @@
     animation: ds-fade-in 0.4s var(--ds-ease-out) both;
   }
 
-  /* Glass panel */
+  /* Glass panel — opaque fallback for browsers without backdrop-filter */
   .ds-glass {
     background: var(--ds-glass);
     border: 1px solid var(--ds-glass-border);
-    -webkit-backdrop-filter: blur(20px);
-    backdrop-filter: blur(20px);
+  }
+
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .ds-glass {
+      background: var(--ds-glass-blur);
+      -webkit-backdrop-filter: blur(20px);
+      backdrop-filter: blur(20px);
+    }
   }
 
   /* Staggered section entrance */
