@@ -27,8 +27,8 @@ export default async function RootLayout({
   const user = await getCurrentUser(supabase);
 
   return (
-    <html lang="en" className={plusJakartaSans.variable}>
-      <body className="flex min-h-screen flex-col bg-ds-bg pt-14 text-ds-text font-sans antialiased">
+    <html lang="en" className={`${plusJakartaSans.variable} bg-ds-bg`}>
+      <body className="flex min-h-screen flex-col pt-14 text-ds-text font-sans antialiased">
         <header className="fixed inset-x-0 top-0 z-50 border-b border-ds-border bg-ds-surface/95 backdrop-blur transition-colors duration-ds ease-ds supports-[backdrop-filter]:bg-ds-surface/80">
           <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
             <Link
