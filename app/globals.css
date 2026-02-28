@@ -35,7 +35,7 @@
   --ds-font-mono: ui-monospace, "SF Mono", monospace;
 
   /* Glass surfaces */
-  --ds-glass: rgba(255, 255, 255, 0.7);
+  --ds-glass: rgba(255, 255, 255, 0.3);
   --ds-glass-blur: rgba(255, 255, 255, 0.3);
   --ds-glass-border: #e7e5e4;
   --ds-glass-highlight: rgba(255, 255, 255, 0.12);
@@ -110,7 +110,7 @@
   --ds-error: #ef4444;
   --ds-error-muted: #450a0a;
   --ds-focus-ring: #3b82f6;
-  --ds-glass: rgba(10, 10, 10, 0.7);
+  --ds-glass: rgba(0, 0, 0, 0.3);
   --ds-glass-blur: rgba(0, 0, 0, 0.3);
   --ds-glass-border: rgba(255, 255, 255, 0.12);
   --ds-glass-highlight: rgba(255, 255, 255, 0.04);
