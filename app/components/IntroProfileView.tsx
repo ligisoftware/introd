@@ -77,7 +77,7 @@ function TeamMemberCard({ member, foundedDate }: { member: TeamMember; foundedDa
   );
 
   return (
-    <div className="ds-glass rounded-2xl !border-ds-border !bg-white/30 dark:!bg-black/30 p-5">
+    <div className="ds-glass rounded-2xl p-5">
       <div className={`flex gap-4 ${hasDetails ? "items-start" : "items-center"}`}>
         {hasAvatar && (
           <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border border-ds-border bg-ds-bg-elevated">
