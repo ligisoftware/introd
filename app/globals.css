@@ -78,8 +78,8 @@
     --ds-error-muted: #450a0a;
     --ds-focus-ring: #3b82f6;
 
-    --ds-glass: rgba(10, 10, 10, 0.7);
-      --ds-glass-border: rgba(255, 255, 255, 0.12);
+    --ds-glass: rgba(0, 0, 0, 0.7);
+    --ds-glass-border: rgba(255, 255, 255, 0.12);
     --ds-glass-highlight: rgba(255, 255, 255, 0.06);
 
     --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
@@ -108,7 +108,7 @@
   --ds-error: #ef4444;
   --ds-error-muted: #450a0a;
   --ds-focus-ring: #3b82f6;
-  --ds-glass: rgba(0, 0, 0, 0.3);
+  --ds-glass: rgba(0, 0, 0, 0.7);
   --ds-glass-border: rgba(255, 255, 255, 0.12);
   --ds-glass-highlight: rgba(255, 255, 255, 0.04);
 
