@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { getIntroForEditing } from "@/services/intro";
-import { listCollaborators, inviteCollaborator } from "@/services/collaborator";
+import { listCollaborators, inviteCollaborator, removeCollaborator } from "@/services/collaborator";
 import { getById } from "@/repositories/intros";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
@@ -105,8 +105,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
       if (emailError) {
         console.error("Failed to send invite email:", emailError);
+        await removeCollaborator(supabase, collaborator.id);
         return NextResponse.json(
-          { error: `Collaborator added but email failed: ${emailError.message}` },
+          { error: `Failed to send invite email: ${emailError.message}` },
           { status: 500 }
         );
       }
