@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   }
 
   const subject = body.slug ? `Introd feedback (page: /i/${body.slug})` : "Introd feedback";
-  const from = process.env.RESEND_FROM_EMAIL ?? "Introd <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM_EMAIL ?? "Introd <noreply@introd.me>";
   const replyTo = body.email && body.email.trim() ? body.email.trim() : undefined;
 
   const text = [
