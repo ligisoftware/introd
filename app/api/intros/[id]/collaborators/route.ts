@@ -84,7 +84,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if (collaborator) {
       const resend = new Resend(process.env.RESEND_API_KEY);
-      const from = process.env.RESEND_FROM_EMAIL ?? "Introd <onboarding@resend.dev>";
+      const from = process.env.RESEND_FROM_EMAIL ?? "Introd <noreply@introd.me>";
       const origin =
         request.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://introd.com";
       const ownerName = user.name || user.email;
