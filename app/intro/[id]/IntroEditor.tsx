@@ -349,6 +349,7 @@ export function IntroEditor({
   }
 
   async function handleRemoveCollaborator(collaboratorId: string) {
+    if (!confirm("Remove this collaborator?")) return;
     setCollaborators((prev) => prev.filter((c) => c.id !== collaboratorId));
 
     try {
