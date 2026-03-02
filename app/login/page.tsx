@@ -5,6 +5,13 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
+function getErrorMessage(errorCode: string | null): string {
+  if (!errorCode) return "";
+  if (errorCode === "missing_code")
+    return "That link wasn't valid or has expired. Request a new sign-in link below.";
+  return "Something went wrong. Try again or request a new link below.";
+}
+
 export default function LoginPage() {
   const searchParams = useSearchParams();
   const urlError = searchParams.get("error");
@@ -13,11 +20,15 @@ export default function LoginPage() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     urlError ? "error" : "idle"
   );
-  const [message, setMessage] = useState(urlError ?? "");
+  const [message, setMessage] = useState(getErrorMessage(urlError));
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim()) {
+      setStatus("error");
+      setMessage("Please enter your email address.");
+      return;
+    }
     setStatus("loading");
     setMessage("");
 
@@ -29,7 +40,7 @@ export default function LoginPage() {
 
     if (error) {
       setStatus("error");
-      setMessage(error.message);
+      setMessage("Something went wrong. Try again or request a new link below.");
       return;
     }
     setStatus("success");
@@ -42,6 +53,9 @@ export default function LoginPage() {
           <h1 className="text-2xl font-bold tracking-tight text-ds-text sm:text-3xl">Log in</h1>
           <p className="mt-2 text-sm text-ds-text-muted">
             Enter your email and we&apos;ll send you a magic link.
+          </p>
+          <p className="mt-1 text-sm text-ds-text-subtle">
+            Sign in or create an account — we&apos;ll send you a link.
           </p>
         </div>
 
@@ -86,7 +100,7 @@ export default function LoginPage() {
             ) : (
               <button
                 type="submit"
-                disabled={status === "loading" || !email.trim()}
+                disabled={status === "loading"}
                 className="w-full rounded-ds bg-ds-accent px-4 py-2.5 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-accent-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
                 data-testid="login-submit"
               >

@@ -11,10 +11,7 @@ import { NextResponse } from "next/server";
  * 403 if viewer is anonymous or the intro owner. For logged-in non-owner: returns
  * cached scores or triggers compute then returns.
  */
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ slug: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const supabase = await createClient();
   const serviceClient = createServiceRoleClient();
@@ -49,10 +46,7 @@ export async function GET(
   }
 
   if (!scores) {
-    return NextResponse.json(
-      { error: "Scores temporarily unavailable" },
-      { status: 503 }
-    );
+    return NextResponse.json({ error: "Scores temporarily unavailable" }, { status: 503 });
   }
 
   return NextResponse.json({

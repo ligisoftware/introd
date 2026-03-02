@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  getViewerKind,
-  getDebugParam,
-  resolveScoreBlockMode,
-} from "./viewer-context";
+import { getViewerKind, getDebugParam, resolveScoreBlockMode } from "./viewer-context";
 
 describe("getViewerKind", () => {
   const ownerId = "owner-uuid";

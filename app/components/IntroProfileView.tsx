@@ -152,9 +152,7 @@ function TeamMemberCard({ member, foundedDate }: { member: TeamMember; foundedDa
                 : ""}
             </p>
           )}
-          {memberBio && (
-            <p className="mt-3 text-sm leading-relaxed text-ds-text">{memberBio}</p>
-          )}
+          {memberBio && <p className="mt-3 text-sm leading-relaxed text-ds-text">{memberBio}</p>}
         </div>
       </div>
     </div>
@@ -220,7 +218,9 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
         {(foundedDate || location) && (
           <p className="mt-2 text-sm text-ds-text-subtle">
             {location}
-            {location && foundedDate && formatFoundedDate(foundedDate) ? "\u00A0\u00A0·\u00A0\u00A0" : ""}
+            {location && foundedDate && formatFoundedDate(foundedDate)
+              ? "\u00A0\u00A0·\u00A0\u00A0"
+              : ""}
             {foundedDate && formatFoundedDate(foundedDate)
               ? `Founded ${formatFoundedDate(foundedDate)}`
               : ""}

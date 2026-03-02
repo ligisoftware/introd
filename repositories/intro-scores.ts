@@ -86,10 +86,7 @@ export async function upsert(
   return rowToScores(data as IntroScoreRow);
 }
 
-export async function deleteByIntroId(
-  supabase: SupabaseClient,
-  introId: string
-): Promise<void> {
+export async function deleteByIntroId(supabase: SupabaseClient, introId: string): Promise<void> {
   const { error } = await supabase.from("intro_scores").delete().eq("intro_id", introId);
   if (error) throw error;
 }

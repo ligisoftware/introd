@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [{ href: "/intro", label: "Intro" }];
+const links = [
+  { href: "/intro", label: "Intro" },
+  { href: "/profile", label: "Profile" },
+];
 
 export function NavLinks() {
   const pathname = usePathname();
@@ -16,6 +19,7 @@ export function NavLinks() {
           <Link
             key={href}
             href={href}
+            aria-current={isActive ? "page" : undefined}
             className={`rounded-ds-sm px-2.5 py-1.5 text-sm font-medium transition-colors duration-ds ease-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg ${
               isActive ? "text-ds-accent" : "text-ds-text-muted hover:text-ds-text"
             }`}

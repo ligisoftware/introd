@@ -14,13 +14,23 @@ export default async function Home() {
           <p className="mt-3 text-base text-ds-text-muted sm:text-lg">
             Standardized first-impression layer for startup fundraising.
           </p>
+          <p className="mt-2 text-base text-ds-text-muted sm:text-lg">
+            A single shareable page with your background, startup, and team—for investors and warm
+            intros.
+          </p>
           {user && (
-            <p className="mt-6">
+            <p className="mt-6 flex flex-wrap items-center gap-3">
               <Link
                 href="/intro"
                 className="inline-flex items-center gap-2 rounded-ds bg-ds-accent px-4 py-2.5 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-accent-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98]"
               >
                 Edit your intro
+              </Link>
+              <Link
+                href="/profile"
+                className="text-sm font-medium text-ds-text-muted transition-colors duration-ds ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg rounded-ds-sm"
+              >
+                Edit your profile
               </Link>
             </p>
           )}

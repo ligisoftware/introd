@@ -286,6 +286,8 @@ export function IntroEditor({
     "idle"
   );
   const [inviteMessage, setInviteMessage] = useState("");
+  const [removingCollaboratorId, setRemovingCollaboratorId] = useState<string | null>(null);
+  const [removeCollaboratorError, setRemoveCollaboratorError] = useState("");
 
   useEffect(() => {
     if (initialIntro.shareSlug && typeof window !== "undefined") {
@@ -348,22 +350,33 @@ export function IntroEditor({
     }
   }
 
-  async function handleRemoveCollaborator(collaboratorId: string) {
-    if (!confirm("Remove this collaborator?")) return;
-    setCollaborators((prev) => prev.filter((c) => c.id !== collaboratorId));
+  function handleRemoveCollaboratorClick(collaboratorId: string) {
+    setRemoveCollaboratorError("");
+    setRemovingCollaboratorId(collaboratorId);
+  }
 
+  function handleRemoveCollaboratorCancel() {
+    setRemovingCollaboratorId(null);
+    setRemoveCollaboratorError("");
+  }
+
+  async function handleRemoveCollaboratorConfirm(collaboratorId: string) {
+    setRemoveCollaboratorError("");
     try {
       const res = await fetch(`/api/intros/${introId}/collaborators/${collaboratorId}`, {
         method: "DELETE",
       });
       if (!res.ok) {
-        // Re-fetch on failure
-        const refetch = await fetch(`/api/intros/${introId}/collaborators`);
-        const data = await refetch.json().catch(() => ({}));
-        if (data.collaborators) setCollaborators(data.collaborators);
+        const data = await res.json().catch(() => ({}));
+        setRemoveCollaboratorError(
+          typeof data.error === "string" ? data.error : "Failed to remove collaborator."
+        );
+        return;
       }
+      setCollaborators((prev) => prev.filter((c) => c.id !== collaboratorId));
+      setRemovingCollaboratorId(null);
     } catch {
-      // Re-fetch on error
+      setRemoveCollaboratorError("Something went wrong.");
       const refetch = await fetch(`/api/intros/${introId}/collaborators`);
       const data = await refetch.json().catch(() => ({}));
       if (data.collaborators) setCollaborators(data.collaborators);
@@ -589,7 +602,7 @@ export function IntroEditor({
           </p>
           <div className="mt-4 space-y-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-ds-lg border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
                 {logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={logoUrl} alt="Company logo" className="h-full w-full object-cover" />
@@ -1204,7 +1217,7 @@ export function IntroEditor({
                   <button
                     type="button"
                     onClick={handleCopyShareLink}
-                    className="absolute inset-y-0 right-0 flex items-center px-2.5 text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring"
+                    className="absolute inset-y-0 right-0 flex items-center px-2.5 text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
                     aria-label={shareStatus === "copied" ? "Copied" : "Copy link"}
                   >
                     <span key={shareStatus} className={shareStatus === "copied" ? "ds-pop" : ""}>
@@ -1286,39 +1299,76 @@ export function IntroEditor({
                 <span className="text-xs font-medium text-ds-accent">Owner</span>
               </div>
             </li>
-            {collaborators.map((collab) => (
-              <li
-                key={collab.id}
-                className="flex items-center justify-between rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2"
-              >
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm text-ds-text">{collab.userName || collab.email}</p>
-                  <span
-                    className={`text-xs ${collab.status === "accepted" ? "text-ds-success" : "text-ds-text-subtle"}`}
-                  >
-                    {collab.status === "accepted" ? "Collaborator" : "Pending"}
-                  </span>
-                </div>
-                {isOwner && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveCollaborator(collab.id)}
-                    className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-ds-sm text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:bg-ds-surface hover:text-ds-text"
-                    aria-label={`Remove ${collab.userName || collab.email}`}
-                  >
-                    <svg
-                      className="h-3.5 w-3.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                )}
-              </li>
-            ))}
+            {collaborators.map((collab) => {
+              const displayName = collab.userName || collab.email;
+              const isRemoving = removingCollaboratorId === collab.id;
+              return (
+                <li
+                  key={collab.id}
+                  className="flex flex-col gap-2 rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2"
+                >
+                  {isRemoving ? (
+                    <>
+                      <p className="text-sm text-ds-text">Remove {displayName}?</p>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={handleRemoveCollaboratorCancel}
+                          className="rounded-ds-sm border border-ds-border bg-ds-surface px-2 py-1 text-xs font-medium text-ds-text transition-colors duration-ds-fast ease-ds hover:bg-ds-surface-hover"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCollaboratorConfirm(collab.id)}
+                          className="rounded-ds-sm bg-ds-accent px-2 py-1 text-xs font-medium text-ds-text-inverse transition-colors duration-ds-fast ease-ds hover:opacity-90"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      {removeCollaboratorError && (
+                        <div role="alert" className="ds-feedback-in text-xs text-ds-error">
+                          {removeCollaboratorError}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm text-ds-text">{displayName}</p>
+                        <span
+                          className={`text-xs ${collab.status === "accepted" ? "text-ds-success" : "text-ds-text-subtle"}`}
+                        >
+                          {collab.status === "accepted" ? "Collaborator" : "Pending"}
+                        </span>
+                      </div>
+                      {isOwner && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCollaboratorClick(collab.id)}
+                          className="ml-2 flex h-6 w-6 shrink-0 items-center justify-center rounded-ds-sm text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:bg-ds-surface hover:text-ds-text"
+                          aria-label={`Remove ${displayName}`}
+                        >
+                          <svg
+                            className="h-3.5 w-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       </aside>

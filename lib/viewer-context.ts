@@ -49,10 +49,7 @@ export function getDebugParam(searchParams: { get(key: string): string | null })
 /**
  * Determines viewer kind from current user id and intro owner user id.
  */
-export function getViewerKind(
-  currentUserId: string | null,
-  ownerUserId: string
-): ViewerKind {
+export function getViewerKind(currentUserId: string | null, ownerUserId: string): ViewerKind {
   if (!currentUserId) return "anonymous";
   if (currentUserId === ownerUserId) return "owner";
   return "non-owner";

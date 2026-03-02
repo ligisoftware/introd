@@ -13,11 +13,11 @@ Give logged-in viewers (e.g. VCs) a fast, consistent snapshot of every intro (fo
 
 ## 2. Score Dimensions
 
-| Dimension | What it measures | Example low signal | Example high signal |
-|-----------|------------------|--------------------|---------------------|
-| **Founder & team** | Experience relevance, role clarity, team completeness. **Note:** Bio on the intro is a brief description of the person’s role at the company—don’t treat “short bio” as low signal by default. A future **profile screen** (separate from intro) will provide richer data to improve this score. | No team, no role clarity | Clear role, 2+ co-founders with roles; profile (when built) adds domain/experience signal |
-| **Startup** | **Is there a real problem? Is there a market?** Clarity and plausibility of problem/solution; differentiation vs. “me too” ideas | “We’re building a Twitter clone” / “Social network for X” with no clear wedge | Clear problem, specific solution, defined wedge or traction |
-| **Fit (VC)** | How well this intro matches the viewer’s fund (sector, stage, geography, portfolio) | — | Shown when viewer is identified as a VC (paywall TBD later) |
+| Dimension          | What it measures                                                                                                                                                                                                                                                                                 | Example low signal                                                            | Example high signal                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| **Founder & team** | Experience relevance, role clarity, team completeness. **Note:** Bio on the intro is a brief description of the person’s role at the company—don’t treat “short bio” as low signal by default. A future **profile screen** (separate from intro) will provide richer data to improve this score. | No team, no role clarity                                                      | Clear role, 2+ co-founders with roles; profile (when built) adds domain/experience signal |
+| **Startup**        | **Is there a real problem? Is there a market?** Clarity and plausibility of problem/solution; differentiation vs. “me too” ideas                                                                                                                                                                 | “We’re building a Twitter clone” / “Social network for X” with no clear wedge | Clear problem, specific solution, defined wedge or traction                               |
+| **Fit (VC)**       | How well this intro matches the viewer’s fund (sector, stage, geography, portfolio)                                                                                                                                                                                                              | —                                                                             | Shown when viewer is identified as a VC (paywall TBD later)                               |
 
 **Startup** is the most important filter: ideas that don’t solve a real problem or address a real market (e.g. another Twitter clone, generic “AI for X”) should score low and be called out in the summary. The model should favor specificity, differentiation, and evidence of a real problem.
 
@@ -25,11 +25,11 @@ Give logged-in viewers (e.g. VCs) a fast, consistent snapshot of every intro (fo
 
 ## 3. Who Sees What, When
 
-| Audience | What they see |
-|----------|----------------|
-| **Anonymous visitor** | **Blurred** score block (teaser): same layout as the real block but content blurred so they see that scores exist and are encouraged to log in. Profile content unchanged. |
-| **Logged-in, not the intro owner** | **Full** scores: summary + Founder & team + Startup (+ Fit when viewer is identified as VC). |
-| **Logged-in, viewing their own intro** | **No score block at all.** Don’t show scores to the owner—avoids gamification (users would otherwise game until they get high scores). |
+| Audience                               | What they see                                                                                                                                                              |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Anonymous visitor**                  | **Blurred** score block (teaser): same layout as the real block but content blurred so they see that scores exist and are encouraged to log in. Profile content unchanged. |
+| **Logged-in, not the intro owner**     | **Full** scores: summary + Founder & team + Startup (+ Fit when viewer is identified as VC).                                                                               |
+| **Logged-in, viewing their own intro** | **No score block at all.** Don’t show scores to the owner—avoids gamification (users would otherwise game until they get high scores).                                     |
 
 **Pricing (for now):** The feature is **fully free** to simplify development. **Eventually the whole AI scores feature will be paid** (exact paywall TBD; VC fit may be a premium tier).
 
@@ -88,10 +88,10 @@ Scores appear **only on the shared intro page** (`/i/[slug]`), in a **right-hand
 
 ## 6. Out of Scope for V1
 
-- Showing actual scores to anonymous users (blurred teaser only)  
-- Founders seeing their own scores (omit entirely to avoid gaming)  
-- “Top intros” or any public ranking  
-- Scoring of intros the viewer doesn’t have link to (no global browse-by-score in V1)  
+- Showing actual scores to anonymous users (blurred teaser only)
+- Founders seeing their own scores (omit entirely to avoid gaming)
+- “Top intros” or any public ranking
+- Scoring of intros the viewer doesn’t have link to (no global browse-by-score in V1)
 - Paid tier at launch (feature is free initially; whole feature will become paid later)
 
 ---
