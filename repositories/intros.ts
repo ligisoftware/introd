@@ -194,7 +194,10 @@ export async function update(
 }
 
 const PUBLIC_PROFILE_JOIN_SELECT =
-  "startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, users(name, email, avatar_url, linkedin_url, twitter_url)";
+  "id, user_id, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, users(name, email, avatar_url, linkedin_url, twitter_url)";
+
+/** Joined row includes intro id and user_id for owner resolution */
+type PublicIntroJoinRowWithId = PublicIntroJoinRow & { id: string; user_id: string };
 
 export async function getByShareSlug(
   supabase: SupabaseClient,
@@ -202,22 +205,30 @@ export async function getByShareSlug(
 ): Promise<{
   profile: PublicIntroProfile;
   introId: string;
+  ownerUserId: string;
   ownerEmail?: string;
   showOwnerEmail: boolean;
 } | null> {
   const { data, error } = await supabase
     .from("intros")
-    .select(`id, ${PUBLIC_PROFILE_JOIN_SELECT}`)
+    .select(PUBLIC_PROFILE_JOIN_SELECT)
     .eq("share_slug", slug)
     .maybeSingle();
 
   if (error) throw error;
   if (!data) return null;
 
-  const { id, ...rest } = data as unknown as PublicIntroJoinRow & { id: string };
+  const row = data as unknown as PublicIntroJoinRowWithId;
+  const { id, user_id, ...rest } = row;
   const result = joinedRowToPublicProfile(rest);
   const { ownerEmail, showOwnerEmail, ...profile } = result;
-  return { profile, introId: id, ownerEmail, showOwnerEmail: showOwnerEmail ?? false };
+  return {
+    profile,
+    introId: id,
+    ownerUserId: user_id,
+    ownerEmail,
+    showOwnerEmail: showOwnerEmail ?? false,
+  };
 }
 
 export async function deleteById(supabase: SupabaseClient, id: string): Promise<void> {
