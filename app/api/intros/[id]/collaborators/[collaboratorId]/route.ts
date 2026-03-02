@@ -2,6 +2,7 @@ import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { getIntroById, getIntroForEditing } from "@/services/intro";
 import { removeCollaborator } from "@/services/collaborator";
+import { invalidateIntroScores } from "@/services/intro-scores";
 import { updateCollaboratorFields } from "@/repositories/collaborators";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -29,6 +30,8 @@ export async function DELETE(
 
   try {
     await removeCollaborator(supabase, collaboratorId);
+    const serviceClient = createServiceRoleClient();
+    await invalidateIntroScores(serviceClient, id);
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("DELETE /api/intros/[id]/collaborators/[collaboratorId] error:", err);
@@ -110,6 +113,7 @@ export async function PATCH(
     // Use service-role client to bypass RLS (user's edit access already verified above)
     const serviceClient = createServiceRoleClient();
     const updated = await updateCollaboratorFields(serviceClient, collaboratorId, updatePayload);
+    await invalidateIntroScores(serviceClient, id);
     return NextResponse.json({ collaborator: updated });
   } catch (err) {
     console.error("PATCH /api/intros/[id]/collaborators/[collaboratorId] error:", err);

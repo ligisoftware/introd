@@ -1,7 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { getInviteByToken } from "@/services/collaborator";
 import { acceptInvite } from "@/repositories/collaborators";
+import { invalidateIntroScores } from "@/services/intro-scores";
 import { NextResponse } from "next/server";
 
 /**
@@ -27,6 +28,8 @@ export async function POST(_request: Request, { params }: { params: Promise<{ to
     }
 
     const updated = await acceptInvite(supabase, invite.id, user.id);
+    const serviceClient = createServiceRoleClient();
+    await invalidateIntroScores(serviceClient, updated.introId);
     return NextResponse.json({ introId: updated.introId });
   } catch (err) {
     console.error("POST /api/invite/[token] error:", err);

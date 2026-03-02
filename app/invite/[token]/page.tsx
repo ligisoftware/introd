@@ -2,6 +2,7 @@ import { createServiceRoleClient, createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { redirect } from "next/navigation";
 import { getByInviteToken, acceptInvite } from "@/repositories/collaborators";
+import { invalidateIntroScores } from "@/services/intro-scores";
 
 export default async function InviteAcceptPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
@@ -35,6 +36,7 @@ export default async function InviteAcceptPage({ params }: { params: Promise<{ t
   // User is logged in — accept the invite (sets status, user_id, accepted_at atomically)
   if (invite.status === "pending") {
     await acceptInvite(serviceClient, invite.id, user.id);
+    await invalidateIntroScores(serviceClient, invite.introId);
   }
 
   redirect(`/intro/${invite.introId}?invited=true`);
