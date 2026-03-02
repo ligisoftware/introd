@@ -53,7 +53,7 @@ export default function IntroCard({ intro }: { intro: Intro }) {
     >
       <Link href={`/intro/${intro.id}`} className="block p-5">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-ds border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
             {intro.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={intro.logoUrl} alt="" className="h-full w-full object-cover" />

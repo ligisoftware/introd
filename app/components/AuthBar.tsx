@@ -16,6 +16,7 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevOpenRef = useRef(false);
 
   function handleMouseEnter() {
     if (closeTimeout.current) {
@@ -68,9 +69,10 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
     if (open && menuRef.current) {
       const firstItem = menuRef.current.querySelector<HTMLElement>("[role='menuitem']");
       firstItem?.focus();
-    } else if (!open) {
+    } else if (prevOpenRef.current && !open) {
       buttonRef.current?.focus();
     }
+    prevOpenRef.current = open;
   }, [open]);
 
   async function handleLogout() {
@@ -126,7 +128,7 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
             role="menuitem"
             tabIndex={0}
             onClick={() => setOpen(false)}
-            className="flex w-full items-center gap-2 rounded-ds-sm px-3 py-2 text-left text-sm text-ds-text-muted transition-colors duration-ds-fast ease-ds hover:bg-ds-surface-hover hover:text-ds-text focus:bg-ds-surface-hover focus:text-ds-text focus:outline-none"
+            className="flex w-full items-center gap-2 rounded-ds-sm px-3 py-2 text-left text-sm text-ds-text-muted transition-colors duration-ds-fast ease-ds hover:bg-ds-surface-hover hover:text-ds-text focus:bg-ds-surface-hover focus:text-ds-text focus:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
           >
             <svg
               className="h-4 w-4 shrink-0"
@@ -148,7 +150,7 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
             type="button"
             role="menuitem"
             onClick={handleLogout}
-            className="flex w-full items-center gap-2 rounded-ds-sm px-3 py-2 text-left text-sm text-ds-text transition-colors duration-ds-fast ease-ds hover:bg-ds-surface-hover hover:text-ds-text focus:bg-ds-surface-hover focus:outline-none"
+            className="flex w-full items-center gap-2 rounded-ds-sm px-3 py-2 text-left text-sm text-ds-text transition-colors duration-ds-fast ease-ds hover:bg-ds-surface-hover hover:text-ds-text focus:bg-ds-surface-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
             data-testid="auth-bar-logout"
           >
             <svg

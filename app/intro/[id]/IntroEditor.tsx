@@ -602,7 +602,7 @@ export function IntroEditor({
           </p>
           <div className="mt-4 space-y-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
+              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-ds-lg border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
                 {logoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={logoUrl} alt="Company logo" className="h-full w-full object-cover" />
@@ -1217,7 +1217,7 @@ export function IntroEditor({
                   <button
                     type="button"
                     onClick={handleCopyShareLink}
-                    className="absolute inset-y-0 right-0 flex items-center px-2.5 text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring"
+                    className="absolute inset-y-0 right-0 flex items-center px-2.5 text-ds-text-subtle transition-colors duration-ds-fast ease-ds hover:text-ds-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
                     aria-label={shareStatus === "copied" ? "Copied" : "Copy link"}
                   >
                     <span key={shareStatus} className={shareStatus === "copied" ? "ds-pop" : ""}>

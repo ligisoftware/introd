@@ -100,7 +100,7 @@ export default function LoginPage() {
             ) : (
               <button
                 type="submit"
-                disabled={status === "loading" || !email.trim()}
+                disabled={status === "loading"}
                 className="w-full rounded-ds bg-ds-accent px-4 py-2.5 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-accent-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
                 data-testid="login-submit"
               >
