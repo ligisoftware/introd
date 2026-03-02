@@ -2,6 +2,8 @@
 
 Quick guide to manually verify the AI intro scores feature on the shared intro page (`/i/[slug]`).
 
+For **E2E testing by AI agents** (all routes and flows, including auth and scores), see [E2E Testing Guide for AI Agents](./e2e-ai-agent-guide.md).
+
 ---
 
 ## Prerequisites
@@ -19,10 +21,10 @@ Migrations are already applied; no DB steps required.
 
 ## Who sees what
 
-| Viewer | Score block |
-|--------|-------------|
-| **Anonymous** | Blurred teaser + “Log in to see AI summary and scores.” |
-| **Owner** | No score block. |
+| Viewer                  | Score block                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| **Anonymous**           | Blurred teaser + “Log in to see AI summary and scores.”                            |
+| **Owner**               | No score block.                                                                    |
 | **Logged-in non-owner** | Full block: summary + Founder & team + Startup. Computed on first view if missing. |
 
 ---
@@ -32,9 +34,10 @@ Migrations are already applied; no DB steps required.
 **Option A – Debug menu (easiest)**  
 With `npm run dev`, open `/i/[your-slug]`. Use the “AI scores debug” sidebar: **Real**, **full**, **blurred**, **owner**. Each button forces that state without switching accounts.
 
-**Option B – Two browsers / accounts**  
-- Anonymous: incognito → `/i/[slug]` → blurred block + login CTA.  
-- Owner: log in as owner → `/i/[slug]` → no score block.  
+**Option B – Two browsers / accounts**
+
+- Anonymous: incognito → `/i/[slug]` → blurred block + login CTA.
+- Owner: log in as owner → `/i/[slug]` → no score block.
 - Non-owner: log in as different user → `/i/[slug]` → full score block.
 
 ---
@@ -53,8 +56,9 @@ Scores recompute when the intro or collaborators change. Edit the intro, change 
 
 ## 4. Optional: Scores API
 
-**GET** `/api/i/[slug]/scores`  
-- Anonymous or owner → 403.  
+**GET** `/api/i/[slug]/scores`
+
+- Anonymous or owner → 403.
 - Logged-in non-owner → 200 with scores JSON, or 503 if compute fails.
 
 ---

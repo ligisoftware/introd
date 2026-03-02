@@ -36,6 +36,7 @@ export function AiScoresDebugMenu({ slug }: { slug: string }) {
     <section
       className="rounded-ds border border-ds-border bg-ds-surface-hover p-3 text-xs"
       aria-label="AI scores debug (development only)"
+      data-testid="ai-debug-menu"
     >
       <p className="font-medium text-ds-text-muted">AI scores debug</p>
       <p className="mt-1 text-ds-text-subtle">Override visibility for testing:</p>

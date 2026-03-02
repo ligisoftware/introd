@@ -32,7 +32,10 @@ export default function IntroCard({ intro }: { intro: Intro }) {
   }
 
   return (
-    <div className="group relative rounded-ds-lg border border-ds-border bg-ds-surface shadow-ds-sm transition-[border-color,box-shadow] duration-ds ease-ds hover:border-ds-accent/40 hover:shadow-ds">
+    <div
+      className="group relative rounded-ds-lg border border-ds-border bg-ds-surface shadow-ds-sm transition-[border-color,box-shadow] duration-ds ease-ds hover:border-ds-accent/40 hover:shadow-ds"
+      data-testid="intro-card"
+    >
       <Link href={`/intro/${intro.id}`} className="block p-5">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-ds-border bg-ds-surface-hover text-xs font-medium text-ds-text-subtle">
@@ -82,6 +85,7 @@ export default function IntroCard({ intro }: { intro: Intro }) {
         disabled={deleting}
         className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-ds-sm text-ds-text-subtle opacity-0 transition-opacity duration-ds-fast ease-ds hover:bg-ds-surface-hover hover:text-ds-text group-hover:opacity-100 disabled:opacity-50"
         aria-label="Delete intro"
+        data-testid="intro-card-delete"
       >
         <svg
           className="h-4 w-4"
