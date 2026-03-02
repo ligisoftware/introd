@@ -110,7 +110,12 @@ export async function computeAndPersistIntroScores(
     return getByIntroId(supabase, introId);
   } catch (err) {
     const elapsed = Date.now() - start;
-    console.error("[intro-scores] compute failed", { introId, model: MODEL, latencyMs: elapsed, err });
+    console.error("[intro-scores] compute failed", {
+      introId,
+      model: MODEL,
+      latencyMs: elapsed,
+      err,
+    });
     return null;
   }
 }

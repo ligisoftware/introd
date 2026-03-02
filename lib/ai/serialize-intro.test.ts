@@ -31,10 +31,7 @@ describe("serializeIntroForLLM", () => {
 
   it("includes team members", () => {
     const profile: PublicIntroProfile = {
-      teamMembers: [
-        { name: "Alice", title: "CTO", bio: "Ex-Y" },
-        { name: "Bob" },
-      ],
+      teamMembers: [{ name: "Alice", title: "CTO", bio: "Ex-Y" }, { name: "Bob" }],
     };
     const out = serializeIntroForLLM(profile);
     expect(out).toContain("Team:");

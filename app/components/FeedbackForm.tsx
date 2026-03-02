@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-const FEEDBACK_TO = "nic@ligi.app, jeff@ligi.app";
-
 const inputClass =
   "w-full rounded-ds border border-ds-border bg-ds-surface px-3.5 py-2.5 text-ds-text placeholder-ds-text-subtle transition-[border-color,box-shadow] duration-ds-fast ease-ds focus:border-ds-accent focus:outline-none focus:ring-2 focus:ring-ds-accent/20 disabled:bg-ds-surface-hover disabled:text-ds-text-subtle";
 const labelClass = "block text-sm font-medium text-ds-text-muted";
@@ -45,7 +43,7 @@ export function FeedbackForm() {
 
   return (
     <div>
-      <p className="text-sm text-ds-text-muted">Feedback is sent to {FEEDBACK_TO}.</p>
+      <p className="text-sm text-ds-text-muted">Your feedback goes to the Introd team.</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
           <label htmlFor="feedback-message" className={labelClass}>

@@ -106,7 +106,7 @@ export function IntroSignalBlock({ mode, scores, viewerSlug }: IntroSignalBlockP
               </Link>
             </p>
             <p className="mt-3 text-xs text-ds-text-subtle">
-              Premium feature — pay to unlock soon.
+              Free for viewers once you&apos;re signed in.
             </p>
           </div>
         </>
