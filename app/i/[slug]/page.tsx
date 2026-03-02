@@ -7,11 +7,7 @@ import { getTeamMembersForIntro } from "@/repositories/collaborators";
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { getIntroScores, computeAndPersistIntroScores } from "@/services/intro-scores";
-import {
-  getViewerKind,
-  getDebugParam,
-  resolveScoreBlockMode,
-} from "@/lib/viewer-context";
+import { getViewerKind, getDebugParam, resolveScoreBlockMode } from "@/lib/viewer-context";
 import type { TeamMember } from "@/types";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -78,7 +74,7 @@ export default async function ViewerPage({
       <div aria-hidden className="pointer-events-none fixed inset-0 ds-dot-grid" />
       <div className="relative mx-auto w-full max-w-container-lg ds-hero-in">
         <div className="flex w-full flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1" data-testid="shared-intro-main">
             <div className="mx-auto max-w-xl">
               <IntroProfileView profile={profile} />
             </div>

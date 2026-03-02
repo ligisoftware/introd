@@ -33,9 +33,7 @@ function ScoreSection({
 }) {
   const borderClass = sectionBorderByVariant[variant];
   return (
-    <div
-      className={`${isFirst ? "mt-0" : "mt-5 border-t border-ds-border pt-5"} ${borderClass}`}
-    >
+    <div className={`${isFirst ? "mt-0" : "mt-5 border-t border-ds-border pt-5"} ${borderClass}`}>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="text-sm font-medium text-ds-text">{label}</span>
         {score != null && (
@@ -56,19 +54,13 @@ function ScoreSection({
         </ul>
       )}
       {score == null && (
-        <p className="mt-1.5 text-sm text-ds-text-muted">
-          Not enough information to assess.
-        </p>
+        <p className="mt-1.5 text-sm text-ds-text-muted">Not enough information to assess.</p>
       )}
     </div>
   );
 }
 
-export function IntroSignalBlock({
-  mode,
-  scores,
-  viewerSlug,
-}: IntroSignalBlockProps) {
+export function IntroSignalBlock({ mode, scores, viewerSlug }: IntroSignalBlockProps) {
   if (mode === "hidden") return null;
 
   const isBlurred = mode === "blurred";
@@ -81,6 +73,7 @@ export function IntroSignalBlock({
     <section
       className="ds-stagger-1 rounded-ds-lg border border-ds-border border-t-2 border-t-ds-accent/25 bg-ds-surface p-5 shadow-ds transition-shadow duration-ds ease-ds sm:p-6"
       aria-label="AI summary and scores"
+      data-testid="intro-signal-block"
     >
       <h2 className={sectionHeadingClass}>AI summary</h2>
       {isBlurred ? (
@@ -93,16 +86,13 @@ export function IntroSignalBlock({
             <p className="text-sm text-ds-text-muted">
               Summary text would appear here with founder and startup scores…
             </p>
-            <p className="mt-3 text-sm text-ds-text-muted">
-              Founder &amp; team — /10
-            </p>
+            <p className="mt-3 text-sm text-ds-text-muted">Founder &amp; team — /10</p>
             <p className="mt-2 text-sm text-ds-text-muted">Startup — /10</p>
           </div>
           {/* Readable CTA below the blur — not blurred, receives clicks */}
           <div className="ds-feedback-in mt-4 rounded-ds border border-ds-border bg-ds-surface-hover/50 p-5">
             <p className="text-sm text-ds-text-muted">
-              Get an AI-generated summary and scores for founder fit and startup
-              signal—at a glance.
+              Get an AI-generated summary and scores for founder fit and startup signal—at a glance.
             </p>
             <p className="mt-3">
               <Link
@@ -129,9 +119,7 @@ export function IntroSignalBlock({
                   <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
                     Summary
                   </p>
-                  <p className="mt-2 text-[15px] leading-relaxed text-ds-text">
-                    {scores.summary}
-                  </p>
+                  <p className="mt-2 text-[15px] leading-relaxed text-ds-text">{scores.summary}</p>
                 </div>
               )}
               <div className="ds-stagger-3">

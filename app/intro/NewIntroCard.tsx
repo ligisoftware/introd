@@ -32,6 +32,7 @@ export default function NewIntroCard() {
       onClick={handleCreate}
       disabled={creating}
       className="flex min-h-[5.5rem] items-center justify-center rounded-ds-lg border-2 border-dashed border-ds-border bg-ds-surface p-5 text-ds-text-muted transition-colors duration-ds ease-ds hover:border-ds-accent/40 hover:text-ds-accent disabled:opacity-50"
+      data-testid="intro-list-create"
     >
       <div className="flex items-center gap-2">
         <svg

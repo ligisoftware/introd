@@ -60,6 +60,7 @@ export function FeedbackForm() {
             disabled={status === "sending"}
             className={`${inputClass} min-h-[100px] resize-y`}
             placeholder="Quick feedback, suggestions, or what you found useful..."
+            data-testid="feedback-form-message"
           />
         </div>
         <div>
@@ -93,6 +94,7 @@ export function FeedbackForm() {
           type="submit"
           disabled={status === "sending" || !message.trim()}
           className="rounded-ds bg-ds-accent px-4 py-2.5 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-[color,box-shadow,transform] duration-ds ease-ds hover:bg-ds-accent-hover hover:shadow-ds focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+          data-testid="feedback-form-submit"
         >
           {status === "sending" ? "Sending…" : "Send feedback"}
         </button>

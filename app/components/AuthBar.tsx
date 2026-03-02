@@ -57,6 +57,7 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
       className="relative"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      data-testid="auth-bar-menu"
     >
       <Link
         href="/profile"
@@ -110,6 +111,7 @@ export function AuthBar({ email, avatarUrl }: { email: string; avatarUrl?: strin
             role="menuitem"
             onClick={handleLogout}
             className="flex w-full items-center gap-2 rounded-ds-sm px-3 py-2 text-sm text-ds-text-muted transition-colors duration-ds-fast ease-ds hover:bg-ds-surface-hover hover:text-ds-text"
+            data-testid="auth-bar-logout"
           >
             <svg
               className="h-4 w-4"
