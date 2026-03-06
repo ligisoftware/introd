@@ -178,12 +178,14 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const validFundingRounds = fundingRounds.filter((r) => r.roundName?.trim());
   const teamMembers: TeamMember[] = profile.teamMembers ?? [];
   const hasTeamMembers = teamMembers.some((m) => m.name || m.title);
+  const pitchDeck = profile.pitchDeck;
 
   const hasIdentity = displayName || title || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
   const hasUserLinks = isValidUrl(userLinkedinUrl) || isValidUrl(userTwitterUrl);
   const hasFunding = validFundingRounds.length > 0;
-  const isEmpty = !hasIdentity && !introText && !startupOneLiner && !hasLinks && !hasFunding;
+  const isEmpty =
+    !hasIdentity && !introText && !startupOneLiner && !hasLinks && !hasFunding && !pitchDeck;
 
   if (isEmpty) {
     return (
@@ -290,6 +292,33 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
           </div>
         )}
       </div>
+
+      {/* Pitch deck */}
+      {pitchDeck && (
+        <div className="ds-stagger-2 w-full">
+          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+            Pitch deck
+          </h2>
+          <div className="rounded-ds border border-ds-border bg-ds-surface shadow-ds-sm p-4">
+            <p className="text-sm font-medium text-ds-text">
+              {pitchDeck.fileName || "View the full deck"}
+            </p>
+            <p className="mt-1 text-xs text-ds-text-subtle">
+              {isValidUrl(pitchDeck.url)
+                ? `Opens in a new tab (${new URL(pitchDeck.url.trim()).hostname})`
+                : "Opens in a new tab"}
+            </p>
+            <a
+              href={pitchDeck.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center justify-center rounded-ds bg-ds-accent px-3.5 py-2 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-colors duration-ds-fast ease-ds hover:opacity-90"
+            >
+              View deck
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* About — editorial accent border */}
       {introText && (

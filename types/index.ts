@@ -11,6 +11,22 @@ export interface FundingRound {
   valuationCap?: string | null;
 }
 
+export const PITCH_DECK_SOURCES = ["storage", "external"] as const;
+export type PitchDeckSource = (typeof PITCH_DECK_SOURCES)[number];
+
+export interface PitchDeckAttachment {
+  source: PitchDeckSource;
+  /**
+   * Ready-to-use URL for the deck:
+   * - For `storage`, this is derived from the Supabase storage path.
+   * - For `external`, this is the external https:// URL provided by the user.
+   */
+  url: string;
+  fileName?: string | null;
+  fileSizeBytes?: number | null;
+  uploadedAt?: string | null; // ISO date
+}
+
 export interface User {
   id: string;
   email: string;
@@ -42,6 +58,7 @@ export interface Intro {
   showOwnerEmail?: boolean;
   createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
+  pitchDeck?: PitchDeckAttachment | null;
 }
 
 /** Public intro profile payload for share viewer; no id, no userId. */
@@ -64,6 +81,7 @@ export interface PublicIntroProfile {
   ownerStartDate?: string | null;
   ownerBio?: string | null;
   teamMembers?: TeamMember[];
+  pitchDeck?: PitchDeckAttachment | null;
 }
 
 export interface Collaborator {
