@@ -38,6 +38,25 @@ const FundingRoundSchema = z.object({
   valuationCap: optionalShortText,
 });
 
+const ExternalPitchDeckSchema = z.object({
+  source: z.literal("external"),
+  url: z
+    .string()
+    .trim()
+    .max(2048)
+    .url()
+    .refine((u) => u.startsWith("https://"), {
+      message: "Pitch deck must use https://",
+    }),
+  fileName: z
+    .string()
+    .max(255)
+    .optional()
+    .transform((s) => (s === "" ? undefined : s)),
+});
+
+const PitchDeckSchema = z.union([ExternalPitchDeckSchema, z.null()]);
+
 /** Schema for intro updates. */
 export const IntroUpdateSchema = z.object({
   startupName: z.string().max(200).optional(),
@@ -73,6 +92,7 @@ export const IntroUpdateSchema = z.object({
       message: "Must be a valid date (YYYY-MM-DD)",
     }),
   fundingRounds: z.array(FundingRoundSchema).max(20).optional(),
+  pitchDeck: PitchDeckSchema.optional(),
 });
 
 export type IntroUpdateInput = z.infer<typeof IntroUpdateSchema>;

@@ -54,6 +54,11 @@ export function IntroEditor({
   const [fundingRounds, setFundingRounds] = useState<FundingRound[]>(
     initialIntro.fundingRounds ?? []
   );
+  const [pitchDeck, setPitchDeck] = useState(initialIntro.pitchDeck ?? null);
+  const [pitchDeckMode, setPitchDeckMode] = useState<"upload" | "link">(
+    initialIntro.pitchDeck?.source === "external" ? "link" : "upload"
+  );
+  const [pitchDeckUrlInput, setPitchDeckUrlInput] = useState(initialIntro.pitchDeck?.url ?? "");
 
   const [dragState, setDragState] = useState<{
     fromIdx: number;
@@ -275,6 +280,11 @@ export function IntroEditor({
 
   const [logoStatus, setLogoStatus] = useState<"idle" | "uploading" | "removing" | "error">("idle");
   const [logoMessage, setLogoMessage] = useState("");
+
+  const [deckStatus, setDeckStatus] = useState<
+    "idle" | "uploading" | "saving" | "removing" | "error"
+  >("idle");
+  const [deckMessage, setDeckMessage] = useState("");
 
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [shareStatus, setShareStatus] = useState<"idle" | "creating" | "copied" | "error">("idle");
@@ -558,6 +568,184 @@ export function IntroEditor({
     }
   }
 
+  async function handlePitchDeckFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setDeckMessage("");
+
+    const maxBytes = 20 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setDeckStatus("error");
+      setDeckMessage("Pitch deck must be 20MB or smaller.");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.type !== "application/pdf") {
+      setDeckStatus("error");
+      setDeckMessage("Please upload a PDF file.");
+      e.target.value = "";
+      return;
+    }
+
+    setDeckStatus("uploading");
+
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        setDeckStatus("error");
+        setDeckMessage("You need to be signed in to upload a deck.");
+        return;
+      }
+
+      const safeName = file.name.replace(/\s+/g, "-");
+      const path = `${user.id}/intros/${introId}/${Date.now()}-${safeName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("intro-pitch-decks")
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) {
+        console.error("Pitch deck upload error", uploadError);
+        setDeckStatus("error");
+        setDeckMessage("Upload failed. Please try again.");
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("intro-pitch-decks")
+        .getPublicUrl(path);
+      const publicUrl = publicUrlData?.publicUrl;
+
+      if (!publicUrl) {
+        setDeckStatus("error");
+        setDeckMessage("Could not get public URL for deck.");
+        return;
+      }
+
+      setDeckStatus("saving");
+
+      const res = await fetch(`/api/intros/${introId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pitchDeck: {
+            source: "external",
+            url: publicUrl,
+            fileName: file.name,
+          },
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setDeckStatus("error");
+        setDeckMessage(typeof data.error === "string" ? data.error : "Something went wrong.");
+        return;
+      }
+
+      const updatedIntro = (data as { intro?: Intro }).intro;
+      setPitchDeck(updatedIntro?.pitchDeck ?? null);
+      setPitchDeckMode("upload");
+      setDeckStatus("idle");
+      setDeckMessage("");
+    } catch (err) {
+      console.error("Pitch deck upload unexpected error", err);
+      setDeckStatus("error");
+      setDeckMessage("Something went wrong while uploading.");
+    } finally {
+      e.target.value = "";
+    }
+  }
+
+  async function handlePitchDeckLinkSave(e: React.FormEvent) {
+    e.preventDefault();
+    const url = pitchDeckUrlInput.trim();
+    if (!url) {
+      setDeckStatus("error");
+      setDeckMessage("Please enter a deck URL.");
+      return;
+    }
+
+    setDeckStatus("saving");
+    setDeckMessage("");
+
+    try {
+      const res = await fetch(`/api/intros/${introId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pitchDeck: {
+            source: "external",
+            url,
+          },
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setDeckStatus("error");
+        setDeckMessage(
+          typeof data.error === "string"
+            ? data.error
+            : data.details
+              ? "Please check the deck URL and try again."
+              : "Something went wrong."
+        );
+        return;
+      }
+
+      const updatedIntro = (data as { intro?: Intro }).intro;
+      setPitchDeck(updatedIntro?.pitchDeck ?? null);
+      setDeckStatus("idle");
+      setDeckMessage("Deck link saved.");
+      setTimeout(() => setDeckMessage(""), 3000);
+    } catch (err) {
+      console.error("Pitch deck link save unexpected error", err);
+      setDeckStatus("error");
+      setDeckMessage("Something went wrong while saving the deck link.");
+    }
+  }
+
+  async function handlePitchDeckRemove() {
+    if (!pitchDeck) return;
+
+    setDeckStatus("removing");
+    setDeckMessage("");
+
+    try {
+      const res = await fetch(`/api/intros/${introId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pitchDeck: null }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setDeckStatus("error");
+        setDeckMessage(typeof data.error === "string" ? data.error : "Something went wrong.");
+        return;
+      }
+
+      setPitchDeck(null);
+      setDeckStatus("idle");
+      setDeckMessage("");
+    } catch (err) {
+      console.error("Pitch deck remove unexpected error", err);
+      setDeckStatus("error");
+      setDeckMessage("Something went wrong while removing the deck.");
+    }
+  }
+
   async function handleCreateShareLink() {
     setShareStatus("creating");
     setShareError("");
@@ -589,7 +777,13 @@ export function IntroEditor({
     }
   }
 
-  const isSaving = status === "saving" || logoStatus === "uploading" || logoStatus === "removing";
+  const isSaving =
+    status === "saving" ||
+    logoStatus === "uploading" ||
+    logoStatus === "removing" ||
+    deckStatus === "uploading" ||
+    deckStatus === "saving" ||
+    deckStatus === "removing";
 
   return (
     <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-8">
@@ -1007,6 +1201,135 @@ export function IntroEditor({
                 className={inputClass}
               />
             </div>
+          </div>
+        </section>
+
+        {/* Attachments section */}
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+          <h2 className={sectionTitle}>Attachments</h2>
+          <p className="mt-1.5 text-sm text-ds-text-muted">
+            Add your pitch deck so viewers can go deeper from your intro link.
+          </p>
+
+          <div className="mt-4 space-y-4">
+            <div className="inline-flex rounded-ds bg-ds-surface-hover p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-ds ${
+                  pitchDeckMode === "upload"
+                    ? "bg-ds-surface text-ds-text"
+                    : "text-ds-text-subtle"
+                }`}
+                onClick={() => setPitchDeckMode("upload")}
+                disabled={isSaving}
+              >
+                Upload PDF
+              </button>
+              <button
+                type="button"
+                className={`px-3 py-1 rounded-ds ${
+                  pitchDeckMode === "link"
+                    ? "bg-ds-surface text-ds-text"
+                    : "text-ds-text-subtle"
+                }`}
+                onClick={() => setPitchDeckMode("link")}
+                disabled={isSaving}
+              >
+                Link to a deck
+              </button>
+            </div>
+
+            {pitchDeck ? (
+              <div className="space-y-2 rounded-ds border border-ds-border bg-ds-surface-hover p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+                      Pitch deck
+                    </p>
+                    <p className="mt-1 truncate text-sm text-ds-text">
+                      {pitchDeck.fileName || pitchDeck.url}
+                    </p>
+                    <p className="mt-0.5 text-xs text-ds-text-subtle">
+                      {pitchDeck.source === "external" ? "External link" : "Stored file"}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <a
+                      href={pitchDeck.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={btnSecondary}
+                    >
+                      View deck
+                    </a>
+                    <button
+                      type="button"
+                      onClick={handlePitchDeckRemove}
+                      disabled={isSaving}
+                      className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                    >
+                      {deckStatus === "removing" ? "Removing…" : "Remove"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : pitchDeckMode === "upload" ? (
+              <div className="rounded-ds border border-ds-border bg-ds-surface-hover p-4">
+                <div className="flex flex-wrap items-center gap-3">
+                  <label>
+                    <span className={btnSecondary}>
+                      {deckStatus === "uploading" ? "Uploading…" : "Choose file"}
+                    </span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="sr-only"
+                      onChange={handlePitchDeckFileChange}
+                      disabled={isSaving}
+                    />
+                  </label>
+                  <p className="text-xs text-ds-text-subtle">PDF, up to 20MB.</p>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handlePitchDeckLinkSave} className="space-y-2">
+                <div>
+                  <label htmlFor="pitchDeckUrl" className={labelClass}>
+                    Deck URL
+                  </label>
+                  <input
+                    id="pitchDeckUrl"
+                    type="url"
+                    placeholder="https://..."
+                    value={pitchDeckUrlInput}
+                    onChange={(e) => setPitchDeckUrlInput(e.target.value)}
+                    disabled={isSaving}
+                    className={inputClass}
+                  />
+                  <p className="mt-1 text-xs text-ds-text-subtle">
+                    Use a public, view-only link (e.g. Google Slides, Notion, PDF).
+                  </p>
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSaving}
+                  className={btnSecondary}
+                >
+                  {deckStatus === "saving" ? "Saving…" : "Save deck link"}
+                </button>
+              </form>
+            )}
+
+            {deckStatus === "error" && deckMessage && (
+              <p role="alert" className="ds-feedback-in text-xs text-ds-error">
+                {deckMessage}
+              </p>
+            )}
+            {deckStatus === "idle" && deckMessage && (
+              <p role="status" className="ds-feedback-in text-xs text-ds-success">
+                {deckMessage}
+              </p>
+            )}
           </div>
         </section>
 

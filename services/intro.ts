@@ -153,6 +153,24 @@ export async function updateIntro(
   if (keys.includes("fundingRounds")) {
     row.funding_rounds = parsed.fundingRounds ?? null;
   }
+  if (keys.includes("pitchDeck")) {
+    const pitchDeck = parsed.pitchDeck;
+    if (pitchDeck === null) {
+      row.pitch_deck_source = null;
+      row.pitch_deck_storage_path = null;
+      row.pitch_deck_external_url = null;
+      row.pitch_deck_file_name = null;
+      row.pitch_deck_file_size_bytes = null;
+      row.pitch_deck_uploaded_at = null;
+    } else if (pitchDeck && pitchDeck.source === "external") {
+      row.pitch_deck_source = "external";
+      row.pitch_deck_storage_path = null;
+      row.pitch_deck_external_url = pitchDeck.url;
+      row.pitch_deck_file_name = pitchDeck.fileName ?? null;
+      row.pitch_deck_file_size_bytes = null;
+      row.pitch_deck_uploaded_at = new Date().toISOString();
+    }
+  }
 
   return update(supabase, introId, row);
 }
