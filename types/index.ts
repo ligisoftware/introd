@@ -36,6 +36,12 @@ export interface Experience {
   current?: boolean;
 }
 
+export interface CustomField {
+  id: string; // uuid for list keying
+  title: string; // user-defined section title
+  value: string; // markdown-like text content
+}
+
 export interface IntroAttachment {
   id: string; // uuid for list keying
   type: "pdf" | "image";
@@ -84,6 +90,7 @@ export interface Intro {
   updatedAt?: string | null; // ISO date
   pitchDeck?: PitchDeckAttachment | null;
   attachments?: IntroAttachment[] | null;
+  customFields?: CustomField[] | null;
 }
 
 /** Public intro profile payload for share viewer; no id, no userId. */
@@ -108,6 +115,7 @@ export interface PublicIntroProfile {
   teamMembers?: TeamMember[];
   pitchDeck?: PitchDeckAttachment | null;
   attachments?: IntroAttachment[] | null;
+  customFields?: CustomField[] | null;
 }
 
 export interface Collaborator {

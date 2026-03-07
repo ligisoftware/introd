@@ -57,6 +57,12 @@ const ExternalPitchDeckSchema = z.object({
 
 const PitchDeckSchema = z.union([ExternalPitchDeckSchema, z.null()]);
 
+const CustomFieldSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string().min(1).max(100),
+  value: z.string().max(2000),
+});
+
 const IntroAttachmentSchema = z.object({
   id: z.string().uuid(),
   type: z.enum(["pdf", "image"]),
@@ -106,6 +112,7 @@ export const IntroUpdateSchema = z.object({
   fundingRounds: z.array(FundingRoundSchema).max(20).optional(),
   pitchDeck: PitchDeckSchema.optional(),
   attachments: z.array(IntroAttachmentSchema).max(10).optional(),
+  customFields: z.array(CustomFieldSchema).max(20).optional(),
 });
 
 export type IntroUpdateInput = z.infer<typeof IntroUpdateSchema>;

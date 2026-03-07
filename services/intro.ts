@@ -156,6 +156,9 @@ export async function updateIntro(
   if (keys.includes("attachments")) {
     row.attachments = parsed.attachments ?? [];
   }
+  if (keys.includes("customFields")) {
+    row.custom_fields = parsed.customFields ?? [];
+  }
 
   if (keys.includes("pitchDeck")) {
     const pitchDeck = parsed.pitchDeck;
