@@ -44,27 +44,13 @@ function scoreBarGlow(score: number): string {
   return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
 }
 
-// Radial gradient from the exact score color to transparent — the soft fade IS the glow.
-// box-shadow gets clipped by overflow-hidden, but the gradient extends naturally.
-function borderHighlightClass(score: number | null | undefined): string {
-  // emerald-400=#34d399, amber-400=#fbbf24, red-400=#f87171, purple-400=#c084fc
-  if (score == null) return "bg-[radial-gradient(circle,#c084fc_0%,#c084fc_25%,transparent_70%)]";
-  if (score >= 8) return "bg-[radial-gradient(circle,#34d399_0%,#34d399_25%,transparent_70%)]";
-  if (score >= 5) return "bg-[radial-gradient(circle,#fbbf24_0%,#fbbf24_25%,transparent_70%)]";
-  return "bg-[radial-gradient(circle,#f87171_0%,#f87171_25%,transparent_70%)]";
-}
+// AI-purple/violet gradient for the moving border — always the same color
+const BORDER_HIGHLIGHT =
+  "bg-[radial-gradient(circle,#a78bfa_0%,#8b5cf6_25%,transparent_70%)]";
 
-// drop-shadow is applied AFTER overflow clipping, so the glow extends
-// outward in all directions (including left/right) from the visible dot.
-function borderDropShadow(score: number | null | undefined): string {
-  if (score == null)
-    return "drop-shadow(0 0 10px rgba(192,132,252,0.7)) drop-shadow(0 0 3px rgba(192,132,252,0.5))";
-  if (score >= 8)
-    return "drop-shadow(0 0 10px rgba(52,211,153,0.7)) drop-shadow(0 0 3px rgba(52,211,153,0.5))";
-  if (score >= 5)
-    return "drop-shadow(0 0 10px rgba(251,191,36,0.7)) drop-shadow(0 0 3px rgba(251,191,36,0.5))";
-  return "drop-shadow(0 0 10px rgba(248,113,113,0.7)) drop-shadow(0 0 3px rgba(248,113,113,0.5))";
-}
+// Outer glow via drop-shadow (applied after overflow clipping)
+const BORDER_DROP_SHADOW =
+  "drop-shadow(0 0 10px rgba(139,92,246,0.7)) drop-shadow(0 0 3px rgba(167,139,250,0.5))";
 
 function SubScoreRow({
   label,
@@ -132,20 +118,18 @@ export function IntroSignalBlock({
       ? `/login?next=${encodeURIComponent(`/i/${viewerSlug}`)}`
       : "/login";
 
-  const signalScore = isBlurred ? null : scores?.signalScore;
-
   return (
     <div
       className="ds-stagger-1 relative rounded-ds-lg p-[2px]"
       data-testid="intro-signal-block"
     >
-      {/* Moving score-colored gradient border */}
+      {/* Moving AI-purple gradient border */}
       <div
         className="absolute inset-0 rounded-ds-lg overflow-hidden"
-        style={{ filter: borderDropShadow(signalScore) }}
+        style={{ filter: BORDER_DROP_SHADOW }}
       >
         <MovingBorder duration={10000} rx="12" ry="12">
-          <div className={`h-40 w-40 opacity-[0.9] ${borderHighlightClass(signalScore)}`} />
+          <div className={`h-40 w-40 opacity-[0.9] ${BORDER_HIGHLIGHT}`} />
         </MovingBorder>
       </div>
 
