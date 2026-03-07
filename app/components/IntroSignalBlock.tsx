@@ -44,8 +44,9 @@ function scoreBarGlow(score: number): string {
   return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
 }
 
-// Soft sky-blue solid dot for the moving border
-const BORDER_HIGHLIGHT = "bg-sky-300 rounded-full";
+// Solid core with soft fade for clean line + outer glow
+const BORDER_HIGHLIGHT =
+  "bg-[radial-gradient(circle,#7dd3fc_0%,#7dd3fc_10%,rgba(125,211,252,0.3)_40%,transparent_65%)]";
 
 // Subtle outer glow
 const BORDER_DROP_SHADOW =
@@ -128,7 +129,7 @@ export function IntroSignalBlock({
         style={{ filter: BORDER_DROP_SHADOW }}
       >
         <MovingBorder duration={10000} rx="12" ry="12">
-          <div className={`h-20 w-20 opacity-[0.6] ${BORDER_HIGHLIGHT}`} />
+          <div className={`h-40 w-40 opacity-[0.8] ${BORDER_HIGHLIGHT}`} />
         </MovingBorder>
       </div>
 
