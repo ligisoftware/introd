@@ -126,7 +126,7 @@ export function IntroSignalBlock({
       <div className="absolute inset-0 rounded-ds-lg ring-1 ring-purple-500/10" />
 
       <section
-        className="relative rounded-[calc(var(--ds-radius-lg)-1px)] bg-ds-surface p-5 sm:p-6"
+        className="relative rounded-[calc(var(--ds-radius-lg)-1px)] bg-ds-bg-elevated p-5 sm:p-6 shadow-ds-md"
         aria-label="Signal score"
       >
         {isBlurred ? (
