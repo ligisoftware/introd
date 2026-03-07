@@ -7,14 +7,20 @@ export type ScoreBlockMode = "full" | "blurred" | "hidden";
 
 export type ViewerKind = "anonymous" | "owner" | "non-owner";
 
+/**
+ * When true, AI scores are shown to everyone (anonymous and owner see full scores).
+ * Set to false to restore normal behavior: owner → hidden, anonymous → blurred, non-owner → full.
+ */
+export const ALWAYS_SHOW_AI_SCORES = true;
+
 const DEBUG_PARAM = "ai_debug";
 /** Debug override is only allowed in development (never in production). */
 const DEBUG_ENABLED = process.env.NODE_ENV === "development";
 
 /**
  * Resolves the effective score block mode from viewer and optional debug override.
- * - anonymous → blurred
- * - owner → hidden
+ * - anonymous → blurred (or full when ALWAYS_SHOW_AI_SCORES)
+ * - owner → hidden (or full when ALWAYS_SHOW_AI_SCORES)
  * - non-owner → full
  * Debug override (dev only): ?ai_debug=full|blurred|owner|off
  */
@@ -26,6 +32,10 @@ export function resolveScoreBlockMode(
     if (debugParam === "full" || debugParam === "blurred" || debugParam === "owner") {
       return debugParam === "owner" ? "hidden" : debugParam;
     }
+  }
+
+  if (ALWAYS_SHOW_AI_SCORES) {
+    return "full";
   }
 
   switch (viewerKind) {

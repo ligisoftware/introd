@@ -3,7 +3,7 @@ import { getCurrentUser } from "@/services/user";
 import { getByShareSlug } from "@/repositories/intros";
 import { getTeamMembersForIntro } from "@/repositories/collaborators";
 import { getIntroScores, computeAndPersistIntroScores } from "@/services/intro-scores";
-import { getViewerKind } from "@/lib/viewer-context";
+import { getViewerKind, ALWAYS_SHOW_AI_SCORES } from "@/lib/viewer-context";
 import { NextResponse } from "next/server";
 
 /**
@@ -23,7 +23,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
 
   const viewer = await getCurrentUser(supabase);
   const viewerKind = getViewerKind(viewer?.id ?? null, result.ownerUserId);
-  if (viewerKind === "anonymous" || viewerKind === "owner") {
+  if (!ALWAYS_SHOW_AI_SCORES && (viewerKind === "anonymous" || viewerKind === "owner")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
