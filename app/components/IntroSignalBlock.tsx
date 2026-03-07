@@ -136,7 +136,7 @@ export function IntroSignalBlock({
     >
       {/* Moving score-colored gradient border */}
       <div className="absolute inset-0 rounded-ds-lg overflow-hidden">
-        <MovingBorder duration={9375} rx="12" ry="12">
+        <MovingBorder duration={10000} rx="12" ry="12">
           <div className={`h-40 w-40 opacity-[0.9] ${borderHighlightClass(signalScore)}`} />
         </MovingBorder>
       </div>
