@@ -1,7 +1,7 @@
 import { createClient, createServiceRoleClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import { getIntroById, updateIntro, deleteIntro, getIntroForEditing } from "@/services/intro";
-import { invalidateIntroScores } from "@/services/intro-scores";
+import { refreshIntroScores } from "@/services/intro-scores";
 import { IntroUpdateSchema } from "@/lib/validation/intro";
 import { NextResponse } from "next/server";
 
@@ -75,7 +75,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const updated = await updateIntro(supabase, result.intro.id, parsed.data, keys);
     const serviceClient = createServiceRoleClient();
-    await invalidateIntroScores(serviceClient, result.intro.id);
+    refreshIntroScores(serviceClient, result.intro.id);
     return NextResponse.json({ intro: updated });
   } catch (err) {
     console.error("PATCH /api/intros/[id] error:", err);

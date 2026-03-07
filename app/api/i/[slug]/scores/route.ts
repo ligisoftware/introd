@@ -50,10 +50,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
   }
 
   return NextResponse.json({
+    signalScore: scores.signalScore,
     summary: scores.summary,
     founderScore: scores.founderScore,
+    founderRationale: scores.founderRationale,
     founderBullets: scores.founderBullets,
     startupScore: scores.startupScore,
+    startupRationale: scores.startupRationale,
     startupBullets: scores.startupBullets,
   });
 }
