@@ -1,8 +1,5 @@
-"use client";
-
 import Link from "next/link";
 import type { IntroScores } from "@/repositories/intro-scores";
-import { MovingBorder } from "@/app/components/ui/moving-border";
 
 export type IntroSignalBlockMode = "full" | "blurred" | "hidden";
 
@@ -45,12 +42,6 @@ function scoreBarGlow(score: number): string {
   return "shadow-[0_0_8px_rgba(239,68,68,0.5),0_0_2px_rgba(239,68,68,0.7)]";
 }
 
-// Soft glowy highlight for the moving border
-const BORDER_HIGHLIGHT =
-  "bg-[radial-gradient(circle,rgba(125,211,252,0.7)_0%,rgba(56,189,248,0.3)_35%,transparent_65%)]";
-
-const BORDER_DROP_SHADOW =
-  "drop-shadow(0 0 8px rgba(125,211,252,0.4)) drop-shadow(0 0 2px rgba(56,189,248,0.3))";
 
 function SubScoreRow({
   label,
@@ -118,24 +109,11 @@ export function IntroSignalBlock({
       : "/login";
 
   return (
-    <div
-      className="ds-stagger-1 relative rounded-2xl p-[2px]"
+    <section
+      className="ds-stagger-1 ds-glass rounded-2xl p-5"
       data-testid="intro-signal-block"
+      aria-label="Signal score"
     >
-      {/* Moving border */}
-      <div
-        className="absolute inset-0 rounded-2xl overflow-hidden"
-        style={{ filter: BORDER_DROP_SHADOW }}
-      >
-        <MovingBorder duration={10000} rx="16" ry="16">
-          <div className={`h-40 w-40 opacity-[0.8] ${BORDER_HIGHLIGHT}`} />
-        </MovingBorder>
-      </div>
-
-      <section
-        className="relative ds-glass rounded-[calc(1rem-1px)] p-5"
-        aria-label="Signal score"
-      >
         {isBlurred ? (
           <div>
             <div className="flex items-center gap-1.5">
@@ -256,7 +234,6 @@ export function IntroSignalBlock({
             )}
           </div>
         )}
-      </section>
-    </div>
+    </section>
   );
 }
