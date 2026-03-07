@@ -1,8 +1,5 @@
-"use client";
-
 import Link from "next/link";
 import type { IntroScores } from "@/repositories/intro-scores";
-import { MovingBorder } from "@/app/components/ui/moving-border";
 
 export type IntroSignalBlockMode = "full" | "blurred" | "hidden";
 
@@ -12,45 +9,39 @@ interface IntroSignalBlockProps {
   viewerSlug?: string | null;
 }
 
+// Bold, saturated score colors — #10b981 green, #f59e0b amber, #ef4444 red
 function scoreColor(score: number): string {
-  if (score >= 8) return "text-emerald-400";
-  if (score >= 5) return "text-amber-400";
-  return "text-red-400";
+  if (score >= 8) return "text-[#10b981]";
+  if (score >= 5) return "text-[#f59e0b]";
+  return "text-[#ef4444]";
 }
 
 function scoreGlow(score: number): string {
-  if (score >= 8) return "drop-shadow-[0_0_16px_rgba(52,211,153,0.6)]";
-  if (score >= 5) return "drop-shadow-[0_0_16px_rgba(251,191,36,0.5)]";
-  return "drop-shadow-[0_0_16px_rgba(248,113,113,0.6)]";
+  if (score >= 8) return "drop-shadow-[0_0_16px_rgba(16,185,129,0.6)]";
+  if (score >= 5) return "drop-shadow-[0_0_16px_rgba(245,158,11,0.5)]";
+  return "drop-shadow-[0_0_16px_rgba(239,68,68,0.6)]";
 }
 
 function scoreBadgeBg(score: number): string {
-  if (score >= 8) return "bg-emerald-500/10 ring-1 ring-emerald-500/20";
-  if (score >= 5) return "bg-amber-500/10 ring-1 ring-amber-500/20";
-  return "bg-red-500/10 ring-1 ring-red-500/20";
+  if (score >= 8) return "bg-[#10b981]/15 ring-1 ring-[#10b981]/25";
+  if (score >= 5) return "bg-[#f59e0b]/15 ring-1 ring-[#f59e0b]/25";
+  return "bg-[#ef4444]/15 ring-1 ring-[#ef4444]/25";
 }
 
 function scoreBarColor(score: number): string {
-  if (score >= 8) return "bg-emerald-400";
-  if (score >= 5) return "bg-amber-400";
-  return "bg-red-400";
+  if (score >= 8) return "bg-[#10b981]";
+  if (score >= 5) return "bg-[#f59e0b]";
+  return "bg-[#ef4444]";
 }
 
 function scoreBarGlow(score: number): string {
   if (score >= 8)
-    return "shadow-[0_0_8px_rgba(52,211,153,0.4),0_0_2px_rgba(52,211,153,0.6)]";
+    return "shadow-[0_0_8px_rgba(16,185,129,0.5),0_0_2px_rgba(16,185,129,0.7)]";
   if (score >= 5)
-    return "shadow-[0_0_8px_rgba(251,191,36,0.4),0_0_2px_rgba(251,191,36,0.6)]";
-  return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
+    return "shadow-[0_0_8px_rgba(245,158,11,0.5),0_0_2px_rgba(245,158,11,0.7)]";
+  return "shadow-[0_0_8px_rgba(239,68,68,0.5),0_0_2px_rgba(239,68,68,0.7)]";
 }
 
-// AI-purple/violet gradient for the moving border — always the same color
-const BORDER_HIGHLIGHT =
-  "bg-[radial-gradient(circle,#a78bfa_0%,#8b5cf6_25%,transparent_70%)]";
-
-// Outer glow via drop-shadow (applied after overflow clipping)
-const BORDER_DROP_SHADOW =
-  "drop-shadow(0 0 10px rgba(139,92,246,0.7)) drop-shadow(0 0 3px rgba(167,139,250,0.5))";
 
 function SubScoreRow({
   label,
@@ -66,15 +57,14 @@ function SubScoreRow({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-ds-text-subtle">{label}</span>
+        <span className="text-xs font-medium text-ds-text-muted">{label}</span>
         <span className={`text-sm font-bold tabular-nums ${scoreColor(score)}`}>
           {score}
-          <span className="text-[10px] font-normal text-ds-text-subtle">
+          <span className="text-[10px] font-normal text-ds-text-muted">
             /10
           </span>
         </span>
       </div>
-      {/* Progress bar */}
       <div className="h-1 w-full rounded-full bg-ds-surface-hover overflow-hidden">
         <div
           className={`h-full rounded-full ${scoreBarColor(score)} ${scoreBarGlow(score)} transition-all duration-ds-slow ease-ds-out`}
@@ -82,7 +72,7 @@ function SubScoreRow({
         />
       </div>
       {rationale && (
-        <p className="text-xs text-ds-text-muted">{rationale}</p>
+        <p className="text-xs text-ds-text">{rationale}</p>
       )}
     </div>
   );
@@ -91,11 +81,11 @@ function SubScoreRow({
 function AiSparkle() {
   return (
     <svg
-      width="14"
-      height="14"
+      width="12"
+      height="12"
       viewBox="0 0 16 16"
       fill="none"
-      className="text-purple-400"
+      className="text-sky-300"
     >
       <path
         d="M8 0L9.79 6.21L16 8L9.79 9.79L8 16L6.21 9.79L0 8L6.21 6.21L8 0Z"
@@ -119,47 +109,33 @@ export function IntroSignalBlock({
       : "/login";
 
   return (
-    <div
-      className="ds-stagger-1 relative rounded-ds-lg p-[2px]"
+    <section
+      className="ds-stagger-1 ds-glass rounded-2xl p-5"
       data-testid="intro-signal-block"
+      aria-label="Signal score"
     >
-      {/* Moving AI-purple gradient border */}
-      <div
-        className="absolute inset-0 rounded-ds-lg overflow-hidden"
-        style={{ filter: BORDER_DROP_SHADOW }}
-      >
-        <MovingBorder duration={10000} rx="12" ry="12">
-          <div className={`h-40 w-40 opacity-[0.9] ${BORDER_HIGHLIGHT}`} />
-        </MovingBorder>
-      </div>
-
-
-      <section
-        className="relative rounded-[calc(var(--ds-radius-lg)-1px)] bg-ds-bg-elevated p-5 sm:p-6 shadow-ds-md"
-        aria-label="Signal score"
-      >
         {isBlurred ? (
-          <>
-            <div className="flex items-center justify-center gap-1.5">
+          <div>
+            <div className="flex items-center gap-1.5">
               <AiSparkle />
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
                 Signal score
               </h2>
             </div>
             <div
-              className="mt-5 select-none blur-md pointer-events-none min-h-[6rem]"
+              className="mt-4 select-none blur-md pointer-events-none min-h-[5rem]"
               aria-hidden
             >
-              <div className="flex items-center justify-center gap-4">
-                <div className="h-16 w-16 rounded-ds bg-ds-surface-hover" />
-                <div className="flex-1 space-y-2 max-w-[12rem]">
+              <div className="flex items-center gap-4">
+                <div className="h-14 w-14 rounded-full bg-ds-surface-hover" />
+                <div className="flex-1 space-y-2">
                   <div className="h-3 w-3/4 rounded bg-ds-surface-hover" />
                   <div className="h-3 w-1/2 rounded bg-ds-surface-hover" />
                 </div>
               </div>
             </div>
-            <div className="ds-feedback-in mt-5 rounded-ds border border-ds-border bg-ds-surface-hover/50 p-5 text-center">
-              <p className="text-sm text-ds-text-muted">
+            <div className="mt-4 rounded-xl border border-ds-border bg-ds-surface-hover/50 p-4">
+              <p className="text-sm text-ds-text">
                 See the AI signal score and quick summary — know at a glance if
                 this intro is worth a deeper look.
               </p>
@@ -169,57 +145,59 @@ export function IntroSignalBlock({
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-ds-accent transition-opacity duration-ds-fast ease-ds hover:text-ds-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
                 >
                   Log in to see signal score
-                  <span aria-hidden className="text-ds-text-subtle">
+                  <span aria-hidden className="text-ds-text-muted">
                     &rarr;
                   </span>
                 </Link>
               </p>
-              <p className="mt-3 text-xs text-ds-text-subtle">
+              <p className="mt-2 text-xs text-ds-text-muted">
                 Free for viewers once you&apos;re signed in.
               </p>
             </div>
-          </>
+          </div>
         ) : (
           <div className="ds-feedback-in">
             {scores ? (
-              <div className="space-y-5 text-center">
-                {/* Header */}
-                <div className="flex items-center justify-center gap-1.5">
-                  <AiSparkle />
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
-                    Signal score
-                  </h2>
+              <div className="space-y-5">
+                {/* Header row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <AiSparkle />
+                    <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+                      Signal score
+                    </h2>
+                  </div>
+                  {scores.signalScore != null && (
+                    <span
+                      className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${scoreBadgeBg(scores.signalScore)} ${scoreColor(scores.signalScore)}`}
+                    >
+                      {scores.signalScore >= 8
+                        ? "Strong"
+                        : scores.signalScore >= 5
+                          ? "Moderate"
+                          : "Weak"}
+                    </span>
+                  )}
                 </div>
 
-                {/* Big Score + Badge */}
+                {/* Score */}
                 {scores.signalScore != null && (
-                  <div className="ds-stagger-2">
+                  <div className="ds-stagger-2 text-center py-1">
                     <span
-                      className={`text-6xl font-black tabular-nums leading-none ${scoreColor(scores.signalScore)} ${scoreGlow(scores.signalScore)}`}
+                      className={`text-5xl font-black tabular-nums leading-none ${scoreColor(scores.signalScore)} ${scoreGlow(scores.signalScore)}`}
                       aria-label={`Signal score: ${scores.signalScore} out of 10`}
                     >
                       {scores.signalScore}
                     </span>
-                    <span className="ml-1 text-xl font-medium text-ds-text-subtle">
+                    <span className="ml-1 text-lg font-medium text-ds-text-muted">
                       /10
                     </span>
-                    <div className="mt-2">
-                      <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${scoreBadgeBg(scores.signalScore)} ${scoreColor(scores.signalScore)}`}
-                      >
-                        {scores.signalScore >= 8
-                          ? "Strong"
-                          : scores.signalScore >= 5
-                            ? "Moderate"
-                            : "Weak"}
-                      </span>
-                    </div>
                   </div>
                 )}
 
                 {/* Summary */}
                 {scores.summary && (
-                  <p className="ds-stagger-3 text-sm leading-relaxed text-ds-text-muted max-w-sm mx-auto">
+                  <p className="ds-stagger-3 text-[13px] leading-[1.7] text-ds-text">
                     {scores.summary}
                   </p>
                 )}
@@ -227,7 +205,7 @@ export function IntroSignalBlock({
                 {/* Subscores */}
                 {(scores.founderScore != null ||
                   scores.startupScore != null) && (
-                  <div className="ds-stagger-4 border-t border-ds-border pt-5 text-left space-y-4">
+                  <div className="ds-stagger-4 border-t border-ds-border pt-4 space-y-4">
                     <SubScoreRow
                       label="Founder"
                       score={scores.founderScore}
@@ -242,21 +220,20 @@ export function IntroSignalBlock({
                 )}
               </div>
             ) : (
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1.5">
+              <div>
+                <div className="flex items-center gap-1.5">
                   <AiSparkle />
                   <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
                     Signal score
                   </h2>
                 </div>
-                <p className="mt-4 text-sm text-ds-text-muted">
+                <p className="mt-4 text-sm text-ds-text">
                   Signal score is being prepared. Check back shortly.
                 </p>
               </div>
             )}
           </div>
         )}
-      </section>
-    </div>
+    </section>
   );
 }
