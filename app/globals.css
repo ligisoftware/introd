@@ -213,8 +213,8 @@ body:has(.lp-page) {
   .ds-glass {
     background: var(--ds-glass);
     border: 1px solid var(--ds-glass-border);
-    -webkit-backdrop-filter: blur(24px);
-    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(64px);
+    backdrop-filter: blur(64px);
   }
 
   /* Staggered section entrance */
