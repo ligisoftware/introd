@@ -61,6 +61,18 @@ function borderRingColor(score: number | null | undefined): string {
   return "ring-red-500/10";
 }
 
+// drop-shadow is applied AFTER overflow clipping, so the glow extends
+// outward in all directions (including left/right) from the visible dot.
+function borderDropShadow(score: number | null | undefined): string {
+  if (score == null)
+    return "drop-shadow(0 0 10px rgba(192,132,252,0.7)) drop-shadow(0 0 3px rgba(192,132,252,0.5))";
+  if (score >= 8)
+    return "drop-shadow(0 0 10px rgba(52,211,153,0.7)) drop-shadow(0 0 3px rgba(52,211,153,0.5))";
+  if (score >= 5)
+    return "drop-shadow(0 0 10px rgba(251,191,36,0.7)) drop-shadow(0 0 3px rgba(251,191,36,0.5))";
+  return "drop-shadow(0 0 10px rgba(248,113,113,0.7)) drop-shadow(0 0 3px rgba(248,113,113,0.5))";
+}
+
 function SubScoreRow({
   label,
   score,
@@ -131,11 +143,14 @@ export function IntroSignalBlock({
 
   return (
     <div
-      className="ds-stagger-1 relative rounded-ds-lg p-[2px] overflow-hidden"
+      className="ds-stagger-1 relative rounded-ds-lg p-[2px]"
       data-testid="intro-signal-block"
     >
       {/* Moving score-colored gradient border */}
-      <div className="absolute inset-0 rounded-ds-lg overflow-hidden">
+      <div
+        className="absolute inset-0 rounded-ds-lg overflow-hidden"
+        style={{ filter: borderDropShadow(signalScore) }}
+      >
         <MovingBorder duration={10000} rx="12" ry="12">
           <div className={`h-40 w-40 opacity-[0.9] ${borderHighlightClass(signalScore)}`} />
         </MovingBorder>
