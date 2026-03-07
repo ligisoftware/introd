@@ -57,8 +57,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --ds-bg: #080909;
-    --ds-bg-elevated: #0C0E0E;
+    --ds-bg: #000000;
+    --ds-bg-elevated: #050505;
     --ds-surface: #111414;
     --ds-surface-hover: #181C1C;
     --ds-border: #1C2020;
@@ -78,9 +78,9 @@
     --ds-error-muted: #1C0D0D;
     --ds-focus-ring: #0D9488;
 
-    --ds-glass: rgba(0, 0, 0, 0.4);
+    --ds-glass: rgba(255, 255, 255, 0.03);
     --ds-glass-border: rgba(255, 255, 255, 0.08);
-    --ds-glass-highlight: rgba(255, 255, 255, 0.04);
+    --ds-glass-highlight: rgba(255, 255, 255, 0.06);
 
     --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
     --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
@@ -92,8 +92,8 @@
    Landing page — force dark theme regardless of system preference
    --------------------------------------------------------------------------- */
 .lp-page {
-  --ds-bg: #080909;
-  --ds-bg-elevated: #0C0E0E;
+  --ds-bg: #000000;
+  --ds-bg-elevated: #050505;
   --ds-surface: #111414;
   --ds-surface-hover: #181C1C;
   --ds-border: #1C2020;
