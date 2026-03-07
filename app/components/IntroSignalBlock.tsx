@@ -282,6 +282,13 @@ export function IntroSignalBlock({
           </div>
         )}
       </section>
+
+      {/* Inner glow layer — sits on top of card, pointer-events-none so it doesn't block interaction */}
+      <div className="absolute inset-0 rounded-ds-lg overflow-hidden pointer-events-none">
+        <MovingBorder duration={10000} rx="12" ry="12">
+          <div className={`h-40 w-40 opacity-[0.35] ${borderHighlightClass(signalScore)}`} />
+        </MovingBorder>
+      </div>
     </div>
   );
 }
