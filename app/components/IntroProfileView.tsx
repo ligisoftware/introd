@@ -181,6 +181,7 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const teamMembers: TeamMember[] = profile.teamMembers ?? [];
   const hasTeamMembers = teamMembers.some((m) => m.name || m.title);
   const pitchDeck = profile.pitchDeck;
+  const customFields = (profile.customFields ?? []).filter((f) => f.title?.trim());
 
   const allAttachments: ViewerAttachment[] = [
     ...(pitchDeck
@@ -208,8 +209,9 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const hasUserLinks = isValidUrl(userLinkedinUrl) || isValidUrl(userTwitterUrl);
   const hasFunding = validFundingRounds.length > 0;
   const hasAttachments = allAttachments.length > 0;
+  const hasCustomFields = customFields.length > 0;
   const isEmpty =
-    !hasIdentity && !introText && !startupOneLiner && !hasLinks && !hasFunding && !hasAttachments;
+    !hasIdentity && !introText && !startupOneLiner && !hasLinks && !hasFunding && !hasAttachments && !hasCustomFields;
 
   if (isEmpty) {
     return (
@@ -340,6 +342,21 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
           </div>
         </div>
       )}
+
+      {/* Custom fields */}
+      {hasCustomFields &&
+        customFields.map((field, idx) => (
+          <div key={field.id ?? idx} className="ds-stagger-3 w-full">
+            <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
+              {field.title}
+            </h2>
+            <div className="border-l-2 border-ds-text pl-5">
+              <p className="whitespace-pre-wrap text-[15px] leading-[1.8] text-ds-text">
+                {field.value}
+              </p>
+            </div>
+          </div>
+        ))}
 
       {/* Funding — left border */}
       {hasFunding && (

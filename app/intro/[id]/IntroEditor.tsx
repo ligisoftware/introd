@@ -1,6 +1,6 @@
 "use client";
 
-import type { Intro, FundingRound, Collaborator, IntroAttachment } from "@/types";
+import type { Intro, FundingRound, Collaborator, IntroAttachment, CustomField } from "@/types";
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -62,6 +62,9 @@ export function IntroEditor({
   const [attachments, setAttachments] = useState<IntroAttachment[]>(
     initialIntro.attachments ?? []
   );
+  const [customFields, setCustomFields] = useState<CustomField[]>(
+    initialIntro.customFields ?? []
+  );
   const [attachmentStatus, setAttachmentStatus] = useState<"idle" | "uploading" | "removing" | "error">("idle");
   const [attachmentMessage, setAttachmentMessage] = useState("");
   const [removingAttachmentId, setRemovingAttachmentId] = useState<string | null>(null);
@@ -81,11 +84,31 @@ export function IntroEditor({
   const fundingListRef = useRef<HTMLDivElement>(null);
   const swapCooldown = useRef(0);
 
+  const [cfDragState, setCfDragState] = useState<{
+    fromIdx: number;
+    currentIdx: number;
+    offsetY: number;
+    offsetX: number;
+    pointerY: number;
+    pointerX: number;
+    cardWidth: number;
+    cardHeight: number;
+  } | null>(null);
+  const cfCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const cfListRef = useRef<HTMLDivElement>(null);
+  const cfSwapCooldown = useRef(0);
+
   const fundingRoundsRef = useRef(fundingRounds);
   fundingRoundsRef.current = fundingRounds;
   const dragStateRef = useRef(dragState);
   dragStateRef.current = dragState;
   const isDragging = dragState !== null;
+
+  const customFieldsRef = useRef(customFields);
+  customFieldsRef.current = customFields;
+  const cfDragStateRef = useRef(cfDragState);
+  cfDragStateRef.current = cfDragState;
+  const isCfDragging = cfDragState !== null;
 
   function handlePointerDown(e: React.PointerEvent, idx: number) {
     if (e.button !== 0) return;
@@ -96,6 +119,26 @@ export function IntroEditor({
     const rect = card.getBoundingClientRect();
 
     setDragState({
+      fromIdx: idx,
+      currentIdx: idx,
+      offsetY: e.clientY - rect.top,
+      offsetX: e.clientX - rect.left,
+      pointerY: e.clientY,
+      pointerX: e.clientX,
+      cardWidth: rect.width,
+      cardHeight: rect.height,
+    });
+  }
+
+  function handleCfPointerDown(e: React.PointerEvent, idx: number) {
+    if (e.button !== 0) return;
+    const card = cfCardRefs.current[idx];
+    if (!card) return;
+
+    e.preventDefault();
+    const rect = card.getBoundingClientRect();
+
+    setCfDragState({
       fromIdx: idx,
       currentIdx: idx,
       offsetY: e.clientY - rect.top,
@@ -217,6 +260,127 @@ export function IntroEditor({
     };
   }, [isDragging]);
 
+  // Custom fields drag effect
+  useEffect(() => {
+    if (!isCfDragging) return;
+
+    const preventSelect = (e: Event) => e.preventDefault();
+    document.addEventListener("selectstart", preventSelect);
+
+    function onPointerMove(e: PointerEvent) {
+      e.preventDefault();
+      const ds = cfDragStateRef.current;
+      if (!ds) return;
+
+      const { fromIdx } = ds;
+      const listEl = cfListRef.current;
+      let newCurrentIdx: number | null = null;
+
+      if (listEl) {
+        const listRect = listEl.getBoundingClientRect();
+        const insideList =
+          e.clientX >= listRect.left &&
+          e.clientX <= listRect.right &&
+          e.clientY >= listRect.top &&
+          e.clientY <= listRect.bottom;
+
+        if (insideList && Date.now() > cfSwapCooldown.current) {
+          const fields = customFieldsRef.current;
+          const cards = cfCardRefs.current;
+          let targetIdx = ds.currentIdx;
+          const withoutDragged = fields.map((_, i) => i).filter((i) => i !== fromIdx);
+
+          if (ds.currentIdx < withoutDragged.length) {
+            const belowIdx = withoutDragged[ds.currentIdx];
+            const el = cards[belowIdx];
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (e.clientY >= rect.top + rect.height * 0.15) {
+                targetIdx = ds.currentIdx + 1;
+              }
+            }
+          }
+
+          if (ds.currentIdx > 0 && targetIdx === ds.currentIdx) {
+            const aboveIdx = withoutDragged[ds.currentIdx - 1];
+            const el = cards[aboveIdx];
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (e.clientY <= rect.bottom - rect.height * 0.15) {
+                targetIdx = ds.currentIdx - 1;
+              }
+            }
+          }
+
+          if (targetIdx !== ds.currentIdx) {
+            cfSwapCooldown.current = Date.now() + 150;
+          }
+          newCurrentIdx = Math.max(0, Math.min(fields.length - 1, targetIdx));
+        }
+      }
+
+      setCfDragState((prev) =>
+        prev
+          ? {
+              ...prev,
+              pointerY: e.clientY,
+              pointerX: e.clientX,
+              ...(newCurrentIdx !== null ? { currentIdx: newCurrentIdx } : {}),
+            }
+          : null
+      );
+    }
+
+    function onPointerUp() {
+      const ds = cfDragStateRef.current;
+      if (ds && ds.fromIdx !== ds.currentIdx) {
+        setCustomFields((arr) => {
+          const next = [...arr];
+          const [moved] = next.splice(ds.fromIdx, 1);
+          next.splice(ds.currentIdx, 0, moved);
+          return next;
+        });
+      }
+      setCfDragState(null);
+    }
+
+    document.addEventListener("pointermove", onPointerMove);
+    document.addEventListener("pointerup", onPointerUp);
+
+    return () => {
+      document.removeEventListener("selectstart", preventSelect);
+      document.removeEventListener("pointermove", onPointerMove);
+      document.removeEventListener("pointerup", onPointerUp);
+    };
+  }, [isCfDragging]);
+
+  function getCfDragReorderedIndices(): number[] {
+    const indices = customFields.map((_, i) => i);
+    if (!cfDragState || cfDragState.fromIdx === cfDragState.currentIdx) return indices;
+    const { fromIdx, currentIdx } = cfDragState;
+    indices.splice(fromIdx, 1);
+    indices.splice(currentIdx, 0, fromIdx);
+    return indices;
+  }
+
+  // Custom fields FLIP animation
+  const cfPrevCurrentIdx = useRef<number | null>(null);
+  const cfCardPositions = useRef<Map<number, number>>(new Map());
+  const cfShouldFlip = useRef(false);
+  const cfCurrentIdx = cfDragState?.currentIdx ?? null;
+
+  if (isCfDragging && cfPrevCurrentIdx.current !== null && cfCurrentIdx !== cfPrevCurrentIdx.current) {
+    const snap = new Map<number, number>();
+    cfCardRefs.current.forEach((el, idx) => {
+      if (el && (!cfDragState || idx !== cfDragState.fromIdx)) {
+        snap.set(idx, el.getBoundingClientRect().top);
+      }
+    });
+    cfCardPositions.current = snap;
+    cfShouldFlip.current = true;
+  }
+  cfPrevCurrentIdx.current = cfCurrentIdx;
+
   function getDragReorderedIndices(): number[] {
     const indices = fundingRounds.map((_, i) => i);
     if (!dragState || dragState.fromIdx === dragState.currentIdx) return indices;
@@ -268,6 +432,27 @@ export function IntroEditor({
         });
       });
     });
+
+    cfCardRefs.current.forEach((el, idx) => {
+      if (!el || (cfDragState && idx === cfDragState.fromIdx)) return;
+      if (!cfShouldFlip.current) return;
+      const newTop = el.getBoundingClientRect().top;
+      const prevTop = cfCardPositions.current.get(idx);
+      if (prevTop === undefined) return;
+      const delta = prevTop - newTop;
+      if (Math.abs(delta) < 1) return;
+
+      el.style.transition = "none";
+      el.style.transform = `translateY(${delta}px)`;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          el.style.transition = "transform 200ms ease";
+          el.style.transform = "";
+        });
+      });
+    });
+    cfShouldFlip.current = false;
   });
 
   const introTextRef = useRef<HTMLTextAreaElement>(null);
@@ -420,6 +605,7 @@ export function IntroEditor({
       foundedDate: foundedDate.trim() || undefined,
       location: location.trim() || undefined,
       fundingRounds: fundingRounds.filter((r) => r.roundName.trim()),
+      customFields: customFields.filter((f) => f.title.trim()),
     };
 
     try {
@@ -1549,6 +1735,175 @@ export function IntroEditor({
               </p>
             )}
           </div>
+        </section>
+
+        {/* Custom fields section */}
+        <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className={sectionTitle}>Custom sections</h2>
+              <p className="mt-1.5 text-sm text-ds-text-muted">
+                Add any extra sections you want to show — traction, market size, ask, anything.
+              </p>
+            </div>
+            {customFields.length < 20 && (
+              <button
+                type="button"
+                onClick={() =>
+                  setCustomFields((prev) => [
+                    ...prev,
+                    { id: crypto.randomUUID(), title: "", value: "" },
+                  ])
+                }
+                disabled={isSaving}
+                className="shrink-0 text-xs font-medium text-ds-accent underline underline-offset-2"
+              >
+                + Add section
+              </button>
+            )}
+          </div>
+
+          {customFields.length === 0 && (
+            <button
+              type="button"
+              onClick={() =>
+                setCustomFields([{ id: crypto.randomUUID(), title: "", value: "" }])
+              }
+              disabled={isSaving}
+              className="mt-4 w-full rounded-ds border border-dashed border-ds-border px-4 py-5 text-left text-sm text-ds-text-subtle transition-colors duration-ds-fast hover:border-ds-accent hover:text-ds-accent"
+            >
+              + Add your first custom section
+            </button>
+          )}
+
+          <div ref={cfListRef} className="mt-4 space-y-3">
+            {getCfDragReorderedIndices().map((idx) => {
+              const field = customFields[idx];
+              const isCfDragged = cfDragState !== null && idx === cfDragState.fromIdx;
+
+              if (isCfDragged) {
+                return (
+                  <div
+                    key={field.id}
+                    style={{ height: cfDragState.cardHeight }}
+                    className="rounded-ds border-2 border-dashed border-ds-accent/40 bg-ds-accent/5"
+                  />
+                );
+              }
+
+              return (
+                <div
+                  key={field.id}
+                  ref={(el) => {
+                    cfCardRefs.current[idx] = el;
+                  }}
+                  className="rounded-ds border border-ds-border bg-ds-surface-hover p-3 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span
+                      onPointerDown={(e) => handleCfPointerDown(e, idx)}
+                      className="cursor-grab touch-none select-none text-ds-text-subtle active:cursor-grabbing"
+                      title="Drag to reorder"
+                    >
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"
+                        />
+                      </svg>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCustomFields((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                      disabled={isSaving}
+                      className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Section title (e.g. Traction, Market size, The ask)"
+                    value={field.title}
+                    onChange={(e) =>
+                      setCustomFields((prev) =>
+                        prev.map((f, i) => (i === idx ? { ...f, title: e.target.value } : f))
+                      )
+                    }
+                    disabled={isSaving}
+                    className={inputClass}
+                    maxLength={100}
+                  />
+                  <textarea
+                    placeholder="Content for this section…"
+                    value={field.value}
+                    onChange={(e) =>
+                      setCustomFields((prev) =>
+                        prev.map((f, i) => (i === idx ? { ...f, value: e.target.value } : f))
+                      )
+                    }
+                    disabled={isSaving}
+                    className={`${inputClass} resize-y`}
+                    rows={3}
+                    maxLength={2000}
+                  />
+                  <p className="text-right text-xs tabular-nums text-ds-text-subtle">
+                    {field.value.length}/2000
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Drag ghost for custom fields */}
+          {cfDragState &&
+            (() => {
+              const field = customFields[cfDragState.fromIdx];
+              return (
+                <div
+                  style={{
+                    position: "fixed",
+                    top: cfDragState.pointerY - cfDragState.offsetY,
+                    left: cfDragState.pointerX - cfDragState.offsetX,
+                    width: cfDragState.cardWidth,
+                    zIndex: 50,
+                    pointerEvents: "none",
+                  }}
+                  className="rounded-ds border border-ds-accent bg-ds-surface p-3 space-y-2 shadow-ds-md opacity-90"
+                >
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-ds-text-subtle">
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          d="M8 6h.01M8 12h.01M8 18h.01M16 6h.01M16 12h.01M16 18h.01"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                  {field.title && (
+                    <p className="text-sm font-medium text-ds-text truncate">{field.title}</p>
+                  )}
+                  {field.value && (
+                    <p className="text-xs text-ds-text-muted truncate">{field.value}</p>
+                  )}
+                </div>
+              );
+            })()}
         </section>
 
         {/* Team section */}
