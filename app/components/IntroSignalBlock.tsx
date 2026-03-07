@@ -12,36 +12,37 @@ interface IntroSignalBlockProps {
   viewerSlug?: string | null;
 }
 
+// Bold, saturated score colors — #10b981 green, #f59e0b amber, #ef4444 red
 function scoreColor(score: number): string {
-  if (score >= 8) return "text-emerald-400";
-  if (score >= 5) return "text-amber-400";
-  return "text-red-400";
+  if (score >= 8) return "text-[#10b981]";
+  if (score >= 5) return "text-[#f59e0b]";
+  return "text-[#ef4444]";
 }
 
 function scoreGlow(score: number): string {
-  if (score >= 8) return "drop-shadow-[0_0_16px_rgba(52,211,153,0.6)]";
-  if (score >= 5) return "drop-shadow-[0_0_16px_rgba(251,191,36,0.5)]";
-  return "drop-shadow-[0_0_16px_rgba(248,113,113,0.6)]";
+  if (score >= 8) return "drop-shadow-[0_0_16px_rgba(16,185,129,0.6)]";
+  if (score >= 5) return "drop-shadow-[0_0_16px_rgba(245,158,11,0.5)]";
+  return "drop-shadow-[0_0_16px_rgba(239,68,68,0.6)]";
 }
 
 function scoreBadgeBg(score: number): string {
-  if (score >= 8) return "bg-emerald-500/10 ring-1 ring-emerald-500/20";
-  if (score >= 5) return "bg-amber-500/10 ring-1 ring-amber-500/20";
-  return "bg-red-500/10 ring-1 ring-red-500/20";
+  if (score >= 8) return "bg-[#10b981]/15 ring-1 ring-[#10b981]/25";
+  if (score >= 5) return "bg-[#f59e0b]/15 ring-1 ring-[#f59e0b]/25";
+  return "bg-[#ef4444]/15 ring-1 ring-[#ef4444]/25";
 }
 
 function scoreBarColor(score: number): string {
-  if (score >= 8) return "bg-emerald-400";
-  if (score >= 5) return "bg-amber-400";
-  return "bg-red-400";
+  if (score >= 8) return "bg-[#10b981]";
+  if (score >= 5) return "bg-[#f59e0b]";
+  return "bg-[#ef4444]";
 }
 
 function scoreBarGlow(score: number): string {
   if (score >= 8)
-    return "shadow-[0_0_8px_rgba(52,211,153,0.4),0_0_2px_rgba(52,211,153,0.6)]";
+    return "shadow-[0_0_8px_rgba(16,185,129,0.5),0_0_2px_rgba(16,185,129,0.7)]";
   if (score >= 5)
-    return "shadow-[0_0_8px_rgba(251,191,36,0.4),0_0_2px_rgba(251,191,36,0.6)]";
-  return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
+    return "shadow-[0_0_8px_rgba(245,158,11,0.5),0_0_2px_rgba(245,158,11,0.7)]";
+  return "shadow-[0_0_8px_rgba(239,68,68,0.5),0_0_2px_rgba(239,68,68,0.7)]";
 }
 
 // Soft glowy highlight — no hard core, just a smooth luminous fade
