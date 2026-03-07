@@ -16,15 +16,15 @@ Output a JSON object with:
 
 1. **signalScore** (number 0-10): A single composite score combining all factors — founder strength, startup quality, market size, traction, differentiation. This is the primary number a VC sees first.
 
-2. **summary** (string): 2-4 SHORT sentences giving a VC instant context. Cover what matters most: what the company does, traction, market opportunity, founder strength, what they're raising. Be direct and specific — no filler words. Write for someone scanning in seconds.
+2. **summary** (string): 2-3 SHORT sentences giving a VC instant context. Cover what matters most: what the company does, traction, market opportunity, founder strength, what they're raising. Be direct and specific — no filler words. Write for someone scanning in 5 seconds.
 
 3. **founderScore** (number 1-10 or null): Founder & team signal — role clarity, team completeness, experience relevance. Use null if insufficient information.
 
-4. **founderRationale** (string or null): 1-2 short sentences explaining the founder score. Null if founderScore is null.
+4. **founderRationale** (string or null): ONE short sentence (max 15 words) explaining the founder score. Null if founderScore is null.
 
 5. **startupScore** (number 1-10 or null): Startup signal — real problem, real market, differentiation. "Twitter clone" / "me-too" / generic "AI for X" with no wedge = low score. Use null if insufficient information.
 
-6. **startupRationale** (string or null): 1-2 short sentences explaining the startup score. Null if startupScore is null.
+6. **startupRationale** (string or null): ONE short sentence (max 15 words) explaining the startup score. Null if startupScore is null.
 
 Output only valid JSON with these keys.`;
 
