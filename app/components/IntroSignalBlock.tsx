@@ -44,9 +44,9 @@ function scoreBarGlow(score: number): string {
   return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
 }
 
-// Solid core with soft fade for clean line + outer glow
+// Soft glowy highlight — no hard core, just a smooth luminous fade
 const BORDER_HIGHLIGHT =
-  "bg-[radial-gradient(circle,#7dd3fc_0%,#7dd3fc_10%,rgba(125,211,252,0.3)_40%,transparent_65%)]";
+  "bg-[radial-gradient(circle,rgba(125,211,252,0.7)_0%,rgba(56,189,248,0.3)_35%,transparent_65%)]";
 
 // Subtle outer glow
 const BORDER_DROP_SHADOW =
