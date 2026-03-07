@@ -3,47 +3,46 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------------
-   Design system — dark-first tokens matching landing page aesthetic
+   Design system — semantic tokens (light default, dark via prefers-color-scheme)
    --------------------------------------------------------------------------- */
 :root {
-  /* Surfaces — warm graphite-black */
-  --ds-bg: #080909;
-  --ds-bg-elevated: #0C0E0E;
-  --ds-surface: #111414;
-  --ds-surface-hover: #181C1C;
-  --ds-border: #1C2020;
-  --ds-border-strong: #272D2D;
+  /* Surfaces */
+  --ds-bg: #fafaf9;
+  --ds-bg-elevated: #ffffff;
+  --ds-surface: #ffffff;
+  --ds-surface-hover: #f5f5f4;
+  --ds-border: #e7e5e4;
+  --ds-border-strong: #d6d3d1;
 
   /* Text */
-  --ds-text: #F4F6F5;
-  --ds-text-muted: #8FA3A0;
-  --ds-text-subtle: #566666;
-  --ds-text-inverse: #080909;
+  --ds-text: #1c1917;
+  --ds-text-muted: #57534e;
+  --ds-text-subtle: #78716c;
+  --ds-text-inverse: #fafaf9;
 
-  /* Brand & state — teal accent (trust × growth) */
+  /* Brand & state — teal accent */
   --ds-accent: #0D9488;
   --ds-accent-hover: #0F766E;
-  --ds-accent-muted: #0D2420;
-  --ds-success: #16A34A;
-  --ds-success-muted: #0C1A0F;
-  --ds-error: #DC2626;
-  --ds-error-muted: #1C0D0D;
+  --ds-accent-muted: #ccfbf1;
+  --ds-success: #15803d;
+  --ds-success-muted: #dcfce7;
+  --ds-error: #b91c1c;
+  --ds-error-muted: #fee2e2;
   --ds-focus-ring: #0D9488;
 
   /* Typography */
-  --ds-font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --ds-font-heading: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --ds-font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --ds-font-mono: ui-monospace, "SF Mono", monospace;
 
   /* Glass surfaces */
-  --ds-glass: rgba(255, 255, 255, 0.03);
-  --ds-glass-border: rgba(255, 255, 255, 0.08);
-  --ds-glass-highlight: rgba(255, 255, 255, 0.06);
+  --ds-glass: rgba(255, 255, 255, 0.3);
+  --ds-glass-border: #e7e5e4;
+  --ds-glass-highlight: rgba(255, 255, 255, 0.12);
 
   /* Effects */
-  --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
-  --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-  --ds-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  --ds-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.04);
   --ds-radius: 0.625rem;
   --ds-radius-sm: 0.5rem;
   --ds-radius-lg: 0.75rem;
@@ -54,6 +53,76 @@
   --ds-duration-slow: 300ms;
   --ds-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
   --ds-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ds-bg: #080909;
+    --ds-bg-elevated: #0C0E0E;
+    --ds-surface: #111414;
+    --ds-surface-hover: #181C1C;
+    --ds-border: #1C2020;
+    --ds-border-strong: #272D2D;
+
+    --ds-text: #F4F6F5;
+    --ds-text-muted: #8FA3A0;
+    --ds-text-subtle: #566666;
+    --ds-text-inverse: #080909;
+
+    --ds-accent: #0D9488;
+    --ds-accent-hover: #14b8a6;
+    --ds-accent-muted: #0D2420;
+    --ds-success: #22c55e;
+    --ds-success-muted: #0C1A0F;
+    --ds-error: #ef4444;
+    --ds-error-muted: #1C0D0D;
+    --ds-focus-ring: #0D9488;
+
+    --ds-glass: rgba(255, 255, 255, 0.03);
+    --ds-glass-border: rgba(255, 255, 255, 0.08);
+    --ds-glass-highlight: rgba(255, 255, 255, 0.06);
+
+    --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+    --ds-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Landing page — force dark theme regardless of system preference
+   --------------------------------------------------------------------------- */
+.lp-page {
+  --ds-bg: #080909;
+  --ds-bg-elevated: #0C0E0E;
+  --ds-surface: #111414;
+  --ds-surface-hover: #181C1C;
+  --ds-border: #1C2020;
+  --ds-border-strong: #272D2D;
+
+  --ds-text: #F4F6F5;
+  --ds-text-muted: #8FA3A0;
+  --ds-text-subtle: #566666;
+  --ds-text-inverse: #080909;
+
+  --ds-accent: #0D9488;
+  --ds-accent-hover: #14b8a6;
+  --ds-accent-muted: #0D2420;
+  --ds-success: #22c55e;
+  --ds-success-muted: #0C1A0F;
+  --ds-error: #ef4444;
+  --ds-error-muted: #1C0D0D;
+  --ds-focus-ring: #0D9488;
+
+  --ds-glass: rgba(255, 255, 255, 0.03);
+  --ds-glass-border: rgba(255, 255, 255, 0.08);
+  --ds-glass-highlight: rgba(255, 255, 255, 0.06);
+
+  --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
+  --ds-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+
+  color: var(--ds-text);
+  background-color: var(--ds-bg);
 }
 
 /* Landing page full-screen override */
@@ -75,10 +144,6 @@ body:has(.lp-page) {
     background-color: var(--ds-bg);
     color: var(--ds-text);
     line-height: 1.6;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--ds-font-heading), ui-sans-serif, system-ui, sans-serif;
   }
 
   /* Touch-friendly minimum tap target — use a pseudo-element so the
@@ -170,12 +235,6 @@ body:has(.lp-page) {
   .ds-dot-grid {
     background-image: radial-gradient(circle, var(--ds-border) 1.5px, transparent 1.5px);
     background-size: 32px 32px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .ds-dot-grid {
-      background-image: radial-gradient(circle, #1a1a1a 1.5px, transparent 1.5px);
-    }
   }
 }
 

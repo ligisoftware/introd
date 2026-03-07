@@ -4,17 +4,11 @@ import { NavLinks } from "@/app/components/NavLinks";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/services/user";
 import type { Metadata } from "next";
-import { Figtree, Sora } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 
-const sora = Sora({
-  subsets: ["latin"],
-  variable: "--ds-font-heading",
-  display: "swap",
-});
-
-const figtree = Figtree({
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--ds-font-sans",
   display: "swap",
@@ -34,7 +28,7 @@ export default async function RootLayout({
   const user = await getCurrentUser(supabase);
 
   return (
-    <html lang="en" className={`${sora.variable} ${figtree.variable} bg-ds-bg`}>
+    <html lang="en" className={`${plusJakartaSans.variable} bg-ds-bg`}>
       <body className="flex min-h-screen flex-col pt-14 text-ds-text font-sans antialiased">
         <ConditionalHeader>
           <header className="fixed inset-x-0 top-0 z-50 border-b border-ds-border bg-ds-surface/95 backdrop-blur transition-colors duration-ds ease-ds supports-[backdrop-filter]:bg-ds-surface/80">
