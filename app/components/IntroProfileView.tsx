@@ -1,4 +1,6 @@
 import type { PublicIntroProfile, FundingRound, TeamMember } from "@/types";
+import { AttachmentViewer } from "@/app/components/AttachmentViewer";
+import type { ViewerAttachment } from "@/app/components/AttachmentViewer";
 
 function orEmpty(s: string | null | undefined): string {
   return s ?? "";
@@ -180,12 +182,34 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
   const hasTeamMembers = teamMembers.some((m) => m.name || m.title);
   const pitchDeck = profile.pitchDeck;
 
+  const allAttachments: ViewerAttachment[] = [
+    ...(pitchDeck
+      ? [
+          {
+            id: "pitch-deck",
+            type: "pdf" as const,
+            url: pitchDeck.url,
+            fileName: pitchDeck.fileName ?? "Pitch Deck",
+            label: "Pitch Deck",
+          },
+        ]
+      : []),
+    ...(profile.attachments ?? []).map((a) => ({
+      id: a.id,
+      type: a.type,
+      url: a.url,
+      fileName: a.fileName,
+      label: a.title ?? undefined,
+    })),
+  ];
+
   const hasIdentity = displayName || title || startupName;
   const hasLinks = isValidUrl(websiteUrl) || isValidUrl(linkedinUrl) || isValidUrl(twitterUrl);
   const hasUserLinks = isValidUrl(userLinkedinUrl) || isValidUrl(userTwitterUrl);
   const hasFunding = validFundingRounds.length > 0;
+  const hasAttachments = allAttachments.length > 0;
   const isEmpty =
-    !hasIdentity && !introText && !startupOneLiner && !hasLinks && !hasFunding && !pitchDeck;
+    !hasIdentity && !introText && !startupOneLiner && !hasLinks && !hasFunding && !hasAttachments;
 
   if (isEmpty) {
     return (
@@ -293,30 +317,13 @@ export function IntroProfileView({ profile }: { profile: PublicIntroProfile }) {
         )}
       </div>
 
-      {/* Pitch deck */}
-      {pitchDeck && (
+      {/* Attachments */}
+      {hasAttachments && (
         <div className="ds-stagger-2 w-full">
           <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
-            Pitch deck
+            Attachments
           </h2>
-          <div className="rounded-ds border border-ds-border bg-ds-surface shadow-ds-sm p-4">
-            <p className="text-sm font-medium text-ds-text">
-              {pitchDeck.fileName || "View the full deck"}
-            </p>
-            <p className="mt-1 text-xs text-ds-text-subtle">
-              {isValidUrl(pitchDeck.url)
-                ? `Opens in a new tab (${new URL(pitchDeck.url.trim()).hostname})`
-                : "Opens in a new tab"}
-            </p>
-            <a
-              href={pitchDeck.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center justify-center rounded-ds bg-ds-accent px-3.5 py-2 text-sm font-medium text-ds-text-inverse shadow-ds-sm transition-colors duration-ds-fast ease-ds hover:opacity-90"
-            >
-              View deck
-            </a>
-          </div>
+          <AttachmentViewer attachments={allAttachments} />
         </div>
       )}
 

@@ -153,6 +153,10 @@ export async function updateIntro(
   if (keys.includes("fundingRounds")) {
     row.funding_rounds = parsed.fundingRounds ?? null;
   }
+  if (keys.includes("attachments")) {
+    row.attachments = parsed.attachments ?? [];
+  }
+
   if (keys.includes("pitchDeck")) {
     const pitchDeck = parsed.pitchDeck;
     if (pitchDeck === null) {

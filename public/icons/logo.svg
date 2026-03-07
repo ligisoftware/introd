@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Introd logo: a checkmark mark inside a rounded square -->
+  <rect width="48" height="48" rx="12" fill="currentColor"/>
+  <path d="M13 24.5L21 33L35 16" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

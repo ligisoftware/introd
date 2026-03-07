@@ -36,6 +36,18 @@ export interface Experience {
   current?: boolean;
 }
 
+export interface IntroAttachment {
+  id: string; // uuid for list keying
+  type: "pdf" | "image";
+  storagePath: string; // needed for deletion
+  url: string; // public URL
+  fileName: string;
+  title?: string | null; // user-defined label e.g. "Pitch Deck", "Example intro"
+  fileSizeBytes?: number | null;
+  mimeType: string;
+  uploadedAt: string; // ISO date
+}
+
 export interface User {
   id: string;
   email: string;
@@ -71,6 +83,7 @@ export interface Intro {
   createdAt: string; // ISO date
   updatedAt?: string | null; // ISO date
   pitchDeck?: PitchDeckAttachment | null;
+  attachments?: IntroAttachment[] | null;
 }
 
 /** Public intro profile payload for share viewer; no id, no userId. */
@@ -94,6 +107,7 @@ export interface PublicIntroProfile {
   ownerBio?: string | null;
   teamMembers?: TeamMember[];
   pitchDeck?: PitchDeckAttachment | null;
+  attachments?: IntroAttachment[] | null;
 }
 
 export interface Collaborator {
