@@ -13,7 +13,7 @@ export default async function Home() {
       <div className="mx-auto max-w-container-md">
         <div className="max-w-xl">
           <HeroHeading text="One link. Your story. Every intro." />
-          <p className="mt-4 font-sans text-base text-ds-text-muted sm:mt-5 sm:text-lg">
+          <p className="mt-4 font-sans text-base leading-relaxed text-ds-text-muted sm:mt-5 sm:text-lg">
             A single shareable page with your background, startup, and team—for investors and warm
             intros.
           </p>
@@ -41,6 +41,11 @@ export default async function Home() {
               </>
             )}
           </p>
+          <ul className="mt-10 space-y-2 font-sans text-sm text-ds-text-muted sm:mt-12" aria-label="Why Introd">
+            <li className="ds-stagger-1">One link, always up to date</li>
+            <li className="ds-stagger-2">Professional first impression</li>
+            <li className="ds-stagger-3">Less back-and-forth with investors</li>
+          </ul>
         </div>
       </div>
     </main>
