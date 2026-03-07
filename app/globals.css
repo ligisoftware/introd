@@ -228,6 +228,10 @@
     animation: ds-slide-up 0.5s var(--ds-ease-out) 0.3s both;
   }
 
+  .ds-section-in {
+    animation: ds-slide-up var(--ds-duration-slow) var(--ds-ease-out) both;
+  }
+
   /* Dot grid background */
   .ds-dot-grid {
     background-image: radial-gradient(circle, var(--ds-border) 1.5px, transparent 1.5px);
@@ -302,7 +306,8 @@
   .ds-stagger-1,
   .ds-stagger-2,
   .ds-stagger-3,
-  .ds-stagger-4 {
+  .ds-stagger-4,
+  .ds-section-in {
     animation: none;
   }
 
