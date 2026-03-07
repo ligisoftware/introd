@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import OpenAI from "openai";
 import type { PublicIntroProfile } from "@/types";
@@ -10,23 +12,10 @@ import { getTeamMembersForIntro } from "@/repositories/collaborators";
 
 const MODEL = "gpt-4o-mini";
 
-const SYSTEM_PROMPT = `You are an expert at evaluating founder intros for investors. You will receive a text description of a startup intro (company, one-liner, intro text, founder and team details, funding). A VC will glance at this for 5-10 seconds to decide whether to read the full intro.
-
-Output a JSON object with:
-
-1. **signalScore** (number 0-10): A single composite score combining all factors — founder strength, startup quality, market size, traction, differentiation. This is the primary number a VC sees first.
-
-2. **summary** (string): 2-4 SHORT sentences giving a VC instant context. Cover what matters most: what the company does, traction, market opportunity, founder strength, what they're raising. Be direct and specific — no filler words. Write for someone scanning in seconds.
-
-3. **founderScore** (number 1-10 or null): Founder & team signal — role clarity, team completeness, experience relevance. Use null if insufficient information.
-
-4. **founderRationale** (string or null): 1-2 short sentences explaining the founder score. Null if founderScore is null.
-
-5. **startupScore** (number 1-10 or null): Startup signal — real problem, real market, differentiation. "Twitter clone" / "me-too" / generic "AI for X" with no wedge = low score. Use null if insufficient information.
-
-6. **startupRationale** (string or null): 1-2 short sentences explaining the startup score. Null if startupScore is null.
-
-Output only valid JSON with these keys.`;
+const SYSTEM_PROMPT = fs.readFileSync(
+  path.join(process.cwd(), "lib/ai/intro-scores-prompt.txt"),
+  "utf-8"
+).trim();
 
 /**
  * Returns cached intro scores for an intro, or null if not computed.
