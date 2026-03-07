@@ -83,7 +83,7 @@ function SubScoreRow({
         />
       </div>
       {rationale && (
-        <p className="text-xs text-ds-text-muted">{rationale}</p>
+        <p className="text-xs text-ds-text">{rationale}</p>
       )}
     </div>
   );
@@ -160,7 +160,7 @@ export function IntroSignalBlock({
               </div>
             </div>
             <div className="ds-feedback-in mt-5 rounded-ds border border-ds-border bg-ds-surface-hover/50 p-5 text-center">
-              <p className="text-sm text-ds-text-muted">
+              <p className="text-sm text-ds-text">
                 See the AI signal score and quick summary — know at a glance if
                 this intro is worth a deeper look.
               </p>
@@ -220,7 +220,7 @@ export function IntroSignalBlock({
 
                 {/* Summary */}
                 {scores.summary && (
-                  <p className="ds-stagger-3 text-sm leading-relaxed text-ds-text-muted max-w-sm mx-auto">
+                  <p className="ds-stagger-3 text-sm leading-relaxed text-ds-text max-w-sm mx-auto">
                     {scores.summary}
                   </p>
                 )}
@@ -250,7 +250,7 @@ export function IntroSignalBlock({
                     Signal score
                   </h2>
                 </div>
-                <p className="mt-4 text-sm text-ds-text-muted">
+                <p className="mt-4 text-sm text-ds-text">
                   Signal score is being prepared. Check back shortly.
                 </p>
               </div>
