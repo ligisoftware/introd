@@ -31,8 +31,7 @@
   --ds-focus-ring: #0D9488;
 
   /* Typography */
-  --ds-font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --ds-font-heading: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --ds-font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --ds-font-mono: ui-monospace, "SF Mono", monospace;
 
   /* Glass surfaces */
@@ -145,10 +144,6 @@ body:has(.lp-page) {
     background-color: var(--ds-bg);
     color: var(--ds-text);
     line-height: 1.6;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--ds-font-heading), ui-sans-serif, system-ui, sans-serif;
   }
 
   /* Touch-friendly minimum tap target — use a pseudo-element so the
