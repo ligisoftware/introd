@@ -133,7 +133,7 @@ export function IntroSignalBlock({
       </div>
 
       <section
-        className="relative ds-glass rounded-[calc(1rem-1px)] p-5"
+        className="relative rounded-[calc(1rem-1px)] border border-[var(--ds-glass-border)] bg-ds-surface p-5"
         aria-label="Signal score"
       >
         {isBlurred ? (
