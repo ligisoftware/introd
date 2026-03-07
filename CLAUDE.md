@@ -1,39 +1,41 @@
-# CLAUDE.md
+# CLAUDE.md — Frontend Website Rules
 
-## Project
+## Always Do First
+- **Invoke the `frontend-design` skill** before writing any frontend code, every session, no exceptions.
 
-Introd — a founder profile-sharing app built with Next.js (App Router), Supabase, and Tailwind CSS.
+## Reference Images
+- If a reference image is provided: match layout, spacing, typography, and color exactly. Swap in placeholder content (images via `https://placehold.co/`, generic copy). Do not improve or add to the design.
+- If no reference image: design from scratch with high craft (see guardrails below).
+- Screenshot your output, compare against reference, fix mismatches, re-screenshot. Do at least 2 comparison rounds. Stop only when no visible differences remain or user says so.
 
-## Tech stack
+## Local Server
+- **Always serve on localhost** — never screenshot a `file:///` URL.
+- Start the dev server: `npm run dev` (Next.js app at `http://localhost:3000`)
+- If the server is already running, do not start a second instance.
 
-- **Framework**: Next.js 16 (App Router, React 19, TypeScript)
-- **Database / Auth**: Supabase (SSR client via `@supabase/ssr`)
-- **Styling**: Tailwind CSS 3 with custom design system tokens (see below)
-- **Email**: Resend
-- **Validation**: Zod 4
-- **Formatter**: Prettier (`npm run format`)
-- **Linter**: ESLint (`npm run lint`)
+## Screenshot Workflow
+- Take screenshots with Puppeteer via `node screenshot.mjs <url> [label]`
+- Screenshots are saved to `./temporary screenshots/screenshot-N[-label].png` (auto-incremented, never overwritten).
+- After screenshotting, read the PNG with the Read tool — Claude can see and analyze the image directly.
+- When comparing, be specific: "heading is 32px but reference shows ~24px", "card gap is 16px but should be 24px"
+- Check: spacing/padding, font size/weight/line-height, colors (exact hex), alignment, border-radius, shadows, image sizing
 
-## Commands
+## Anti-Generic Guardrails
+- **Colors:** Never use default Tailwind palette (indigo-500, blue-600, etc.). Use design system tokens.
+- **Shadows:** Never use flat `shadow-md`. Use layered, color-tinted shadows with low opacity.
+- **Typography:** Apply tight tracking (`-0.03em`) on large headings, generous line-height (`1.7`) on body.
+- **Gradients:** Layer multiple radial gradients. Add grain/texture via SVG noise filter for depth.
+- **Animations:** Only animate `transform` and `opacity`. Never `transition-all`. Use spring-style easing.
+- **Interactive states:** Every clickable element needs hover, focus-visible, and active states. No exceptions.
+- **Spacing:** Use intentional, consistent spacing tokens — not random Tailwind steps.
+- **Depth:** Surfaces should have a layering system (base → elevated → floating), not all sit at the same z-plane.
 
-- `npm run dev` — start dev server
-- `npm run build` — production build
-- `npm run lint` — run ESLint
-- `npm run format` — format with Prettier
-- `npm run format:check` — check formatting
-
-## Design system
-
-Custom design tokens defined in `app/globals.css` and extended in `tailwind.config.ts`. Always use design system classes instead of raw Tailwind values:
-
-- **Colors**: `bg-ds-surface`, `text-ds-text`, `text-ds-text-muted`, `text-ds-text-subtle`, `border-ds-border`, `bg-ds-accent`, `text-ds-text-inverse`
-- **Typography**: `font-sans` (Plus Jakarta Sans)
-- **Radius**: `rounded-ds`, `rounded-ds-sm`, `rounded-ds-lg`
-- **Shadow**: `shadow-ds-sm`, `shadow-ds`, `shadow-ds-md`
-- **Containers**: `max-w-container-sm` (28rem), `max-w-container-md` (42rem), `max-w-container-lg` (56rem)
-- **Motion**: `duration-ds`, `duration-ds-fast`, `duration-ds-slow`, `ease-ds`, `ease-ds-out`. Entrance animations: `.ds-hero-in`, `.ds-feedback-in`, `.ds-pop`. All motion respects `prefers-reduced-motion`.
-- **CSS variables**: Use `var(--ds-*)` in custom CSS. Theme values switch automatically in dark mode.
-- **JS tokens**: `lib/design/tokens.ts` exports `breakpoints`, `spacing`, `containerMaxWidth`.
+## Hard Rules
+- Do not add sections, features, or content not in the reference
+- Do not "improve" a reference design — match it
+- Do not stop after one screenshot pass
+- Do not use `transition-all`
+- Do not use default Tailwind blue/indigo as primary color
 
 ## Git workflow
 

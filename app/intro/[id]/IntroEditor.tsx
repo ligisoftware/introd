@@ -1,6 +1,6 @@
 "use client";
 
-import type { Intro, FundingRound, Collaborator } from "@/types";
+import type { Intro, FundingRound, Collaborator, IntroAttachment } from "@/types";
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -59,6 +59,13 @@ export function IntroEditor({
     initialIntro.pitchDeck?.source === "external" ? "link" : "upload"
   );
   const [pitchDeckUrlInput, setPitchDeckUrlInput] = useState(initialIntro.pitchDeck?.url ?? "");
+  const [attachments, setAttachments] = useState<IntroAttachment[]>(
+    initialIntro.attachments ?? []
+  );
+  const [attachmentStatus, setAttachmentStatus] = useState<"idle" | "uploading" | "removing" | "error">("idle");
+  const [attachmentMessage, setAttachmentMessage] = useState("");
+  const [removingAttachmentId, setRemovingAttachmentId] = useState<string | null>(null);
+  const [showDeckLinkForm, setShowDeckLinkForm] = useState(false);
 
   const [dragState, setDragState] = useState<{
     fromIdx: number;
@@ -746,6 +753,193 @@ export function IntroEditor({
     }
   }
 
+  async function handleAttachmentFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setAttachmentMessage("");
+
+    const isImage = file.type.startsWith("image/");
+    const isPdf = file.type === "application/pdf";
+
+    if (!isImage && !isPdf) {
+      setAttachmentStatus("error");
+      setAttachmentMessage("Please choose a PDF or image file (JPG, PNG).");
+      e.target.value = "";
+      return;
+    }
+
+    if (isPdf) {
+      // Route to existing pitch deck upload logic via a synthetic event call
+      if (pitchDeck) {
+        setAttachmentStatus("error");
+        setAttachmentMessage("Remove the existing pitch deck before uploading a new one.");
+        e.target.value = "";
+        return;
+      }
+      // Delegate to the existing pitch deck handler
+      await handlePitchDeckFileChange(e);
+      return;
+    }
+
+    // Image upload
+    const maxBytes = 8 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setAttachmentStatus("error");
+      setAttachmentMessage("Image must be 8MB or smaller.");
+      e.target.value = "";
+      return;
+    }
+
+    if (attachments.length >= 9) {
+      setAttachmentStatus("error");
+      setAttachmentMessage("Maximum 9 image attachments allowed.");
+      e.target.value = "";
+      return;
+    }
+
+    setAttachmentStatus("uploading");
+
+    try {
+      const supabase = createClient();
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        setAttachmentStatus("error");
+        setAttachmentMessage("You need to be signed in to upload attachments.");
+        return;
+      }
+
+      const ext =
+        file.type === "image/png"
+          ? "png"
+          : file.type === "image/webp"
+            ? "webp"
+            : "jpg";
+      const id = crypto.randomUUID();
+      const safeName = file.name.replace(/\s+/g, "-");
+      const path = `${user.id}/intros/${introId}/${id}-${safeName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("intro-attachments")
+        .upload(path, file, { upsert: false });
+
+      if (uploadError) {
+        console.error("Image attachment upload error", uploadError);
+        setAttachmentStatus("error");
+        setAttachmentMessage("Upload failed. Please try again.");
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage
+        .from("intro-attachments")
+        .getPublicUrl(path);
+      const publicUrl = publicUrlData?.publicUrl;
+
+      if (!publicUrl) {
+        setAttachmentStatus("error");
+        setAttachmentMessage("Could not get public URL for attachment.");
+        return;
+      }
+
+      const newAttachment: IntroAttachment = {
+        id,
+        type: "image",
+        storagePath: path,
+        url: publicUrl,
+        fileName: file.name,
+        fileSizeBytes: file.size,
+        mimeType: file.type,
+        uploadedAt: new Date().toISOString(),
+      };
+
+      const updatedAttachments = [...attachments, newAttachment];
+
+      const res = await fetch(`/api/intros/${introId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attachments: updatedAttachments }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        // Try to remove from storage since DB save failed
+        await supabase.storage.from("intro-attachments").remove([path]);
+        setAttachmentStatus("error");
+        setAttachmentMessage(typeof data.error === "string" ? data.error : "Something went wrong.");
+        return;
+      }
+
+      setAttachments(updatedAttachments);
+      setAttachmentStatus("idle");
+      setAttachmentMessage("");
+    } catch (err) {
+      console.error("Image attachment upload unexpected error", err);
+      setAttachmentStatus("error");
+      setAttachmentMessage("Something went wrong while uploading.");
+    } finally {
+      e.target.value = "";
+    }
+  }
+
+  async function handleAttachmentTitleBlur(attachmentId: string, title: string) {
+    const updated = attachments.map((a) =>
+      a.id === attachmentId ? { ...a, title: title.trim() || null } : a
+    );
+    setAttachments(updated);
+    await fetch(`/api/intros/${introId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ attachments: updated }),
+    });
+  }
+
+  async function handleAttachmentRemove(attachmentId: string) {
+    const attachment = attachments.find((a) => a.id === attachmentId);
+    if (!attachment) return;
+
+    setRemovingAttachmentId(attachmentId);
+    setAttachmentStatus("removing");
+    setAttachmentMessage("");
+
+    try {
+      const updatedAttachments = attachments.filter((a) => a.id !== attachmentId);
+
+      const res = await fetch(`/api/intros/${introId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ attachments: updatedAttachments }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setAttachmentStatus("error");
+        setAttachmentMessage(typeof data.error === "string" ? data.error : "Something went wrong.");
+        setRemovingAttachmentId(null);
+        return;
+      }
+
+      // Delete from storage (best effort)
+      const supabase = createClient();
+      await supabase.storage.from("intro-attachments").remove([attachment.storagePath]);
+
+      setAttachments(updatedAttachments);
+      setAttachmentStatus("idle");
+      setAttachmentMessage("");
+      setRemovingAttachmentId(null);
+    } catch (err) {
+      console.error("Image attachment remove unexpected error", err);
+      setAttachmentStatus("error");
+      setAttachmentMessage("Something went wrong while removing.");
+      setRemovingAttachmentId(null);
+    }
+  }
+
   async function handleCreateShareLink() {
     setShareStatus("creating");
     setShareError("");
@@ -783,7 +977,9 @@ export function IntroEditor({
     logoStatus === "removing" ||
     deckStatus === "uploading" ||
     deckStatus === "saving" ||
-    deckStatus === "removing";
+    deckStatus === "removing" ||
+    attachmentStatus === "uploading" ||
+    attachmentStatus === "removing";
 
   return (
     <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-8">
@@ -1208,121 +1404,143 @@ export function IntroEditor({
         <section className="rounded-ds-lg border border-ds-border bg-ds-surface p-5 shadow-ds-sm transition-shadow duration-ds ease-ds sm:p-6">
           <h2 className={sectionTitle}>Attachments</h2>
           <p className="mt-1.5 text-sm text-ds-text-muted">
-            Add your pitch deck so viewers can go deeper from your intro link.
+            Add your pitch deck, screenshots, and other supporting materials.
           </p>
 
-          <div className="mt-4 space-y-4">
-            <div className="inline-flex rounded-ds bg-ds-surface-hover p-0.5 text-xs font-medium">
-              <button
-                type="button"
-                className={`px-3 py-1 rounded-ds ${
-                  pitchDeckMode === "upload"
-                    ? "bg-ds-surface text-ds-text"
-                    : "text-ds-text-subtle"
-                }`}
-                onClick={() => setPitchDeckMode("upload")}
-                disabled={isSaving}
-              >
-                Upload PDF
-              </button>
-              <button
-                type="button"
-                className={`px-3 py-1 rounded-ds ${
-                  pitchDeckMode === "link"
-                    ? "bg-ds-surface text-ds-text"
-                    : "text-ds-text-subtle"
-                }`}
-                onClick={() => setPitchDeckMode("link")}
-                disabled={isSaving}
-              >
-                Link to a deck
-              </button>
-            </div>
-
-            {pitchDeck ? (
-              <div className="space-y-2 rounded-ds border border-ds-border bg-ds-surface-hover p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-ds-text-subtle">
-                      Pitch deck
-                    </p>
-                    <p className="mt-1 truncate text-sm text-ds-text">
-                      {pitchDeck.fileName || pitchDeck.url}
-                    </p>
-                    <p className="mt-0.5 text-xs text-ds-text-subtle">
-                      {pitchDeck.source === "external" ? "External link" : "Stored file"}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end gap-1">
-                    <a
-                      href={pitchDeck.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={btnSecondary}
-                    >
-                      View deck
-                    </a>
+          <div className="mt-4 space-y-3">
+            {/* Existing items list */}
+            {(pitchDeck || attachments.length > 0) && (
+              <div className="space-y-2">
+                {pitchDeck && (
+                  <div className="flex items-center justify-between gap-3 rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2.5">
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <svg className="h-4 w-4 shrink-0 text-ds-text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                      </svg>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-ds-text-subtle">Pitch Deck</p>
+                        <p className="truncate text-sm text-ds-text">{pitchDeck.fileName || pitchDeck.url}</p>
+                      </div>
+                    </div>
                     <button
                       type="button"
                       onClick={handlePitchDeckRemove}
                       disabled={isSaving}
-                      className="text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                      className="shrink-0 text-xs font-medium text-ds-text-subtle underline underline-offset-2"
                     >
                       {deckStatus === "removing" ? "Removing…" : "Remove"}
                     </button>
                   </div>
-                </div>
-              </div>
-            ) : pitchDeckMode === "upload" ? (
-              <div className="rounded-ds border border-ds-border bg-ds-surface-hover p-4">
-                <div className="flex flex-wrap items-center gap-3">
-                  <label>
-                    <span className={btnSecondary}>
-                      {deckStatus === "uploading" ? "Uploading…" : "Choose file"}
-                    </span>
+                )}
+                {attachments.map((att) => (
+                  <div key={att.id} className="rounded-ds border border-ds-border bg-ds-surface-hover px-3 py-2.5 space-y-1.5">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-2.5">
+                        {att.type === "image" ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={att.url} alt={att.fileName} className="h-8 w-8 shrink-0 rounded object-cover border border-ds-border" />
+                        ) : (
+                          <svg className="h-4 w-4 shrink-0 text-ds-text-subtle" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                          </svg>
+                        )}
+                        <p className="truncate text-sm text-ds-text">{att.fileName}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleAttachmentRemove(att.id)}
+                        disabled={isSaving}
+                        className="shrink-0 text-xs font-medium text-ds-text-subtle underline underline-offset-2"
+                      >
+                        {removingAttachmentId === att.id ? "Removing…" : "Remove"}
+                      </button>
+                    </div>
                     <input
-                      type="file"
-                      accept="application/pdf"
-                      className="sr-only"
-                      onChange={handlePitchDeckFileChange}
-                      disabled={isSaving}
+                      type="text"
+                      defaultValue={att.title ?? ""}
+                      placeholder="Add a title (optional)"
+                      maxLength={100}
+                      onBlur={(e) => handleAttachmentTitleBlur(att.id, e.target.value)}
+                      className="w-full rounded border border-ds-border bg-ds-surface px-2 py-1 text-xs text-ds-text placeholder:text-ds-text-subtle focus:outline-none focus:ring-1 focus:ring-ds-accent"
                     />
-                  </label>
-                  <p className="text-xs text-ds-text-subtle">PDF, up to 20MB.</p>
-                </div>
+                  </div>
+                ))}
               </div>
-            ) : (
-              <form onSubmit={handlePitchDeckLinkSave} className="space-y-2">
-                <div>
-                  <label htmlFor="pitchDeckUrl" className={labelClass}>
-                    Deck URL
-                  </label>
-                  <input
-                    id="pitchDeckUrl"
-                    type="url"
-                    placeholder="https://..."
-                    value={pitchDeckUrlInput}
-                    onChange={(e) => setPitchDeckUrlInput(e.target.value)}
-                    disabled={isSaving}
-                    className={inputClass}
-                  />
-                  <p className="mt-1 text-xs text-ds-text-subtle">
-                    Use a public, view-only link (e.g. Google Slides, Notion, PDF).
-                  </p>
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className={btnSecondary}
-                >
-                  {deckStatus === "saving" ? "Saving…" : "Save deck link"}
-                </button>
-              </form>
             )}
 
-            {deckStatus === "error" && deckMessage && (
+            {/* Upload controls */}
+            <div className="flex flex-wrap items-center gap-2">
+              <label>
+                <span className={btnSecondary}>
+                  {attachmentStatus === "uploading" || deckStatus === "uploading"
+                    ? "Uploading…"
+                    : "Upload file"}
+                </span>
+                <input
+                  type="file"
+                  accept="application/pdf,image/png,image/jpeg,image/webp"
+                  className="sr-only"
+                  onChange={handleAttachmentFileChange}
+                  disabled={isSaving}
+                />
+              </label>
+              <p className="text-xs text-ds-text-subtle">
+                PDF (pitch deck, up to 20MB) or image — JPG, PNG up to 8MB.
+              </p>
+            </div>
+
+            {/* External deck link */}
+            {!pitchDeck && (
+              <div>
+                {!showDeckLinkForm ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowDeckLinkForm(true)}
+                    disabled={isSaving}
+                    className="text-xs font-medium text-ds-accent underline underline-offset-2"
+                  >
+                    Or link to an external deck (Google Slides, Notion…)
+                  </button>
+                ) : (
+                  <form onSubmit={handlePitchDeckLinkSave} className="space-y-2">
+                    <div>
+                      <label htmlFor="pitchDeckUrl" className={labelClass}>
+                        Deck URL
+                      </label>
+                      <input
+                        id="pitchDeckUrl"
+                        type="url"
+                        placeholder="https://..."
+                        value={pitchDeckUrlInput}
+                        onChange={(e) => setPitchDeckUrlInput(e.target.value)}
+                        disabled={isSaving}
+                        className={inputClass}
+                      />
+                      <p className="mt-1 text-xs text-ds-text-subtle">
+                        Use a public, view-only link.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button type="submit" disabled={isSaving} className={btnSecondary}>
+                        {deckStatus === "saving" ? "Saving…" : "Save deck link"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowDeckLinkForm(false)}
+                        className="text-xs text-ds-text-subtle underline underline-offset-2"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* Feedback messages */}
+            {(deckStatus === "error" || attachmentStatus === "error") && (deckMessage || attachmentMessage) && (
               <p role="alert" className="ds-feedback-in text-xs text-ds-error">
-                {deckMessage}
+                {attachmentMessage || deckMessage}
               </p>
             )}
             {deckStatus === "idle" && deckMessage && (

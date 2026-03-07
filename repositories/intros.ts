@@ -5,6 +5,7 @@ import type {
   FundingRound,
   PitchDeckAttachment,
   PitchDeckSource,
+  IntroAttachment,
 } from "@/types";
 
 /** DB row shape for public.intros */
@@ -32,6 +33,7 @@ interface IntroRow {
   pitch_deck_file_name?: string | null;
   pitch_deck_file_size_bytes?: number | null;
   pitch_deck_uploaded_at?: string | null;
+  attachments?: IntroAttachment[] | null;
   created_at: string;
   updated_at?: string | null;
 }
@@ -58,6 +60,7 @@ interface PublicIntroJoinRow {
   pitch_deck_file_name?: string | null;
   pitch_deck_file_size_bytes?: number | null;
   pitch_deck_uploaded_at?: string | null;
+  attachments?: IntroAttachment[] | null;
   users: {
     name?: string | null;
     email?: string | null;
@@ -133,6 +136,7 @@ function rowToIntro(row: IntroRow, supabase: SupabaseClient): Intro {
     ownerBio: row.owner_bio ?? undefined,
     showOwnerEmail: row.show_owner_email ?? false,
     pitchDeck: buildPitchDeckAttachment(row, supabase),
+    attachments: row.attachments ?? [],
     createdAt: row.created_at,
     updatedAt: row.updated_at ?? undefined,
   };
@@ -161,6 +165,7 @@ function joinedRowToPublicProfile(
     ownerStartDate: row.owner_start_date ?? undefined,
     ownerBio: row.owner_bio ?? undefined,
     showOwnerEmail: row.show_owner_email ?? false,
+    attachments: row.attachments ?? [],
   };
 }
 
@@ -186,11 +191,12 @@ export interface IntroUpdateRow {
   pitch_deck_file_name?: string | null;
   pitch_deck_file_size_bytes?: number | null;
   pitch_deck_uploaded_at?: string | null;
+  attachments?: IntroAttachment[] | null;
   updated_at?: string;
 }
 
 const INTRO_SELECT =
-  "id, user_id, share_slug, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, pitch_deck_source, pitch_deck_storage_path, pitch_deck_external_url, pitch_deck_file_name, pitch_deck_file_size_bytes, pitch_deck_uploaded_at, created_at, updated_at";
+  "id, user_id, share_slug, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, pitch_deck_source, pitch_deck_storage_path, pitch_deck_external_url, pitch_deck_file_name, pitch_deck_file_size_bytes, pitch_deck_uploaded_at, attachments, created_at, updated_at";
 
 export async function getByUserId(supabase: SupabaseClient, userId: string): Promise<Intro | null> {
   const { data, error } = await supabase
@@ -264,7 +270,7 @@ export async function update(
 }
 
 const PUBLIC_PROFILE_JOIN_SELECT =
-  "id, user_id, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, pitch_deck_source, pitch_deck_storage_path, pitch_deck_external_url, pitch_deck_file_name, pitch_deck_file_size_bytes, pitch_deck_uploaded_at, users(name, email, avatar_url, linkedin_url, twitter_url)";
+  "id, user_id, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, pitch_deck_source, pitch_deck_storage_path, pitch_deck_external_url, pitch_deck_file_name, pitch_deck_file_size_bytes, pitch_deck_uploaded_at, attachments, users(name, email, avatar_url, linkedin_url, twitter_url)";
 
 /** Joined row includes intro id and user_id for owner resolution */
 type PublicIntroJoinRowWithId = PublicIntroJoinRow & { id: string; user_id: string };
