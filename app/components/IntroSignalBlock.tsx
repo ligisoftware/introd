@@ -54,13 +54,6 @@ function borderHighlightClass(score: number | null | undefined): string {
   return "bg-[radial-gradient(circle,#f87171_0%,#f87171_25%,transparent_70%)]";
 }
 
-function borderRingColor(score: number | null | undefined): string {
-  if (score == null) return "ring-purple-500/10";
-  if (score >= 8) return "ring-emerald-500/10";
-  if (score >= 5) return "ring-amber-500/10";
-  return "ring-red-500/10";
-}
-
 // drop-shadow is applied AFTER overflow clipping, so the glow extends
 // outward in all directions (including left/right) from the visible dot.
 function borderDropShadow(score: number | null | undefined): string {
@@ -156,8 +149,6 @@ export function IntroSignalBlock({
         </MovingBorder>
       </div>
 
-      {/* Subtle static border fallback */}
-      <div className={`absolute inset-0 rounded-ds-lg ring-1 ${borderRingColor(signalScore)}`} />
 
       <section
         className="relative rounded-[calc(var(--ds-radius-lg)-1px)] bg-ds-bg-elevated p-5 sm:p-6 shadow-ds-md"
