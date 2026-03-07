@@ -44,13 +44,13 @@ function scoreBarGlow(score: number): string {
   return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
 }
 
-// AI-purple/violet gradient for the moving border — always the same color
+// Soft sky-blue gradient for the moving border
 const BORDER_HIGHLIGHT =
-  "bg-[radial-gradient(circle,#a78bfa_0%,#8b5cf6_25%,transparent_70%)]";
+  "bg-[radial-gradient(circle,#7dd3fc_0%,#38bdf8_25%,transparent_70%)]";
 
-// Outer glow via drop-shadow (applied after overflow clipping)
+// Subtle outer glow
 const BORDER_DROP_SHADOW =
-  "drop-shadow(0 0 10px rgba(139,92,246,0.7)) drop-shadow(0 0 3px rgba(167,139,250,0.5))";
+  "drop-shadow(0 0 8px rgba(125,211,252,0.4)) drop-shadow(0 0 2px rgba(56,189,248,0.3))";
 
 function SubScoreRow({
   label,
@@ -95,7 +95,7 @@ function AiSparkle() {
       height="14"
       viewBox="0 0 16 16"
       fill="none"
-      className="text-purple-400"
+      className="text-sky-300"
     >
       <path
         d="M8 0L9.79 6.21L16 8L9.79 9.79L8 16L6.21 9.79L0 8L6.21 6.21L8 0Z"
@@ -129,7 +129,7 @@ export function IntroSignalBlock({
         style={{ filter: BORDER_DROP_SHADOW }}
       >
         <MovingBorder duration={10000} rx="12" ry="12">
-          <div className={`h-40 w-40 opacity-[0.9] ${BORDER_HIGHLIGHT}`} />
+          <div className={`h-40 w-40 opacity-[0.6] ${BORDER_HIGHLIGHT}`} />
         </MovingBorder>
       </div>
 
