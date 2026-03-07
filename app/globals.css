@@ -196,6 +196,16 @@
     animation: ds-fade-in 0.4s var(--ds-ease-out) both;
   }
 
+  /* Per-letter hero headline animation; delay applied per element via inline style */
+  .ds-hero-letter-in {
+    animation: ds-hero-letter-in 0.5s var(--ds-ease-out) both;
+  }
+
+  /* Whole-headline fade-in (used when prefers-reduced-motion: letter animation disabled) */
+  .ds-hero-headline-in {
+    animation: ds-fade-in 0.4s var(--ds-ease-out) both;
+  }
+
   /* Glass panel */
   .ds-glass {
     background: var(--ds-glass);
@@ -271,10 +281,24 @@
   }
 }
 
+@keyframes ds-hero-letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ds-feedback-in,
   .ds-pop,
   .ds-hero-in,
+  .ds-hero-letter-in,
   .ds-stagger-1,
   .ds-stagger-2,
   .ds-stagger-3,
