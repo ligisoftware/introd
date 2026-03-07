@@ -169,22 +169,36 @@ export default async function Home() {
           <p className="ds-stagger-4 mt-8 text-center text-sm text-ds-text-muted sm:text-left">
             Takes minutes, not hours.
           </p>
+          <div className="ds-stagger-4 mt-10 flex flex-wrap items-center justify-center gap-3">
+            {user ? (
+              <Link href="/intro" className={btnPrimary}>
+                Edit your intro
+              </Link>
+            ) : (
+              <Link href="/login?next=/intro" className={btnPrimary}>
+                Create your intro — free
+              </Link>
+            )}
+          </div>
         </div>
       </section>
 
       {/* Social proof */}
       <section className="bg-ds-bg py-16 sm:py-20" aria-labelledby="social-proof-heading">
-        <div className="ds-section-in mx-auto max-w-container-md px-4 sm:px-6 lg:px-8">
-          <h2 id="social-proof-heading" className="sr-only">
-            Social proof
+        <div className="mx-auto max-w-container-md px-4 sm:px-6 lg:px-8">
+          <h2
+            id="social-proof-heading"
+            className="ds-section-in mb-8 text-2xl font-bold text-ds-text sm:text-3xl"
+          >
+            What founders say
           </h2>
-          <blockquote>
+          <blockquote className="ds-section-in">
             <p className="text-lg leading-relaxed text-ds-text sm:text-xl">
               &ldquo;Introd made our intro process 10x simpler.&rdquo;
             </p>
             <footer className="mt-4 text-sm text-ds-text-muted">— Founder, YC-backed</footer>
           </blockquote>
-          <p className="mt-8 text-sm text-ds-text-subtle">
+          <p className="ds-section-in mt-8 text-sm text-ds-text-subtle">
             Trusted by founders building the future.
           </p>
         </div>
