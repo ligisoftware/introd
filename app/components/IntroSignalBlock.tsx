@@ -146,6 +146,16 @@ export function IntroSignalBlock({
       className="ds-stagger-1 relative rounded-ds-lg p-[2px]"
       data-testid="intro-signal-block"
     >
+      {/* Moving score-colored gradient border */}
+      <div
+        className="absolute inset-0 rounded-ds-lg overflow-hidden"
+        style={{ filter: borderDropShadow(signalScore) }}
+      >
+        <MovingBorder duration={10000} rx="12" ry="12">
+          <div className={`h-40 w-40 opacity-[0.9] ${borderHighlightClass(signalScore)}`} />
+        </MovingBorder>
+      </div>
+
       {/* Subtle static border fallback */}
       <div className={`absolute inset-0 rounded-ds-lg ring-1 ${borderRingColor(signalScore)}`} />
 
@@ -272,16 +282,6 @@ export function IntroSignalBlock({
           </div>
         )}
       </section>
-
-      {/* Moving border + glow — on top of card, pointer-events-none */}
-      <div
-        className="absolute inset-0 z-10 rounded-ds-lg overflow-hidden pointer-events-none"
-        style={{ filter: borderDropShadow(signalScore) }}
-      >
-        <MovingBorder duration={10000} rx="12" ry="12">
-          <div className={`h-40 w-40 opacity-[0.8] ${borderHighlightClass(signalScore)}`} />
-        </MovingBorder>
-      </div>
     </div>
   );
 }
