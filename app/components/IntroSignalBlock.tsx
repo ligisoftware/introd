@@ -44,6 +44,33 @@ function scoreBarGlow(score: number): string {
   return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
 }
 
+function borderGradient(score: number | null | undefined): string {
+  if (score == null || score === undefined)
+    return "bg-[radial-gradient(circle,#a855f7_0%,#7c3aed_30%,#6d28d9_50%,transparent_70%)]";
+  if (score >= 8)
+    return "bg-[radial-gradient(circle,#34d399_0%,#10b981_30%,#059669_50%,transparent_70%)]";
+  if (score >= 5)
+    return "bg-[radial-gradient(circle,#fbbf24_0%,#f59e0b_30%,#d97706_50%,transparent_70%)]";
+  return "bg-[radial-gradient(circle,#f87171_0%,#ef4444_30%,#dc2626_50%,transparent_70%)]";
+}
+
+function borderRingColor(score: number | null | undefined): string {
+  if (score == null || score === undefined) return "ring-purple-500/10";
+  if (score >= 8) return "ring-emerald-500/10";
+  if (score >= 5) return "ring-amber-500/10";
+  return "ring-red-500/10";
+}
+
+function borderOuterGlow(score: number | null | undefined): string {
+  if (score == null || score === undefined)
+    return "shadow-[0_0_20px_rgba(168,85,247,0.15),0_0_40px_rgba(168,85,247,0.05)]";
+  if (score >= 8)
+    return "shadow-[0_0_20px_rgba(52,211,153,0.15),0_0_40px_rgba(52,211,153,0.05)]";
+  if (score >= 5)
+    return "shadow-[0_0_20px_rgba(251,191,36,0.15),0_0_40px_rgba(251,191,36,0.05)]";
+  return "shadow-[0_0_20px_rgba(248,113,113,0.15),0_0_40px_rgba(248,113,113,0.05)]";
+}
+
 function SubScoreRow({
   label,
   score,
@@ -110,20 +137,22 @@ export function IntroSignalBlock({
       ? `/login?next=${encodeURIComponent(`/i/${viewerSlug}`)}`
       : "/login";
 
+  const signalScore = isBlurred ? null : scores?.signalScore;
+
   return (
     <div
-      className="ds-stagger-1 relative rounded-ds-lg p-[2px] overflow-hidden"
+      className={`ds-stagger-1 relative rounded-ds-lg p-[2px] overflow-hidden ${borderOuterGlow(signalScore)}`}
       data-testid="intro-signal-block"
     >
-      {/* Moving purple gradient border */}
+      {/* Moving score-colored gradient border */}
       <div className="absolute inset-0 rounded-ds-lg overflow-hidden">
-        <MovingBorder duration={6000} rx="12" ry="12">
-          <div className="h-28 w-28 opacity-[0.85] bg-[radial-gradient(circle,#a855f7_0%,#7c3aed_30%,#6d28d9_50%,transparent_70%)]" />
+        <MovingBorder duration={7500} rx="12" ry="12">
+          <div className={`h-40 w-40 opacity-[0.9] ${borderGradient(signalScore)}`} />
         </MovingBorder>
       </div>
 
-      {/* Subtle static purple border fallback */}
-      <div className="absolute inset-0 rounded-ds-lg ring-1 ring-purple-500/10" />
+      {/* Subtle static border fallback */}
+      <div className={`absolute inset-0 rounded-ds-lg ring-1 ${borderRingColor(signalScore)}`} />
 
       <section
         className="relative rounded-[calc(var(--ds-radius-lg)-1px)] bg-ds-bg-elevated p-5 sm:p-6 shadow-ds-md"
