@@ -27,11 +27,23 @@ export interface PitchDeckAttachment {
   uploadedAt?: string | null; // ISO date
 }
 
+export interface Experience {
+  company: string;
+  title: string;
+  logoUrl?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  current?: boolean;
+}
+
 export interface User {
   id: string;
   email: string;
+  username: string;
   name?: string | null;
   avatarUrl?: string | null;
+  bio?: string | null;
+  experience?: Experience[] | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
   createdAt: string; // ISO date

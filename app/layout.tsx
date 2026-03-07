@@ -37,10 +37,10 @@ export default async function RootLayout({
             >
               Introd
             </Link>
-            {user && <NavLinks />}
+            {user && <NavLinks username={user.username} />}
             <nav className="flex items-center gap-3 sm:gap-6" aria-label="Account">
               {user ? (
-                <AuthBar email={user.email} avatarUrl={user.avatarUrl} />
+                <AuthBar email={user.email} avatarUrl={user.avatarUrl} username={user.username} />
               ) : (
                 <Link
                   href="/login"

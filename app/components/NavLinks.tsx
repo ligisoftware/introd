@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [
-  { href: "/intro", label: "Intro" },
-  { href: "/profile", label: "Profile" },
-];
-
-export function NavLinks() {
+export function NavLinks({ username }: { username: string }) {
   const pathname = usePathname();
+
+  const links = [
+    { href: "/intro", label: "Intro" },
+    { href: `/p/${username}`, label: "Profile" },
+  ];
 
   return (
     <div className="flex items-center gap-1 sm:gap-2">

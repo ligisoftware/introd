@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { User } from "@/types";
-import { getByAuthUserId, create, updateProfile } from "@/repositories/users";
+import { getByAuthUserId, getByUsername, create, updateProfile } from "@/repositories/users";
 import type { UserProfileUpdateRow } from "@/repositories/users";
 import {
   UserProfileUpdateSchema,
@@ -53,6 +53,9 @@ export async function updateUserProfile(
   const parsed = UserProfileUpdateSchema.parse(payload);
   const row: UserProfileUpdateRow = {};
 
+  if (keys.includes("username")) {
+    row.username = parsed.username;
+  }
   if (keys.includes("name")) {
     row.name = parsed.name ?? null;
   }
@@ -65,6 +68,22 @@ export async function updateUserProfile(
   if (keys.includes("twitterUrl")) {
     row.twitter_url = parsed.twitterUrl ?? null;
   }
+  if (keys.includes("bio")) {
+    row.bio = parsed.bio ?? null;
+  }
+  if (keys.includes("experience")) {
+    row.experience = parsed.experience ?? null;
+  }
 
   return updateProfile(supabase, userId, row);
+}
+
+/**
+ * Returns a user by username (for public profile pages).
+ */
+export async function getUserByUsername(
+  supabase: SupabaseClient,
+  username: string
+): Promise<User | null> {
+  return getByUsername(supabase, username);
 }

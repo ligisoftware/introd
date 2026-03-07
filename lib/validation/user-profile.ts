@@ -19,10 +19,27 @@ function isValidUrl(s: string): boolean {
   }
 }
 
+const ExperienceSchema = z.object({
+  company: z.string().max(200),
+  title: z.string().max(200),
+  logoUrl: optionalUrl,
+  startDate: z.string().max(20).optional().nullable(),
+  endDate: z.string().max(20).optional().nullable(),
+  current: z.boolean().optional(),
+});
+
 /** Schema for user profile updates. */
 export const UserProfileUpdateSchema = z.object({
+  username: z
+    .string()
+    .min(3)
+    .max(30)
+    .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores")
+    .optional(),
   name: z.string().max(200).optional(),
   avatarUrl: optionalUrl,
+  bio: z.string().max(500).optional(),
+  experience: z.array(ExperienceSchema).max(20).optional().nullable(),
   linkedinUrl: optionalUrl,
   twitterUrl: optionalUrl,
 });
