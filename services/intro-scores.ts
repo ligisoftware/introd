@@ -5,22 +5,28 @@ import { getByIntroId, upsert, deleteByIntroId } from "@/repositories/intro-scor
 import type { IntroScores } from "@/repositories/intro-scores";
 import { IntroScoresResponseSchema } from "@/lib/validation/intro-scores";
 import { serializeIntroForLLM } from "@/lib/ai/serialize-intro";
+import { getPublicProfileByIntroId } from "@/repositories/intros";
+import { getTeamMembersForIntro } from "@/repositories/collaborators";
 
 const MODEL = "gpt-4o-mini";
 
-const SYSTEM_PROMPT = `You are an expert at evaluating founder intros for investors. You will receive a text description of a startup intro (company, one-liner, intro text, founder and team details, funding). Your task is to output a JSON object with:
+const SYSTEM_PROMPT = `You are an expert at evaluating founder intros for investors. You will receive a text description of a startup intro (company, one-liner, intro text, founder and team details, funding). A VC will glance at this for 5-10 seconds to decide whether to read the full intro.
 
-1. **summary** (string): 2-4 sentences summarizing the intro. Be neutral and descriptive. Focus on clarity and completeness. Avoid judgment words; use phrases like "low differentiation" or "problem not yet clearly stated" instead of "bad idea."
+Output a JSON object with:
 
-2. **founderScore** (number 1-10 or null): Rate founder & team signal: role clarity, team completeness, experience relevance. Use null if there is insufficient information.
+1. **signalScore** (number 0-10): A single composite score combining all factors — founder strength, startup quality, market size, traction, differentiation. This is the primary number a VC sees first.
 
-3. **founderBullets** (array of 2-4 strings): Brief reasons for the founder score. Omit if founderScore is null.
+2. **summary** (string): 2-4 SHORT sentences giving a VC instant context. Cover what matters most: what the company does, traction, market opportunity, founder strength, what they're raising. Be direct and specific — no filler words. Write for someone scanning in seconds.
 
-4. **startupScore** (number 1-10 or null): Rate the startup: is there a real problem, a real market, differentiation? "Twitter clone" / "me-too" / generic "AI for X" with no wedge = low score. Use null if insufficient information.
+3. **founderScore** (number 1-10 or null): Founder & team signal — role clarity, team completeness, experience relevance. Use null if insufficient information.
 
-5. **startupBullets** (array of 2-4 strings): Brief reasons for the startup score. Omit if startupScore is null.
+4. **founderRationale** (string or null): 1-2 short sentences explaining the founder score. Null if founderScore is null.
 
-Output only valid JSON with these keys. Keep bullets concise.`;
+5. **startupScore** (number 1-10 or null): Startup signal — real problem, real market, differentiation. "Twitter clone" / "me-too" / generic "AI for X" with no wedge = low score. Use null if insufficient information.
+
+6. **startupRationale** (string or null): 1-2 short sentences explaining the startup score. Null if startupScore is null.
+
+Output only valid JSON with these keys.`;
 
 /**
  * Returns cached intro scores for an intro, or null if not computed.
@@ -92,10 +98,13 @@ export async function computeAndPersistIntroScores(
     const data = result.data;
     await upsert(supabase, {
       intro_id: introId,
+      signal_score: data.signalScore,
       summary: data.summary,
       founder_score: data.founderScore,
+      founder_rationale: data.founderRationale ?? null,
       founder_bullets: data.founderBullets,
       startup_score: data.startupScore,
+      startup_rationale: data.startupRationale ?? null,
       startup_bullets: data.startupBullets,
     });
 
@@ -118,4 +127,37 @@ export async function computeAndPersistIntroScores(
     });
     return null;
   }
+}
+
+/**
+ * Invalidates cached scores and eagerly recomputes them in the background.
+ * Fire-and-forget — errors are logged but don't propagate.
+ */
+export function refreshIntroScores(supabase: SupabaseClient, introId: string): void {
+  (async () => {
+    try {
+      await deleteByIntroId(supabase, introId);
+
+      const result = await getPublicProfileByIntroId(supabase, introId);
+      if (!result) return;
+
+      const { profile, ownerEmail, showOwnerEmail } = result;
+      const collaboratorMembers = await getTeamMembersForIntro(supabase, introId);
+      const ownerMember = {
+        name: profile.name,
+        avatarUrl: profile.avatarUrl,
+        email: showOwnerEmail ? ownerEmail : undefined,
+        title: profile.title,
+        startDate: profile.ownerStartDate,
+        bio: profile.ownerBio,
+        linkedinUrl: profile.userLinkedinUrl,
+        twitterUrl: profile.userTwitterUrl,
+      };
+      profile.teamMembers = [ownerMember, ...collaboratorMembers];
+
+      await computeAndPersistIntroScores(supabase, introId, profile);
+    } catch (err) {
+      console.error("[intro-scores] background refresh failed", { introId, err });
+    }
+  })();
 }

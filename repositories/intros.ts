@@ -304,6 +304,37 @@ export async function getByShareSlug(
   };
 }
 
+export async function getPublicProfileByIntroId(
+  supabase: SupabaseClient,
+  introId: string
+): Promise<{
+  profile: PublicIntroProfile;
+  ownerEmail?: string;
+  showOwnerEmail: boolean;
+} | null> {
+  const { data, error } = await supabase
+    .from("intros")
+    .select(PUBLIC_PROFILE_JOIN_SELECT)
+    .eq("id", introId)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  const row = data as unknown as PublicIntroJoinRowWithId;
+  const { ...rest } = row;
+  const result = joinedRowToPublicProfile(rest);
+  const { ownerEmail, showOwnerEmail, ...profile } = result;
+  return {
+    profile: {
+      ...profile,
+      pitchDeck: buildPitchDeckAttachment(rest, supabase),
+    },
+    ownerEmail,
+    showOwnerEmail: showOwnerEmail ?? false,
+  };
+}
+
 export async function deleteById(supabase: SupabaseClient, id: string): Promise<void> {
   const { error } = await supabase.from("intros").delete().eq("id", id);
   if (error) throw error;
