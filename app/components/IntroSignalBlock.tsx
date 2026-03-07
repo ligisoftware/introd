@@ -160,7 +160,8 @@ export function IntroSignalBlock({
       <div className={`absolute inset-0 rounded-ds-lg ring-1 ${borderRingColor(signalScore)}`} />
 
       <section
-        className="relative rounded-[calc(var(--ds-radius-lg)-1px)] bg-ds-bg-elevated p-5 sm:p-6 shadow-ds-md"
+        className="relative rounded-[calc(var(--ds-radius-lg)-1px)] p-5 sm:p-6 shadow-ds-md backdrop-blur-sm"
+        style={{ backgroundColor: 'color-mix(in srgb, var(--ds-bg-elevated) 92%, transparent)' }}
         aria-label="Signal score"
       >
         {isBlurred ? (
@@ -282,13 +283,6 @@ export function IntroSignalBlock({
           </div>
         )}
       </section>
-
-      {/* Inner glow layer — sits on top of card, pointer-events-none so it doesn't block interaction */}
-      <div className="absolute inset-0 rounded-ds-lg overflow-hidden pointer-events-none">
-        <MovingBorder duration={10000} rx="12" ry="12">
-          <div className={`h-40 w-40 opacity-[0.35] ${borderHighlightClass(signalScore)}`} />
-        </MovingBorder>
-      </div>
     </div>
   );
 }
