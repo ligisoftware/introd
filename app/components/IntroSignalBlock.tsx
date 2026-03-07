@@ -67,10 +67,10 @@ function SubScoreRow({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-ds-text">{label}</span>
+        <span className="text-xs font-medium text-ds-text-muted">{label}</span>
         <span className={`text-sm font-bold tabular-nums ${scoreColor(score)}`}>
           {score}
-          <span className="text-[10px] font-normal text-ds-text">
+          <span className="text-[10px] font-normal text-ds-text-muted">
             /10
           </span>
         </span>
@@ -143,7 +143,7 @@ export function IntroSignalBlock({
           <>
             <div className="flex items-center justify-center gap-1.5">
               <AiSparkle />
-              <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text">
+              <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-muted">
                 Signal score
               </h2>
             </div>
@@ -170,12 +170,12 @@ export function IntroSignalBlock({
                   className="inline-flex items-center gap-1.5 text-sm font-medium text-ds-accent transition-opacity duration-ds-fast ease-ds hover:text-ds-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ds-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-ds-bg"
                 >
                   Log in to see signal score
-                  <span aria-hidden className="text-ds-text">
+                  <span aria-hidden className="text-ds-text-muted">
                     &rarr;
                   </span>
                 </Link>
               </p>
-              <p className="mt-3 text-xs text-ds-text">
+              <p className="mt-3 text-xs text-ds-text-muted">
                 Free for viewers once you&apos;re signed in.
               </p>
             </div>
@@ -187,7 +187,7 @@ export function IntroSignalBlock({
                 {/* Header */}
                 <div className="flex items-center justify-center gap-1.5">
                   <AiSparkle />
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text">
+                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-muted">
                     Signal score
                   </h2>
                 </div>
@@ -201,7 +201,7 @@ export function IntroSignalBlock({
                     >
                       {scores.signalScore}
                     </span>
-                    <span className="ml-1 text-xl font-medium text-ds-text">
+                    <span className="ml-1 text-xl font-medium text-ds-text-muted">
                       /10
                     </span>
                     <div className="mt-2">
@@ -246,7 +246,7 @@ export function IntroSignalBlock({
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1.5">
                   <AiSparkle />
-                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text">
+                  <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em] text-ds-text-muted">
                     Signal score
                   </h2>
                 </div>
