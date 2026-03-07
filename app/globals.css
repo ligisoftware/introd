@@ -78,8 +78,8 @@
     --ds-error-muted: #1C0D0D;
     --ds-focus-ring: #0D9488;
 
-    --ds-glass: rgba(255, 255, 255, 0.03);
-    --ds-glass-border: rgba(255, 255, 255, 0.08);
+    --ds-glass: rgba(0, 0, 0, 0.2);
+    --ds-glass-border: rgba(255, 255, 255, 0.10);
     --ds-glass-highlight: rgba(255, 255, 255, 0.06);
 
     --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
@@ -113,9 +113,9 @@
   --ds-error-muted: #1C0D0D;
   --ds-focus-ring: #0D9488;
 
-  --ds-glass: rgba(255, 255, 255, 0.06);
-  --ds-glass-border: rgba(255, 255, 255, 0.12);
-  --ds-glass-highlight: rgba(255, 255, 255, 0.08);
+  --ds-glass: rgba(0, 0, 0, 0.2);
+  --ds-glass-border: rgba(255, 255, 255, 0.10);
+  --ds-glass-highlight: rgba(255, 255, 255, 0.06);
 
   --ds-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
   --ds-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
@@ -213,8 +213,8 @@ body:has(.lp-page) {
   .ds-glass {
     background: var(--ds-glass);
     border: 1px solid var(--ds-glass-border);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
   }
 
   /* Staggered section entrance */
