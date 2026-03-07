@@ -44,31 +44,19 @@ function scoreBarGlow(score: number): string {
   return "shadow-[0_0_8px_rgba(248,113,113,0.4),0_0_2px_rgba(248,113,113,0.6)]";
 }
 
-function borderGradient(score: number | null | undefined): string {
-  if (score == null || score === undefined)
-    return "bg-[radial-gradient(circle,#a855f7_0%,#7c3aed_30%,#6d28d9_50%,transparent_70%)]";
-  if (score >= 8)
-    return "bg-[radial-gradient(circle,#34d399_0%,#10b981_30%,#059669_50%,transparent_70%)]";
-  if (score >= 5)
-    return "bg-[radial-gradient(circle,#fbbf24_0%,#f59e0b_30%,#d97706_50%,transparent_70%)]";
-  return "bg-[radial-gradient(circle,#f87171_0%,#ef4444_30%,#dc2626_50%,transparent_70%)]";
+// Use the exact same colors as scoreColor (emerald-400, amber-400, red-400)
+function borderHighlightClass(score: number | null | undefined): string {
+  if (score == null) return "bg-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.6),0_0_40px_rgba(168,85,247,0.3)]";
+  if (score >= 8) return "bg-emerald-400 shadow-[0_0_20px_rgba(52,211,153,0.6),0_0_40px_rgba(52,211,153,0.3)]";
+  if (score >= 5) return "bg-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.6),0_0_40px_rgba(251,191,36,0.3)]";
+  return "bg-red-400 shadow-[0_0_20px_rgba(248,113,113,0.6),0_0_40px_rgba(248,113,113,0.3)]";
 }
 
 function borderRingColor(score: number | null | undefined): string {
-  if (score == null || score === undefined) return "ring-purple-500/10";
+  if (score == null) return "ring-purple-500/10";
   if (score >= 8) return "ring-emerald-500/10";
   if (score >= 5) return "ring-amber-500/10";
   return "ring-red-500/10";
-}
-
-function borderOuterGlow(score: number | null | undefined): string {
-  if (score == null || score === undefined)
-    return "shadow-[0_0_20px_rgba(168,85,247,0.15),0_0_40px_rgba(168,85,247,0.05)]";
-  if (score >= 8)
-    return "shadow-[0_0_20px_rgba(52,211,153,0.15),0_0_40px_rgba(52,211,153,0.05)]";
-  if (score >= 5)
-    return "shadow-[0_0_20px_rgba(251,191,36,0.15),0_0_40px_rgba(251,191,36,0.05)]";
-  return "shadow-[0_0_20px_rgba(248,113,113,0.15),0_0_40px_rgba(248,113,113,0.05)]";
 }
 
 function SubScoreRow({
@@ -141,13 +129,13 @@ export function IntroSignalBlock({
 
   return (
     <div
-      className={`ds-stagger-1 relative rounded-ds-lg p-[2px] overflow-hidden ${borderOuterGlow(signalScore)}`}
+      className="ds-stagger-1 relative rounded-ds-lg p-[2px] overflow-hidden"
       data-testid="intro-signal-block"
     >
       {/* Moving score-colored gradient border */}
       <div className="absolute inset-0 rounded-ds-lg overflow-hidden">
         <MovingBorder duration={7500} rx="12" ry="12">
-          <div className={`h-40 w-40 opacity-[0.9] ${borderGradient(signalScore)}`} />
+          <div className={`h-40 w-40 rounded-full opacity-[0.9] ${borderHighlightClass(signalScore)}`} />
         </MovingBorder>
       </div>
 
