@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export interface IntroScoreRow {
   intro_id: string;
   signal_score: number | null;
-  summary: string | null;
+  summary: string[] | null;
   founder_score: number | null;
   founder_rationale: string | null;
   founder_bullets: string[];
@@ -16,7 +16,7 @@ export interface IntroScoreRow {
 export interface IntroScores {
   introId: string;
   signalScore: number | null;
-  summary: string | null;
+  summary: string[] | null;
   founderScore: number | null;
   founderRationale: string | null;
   founderBullets: string[];
@@ -30,7 +30,7 @@ function rowToScores(row: IntroScoreRow): IntroScores {
   return {
     introId: row.intro_id,
     signalScore: row.signal_score ?? null,
-    summary: row.summary ?? null,
+    summary: Array.isArray(row.summary) ? row.summary : null,
     founderScore: row.founder_score ?? null,
     founderRationale: row.founder_rationale ?? null,
     founderBullets: Array.isArray(row.founder_bullets) ? row.founder_bullets : [],
@@ -63,7 +63,7 @@ export async function getByIntroId(
 export interface IntroScoresInsertRow {
   intro_id: string;
   signal_score: number | null;
-  summary: string | null;
+  summary: string[] | null;
   founder_score: number | null;
   founder_rationale: string | null;
   founder_bullets: string[];

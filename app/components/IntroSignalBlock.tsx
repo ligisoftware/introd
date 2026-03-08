@@ -9,6 +9,10 @@ interface IntroSignalBlockProps {
   viewerSlug?: string | null;
 }
 
+function fmt(score: number): string {
+  return (Math.round(score * 10) / 10).toFixed(1);
+}
+
 // Bold, saturated score colors — #10b981 green, #f59e0b amber, #ef4444 red
 function scoreColor(score: number): string {
   if (score >= 8) return "text-[#10b981]";
@@ -59,7 +63,7 @@ function SubScoreRow({
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-ds-text-muted">{label}</span>
         <span className={`text-sm font-bold tabular-nums ${scoreColor(score)}`}>
-          {score}
+          {fmt(score)}
           <span className="text-[10px] font-normal text-ds-text-muted">
             /10
           </span>
@@ -185,9 +189,9 @@ export function IntroSignalBlock({
                   <div className="ds-stagger-2 text-center py-1">
                     <span
                       className={`text-5xl font-black tabular-nums leading-none ${scoreColor(scores.signalScore)} ${scoreGlow(scores.signalScore)}`}
-                      aria-label={`Signal score: ${scores.signalScore} out of 10`}
+                      aria-label={`Signal score: ${fmt(scores.signalScore)} out of 10`}
                     >
-                      {scores.signalScore}
+                      {fmt(scores.signalScore)}
                     </span>
                     <span className="ml-1 text-lg font-medium text-ds-text-muted">
                       /10
@@ -196,10 +200,15 @@ export function IntroSignalBlock({
                 )}
 
                 {/* Summary */}
-                {scores.summary && (
-                  <p className="ds-stagger-3 text-[13px] leading-[1.7] text-ds-text">
-                    {scores.summary}
-                  </p>
+                {scores.summary && scores.summary.length > 0 && (
+                  <ul className="ds-stagger-3 space-y-2">
+                    {scores.summary.map((bullet, i) => (
+                      <li key={i} className="flex gap-3 text-[13px] leading-[1.7] text-ds-text">
+                        <span className="mt-[2px] w-[2px] shrink-0 self-stretch rounded-full bg-ds-border-strong" />
+                        {bullet}
+                      </li>
+                    ))}
+                  </ul>
                 )}
 
                 {/* Subscores */}

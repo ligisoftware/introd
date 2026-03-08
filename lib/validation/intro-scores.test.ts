@@ -5,7 +5,10 @@ describe("IntroScoresResponseSchema", () => {
   it("parses valid full response", () => {
     const raw = {
       signalScore: 8,
-      summary: "AI infra startup with strong technical founders and early traction.",
+      summary: [
+        "AI infra startup with strong technical founders.",
+        "Early traction and differentiated approach.",
+      ],
       founderScore: 8,
       founderRationale: "Strong technical background with relevant domain experience.",
       founderBullets: ["Clear role", "Relevant experience"],
@@ -17,7 +20,7 @@ describe("IntroScoresResponseSchema", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.signalScore).toBe(8);
-      expect(result.data.summary).toBe(raw.summary);
+      expect(result.data.summary).toEqual(raw.summary);
       expect(result.data.founderScore).toBe(8);
       expect(result.data.founderRationale).toBe(raw.founderRationale);
       expect(result.data.startupScore).toBe(7);
@@ -28,7 +31,7 @@ describe("IntroScoresResponseSchema", () => {
   it("allows null scores for insufficient information", () => {
     const raw = {
       signalScore: 3,
-      summary: "Limited information provided.",
+      summary: ["Limited information provided."],
       founderScore: null,
       founderRationale: null,
       founderBullets: [],
@@ -49,7 +52,7 @@ describe("IntroScoresResponseSchema", () => {
   it("rejects score out of range", () => {
     const raw = {
       signalScore: 5,
-      summary: "Ok",
+      summary: ["Ok"],
       founderScore: 11,
       founderBullets: [],
       startupScore: 5,
@@ -62,7 +65,7 @@ describe("IntroScoresResponseSchema", () => {
   it("rejects signalScore out of range", () => {
     const raw = {
       signalScore: 11,
-      summary: "Ok",
+      summary: ["Ok"],
       founderScore: 5,
       founderBullets: [],
       startupScore: 5,
@@ -75,7 +78,7 @@ describe("IntroScoresResponseSchema", () => {
   it("allows signalScore of 0", () => {
     const raw = {
       signalScore: 0,
-      summary: "Insufficient information for meaningful evaluation.",
+      summary: ["Insufficient information for meaningful evaluation."],
       founderScore: null,
       startupScore: null,
     };
@@ -86,10 +89,10 @@ describe("IntroScoresResponseSchema", () => {
     }
   });
 
-  it("rejects empty summary", () => {
+  it("rejects empty summary array", () => {
     const raw = {
       signalScore: 5,
-      summary: "",
+      summary: [],
       founderScore: 5,
       founderBullets: [],
       startupScore: 5,
@@ -103,7 +106,7 @@ describe("IntroScoresResponseSchema", () => {
     expect(
       IntroScoresResponseSchema.safeParse({
         signalScore: 5,
-        summary: "Ok",
+        summary: ["Ok"],
         founderScore: 5,
         founderBullets: null,
         startupScore: 5,
@@ -112,7 +115,7 @@ describe("IntroScoresResponseSchema", () => {
     ).toBe(true);
     const parsed = IntroScoresResponseSchema.safeParse({
       signalScore: 5,
-      summary: "Ok",
+      summary: ["Ok"],
       founderScore: 5,
       startupScore: 5,
     });
@@ -126,7 +129,7 @@ describe("IntroScoresResponseSchema", () => {
   it("caps founderBullets at 4", () => {
     const raw = {
       signalScore: 5,
-      summary: "Summary",
+      summary: ["Summary"],
       founderScore: 5,
       founderBullets: ["a", "b", "c", "d", "e"],
       startupScore: 5,
@@ -138,7 +141,7 @@ describe("IntroScoresResponseSchema", () => {
 
   it("rejects missing signalScore", () => {
     const raw = {
-      summary: "Ok",
+      summary: ["Ok"],
       founderScore: 5,
       startupScore: 5,
     };

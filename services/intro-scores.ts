@@ -78,6 +78,7 @@ export async function computeAndPersistIntroScores(
     }
 
     const parsed = JSON.parse(rawContent) as unknown;
+    console.log("[intro-scores] raw LLM response", { introId, parsed });
     const result = IntroScoresResponseSchema.safeParse(parsed);
     if (!result.success) {
       console.error("[intro-scores] parse failed", { introId, errors: result.error.flatten() });
