@@ -99,6 +99,8 @@ export interface PublicIntroProfile {
   avatarUrl?: string | null;
   userLinkedinUrl?: string | null;
   userTwitterUrl?: string | null;
+  ownerBioFromProfile?: string | null;
+  ownerExperience?: Experience[] | null;
   startupName?: string | null;
   startupOneLiner?: string | null;
   title?: string | null;
@@ -144,6 +146,7 @@ export interface TeamMember {
   bio?: string | null;
   linkedinUrl?: string | null;
   twitterUrl?: string | null;
+  experience?: Experience[] | null;
 }
 
 export interface IntroPage {

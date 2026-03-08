@@ -235,6 +235,7 @@ interface TeamMemberJoinRow {
     avatar_url?: string | null;
     linkedin_url?: string | null;
     twitter_url?: string | null;
+    experience?: import("@/types").Experience[] | null;
   };
 }
 
@@ -245,7 +246,7 @@ export async function getTeamMembersForIntro(
   const { data, error } = await supabase
     .from("intro_collaborators")
     .select(
-      "title, start_date, bio, show_email, email, users(name, avatar_url, linkedin_url, twitter_url)"
+      "title, start_date, bio, show_email, email, users(name, avatar_url, linkedin_url, twitter_url, experience)"
     )
     .eq("intro_id", introId)
     .eq("status", "accepted")
@@ -263,5 +264,6 @@ export async function getTeamMembersForIntro(
     bio: row.bio ?? undefined,
     linkedinUrl: row.users?.linkedin_url ?? undefined,
     twitterUrl: row.users?.twitter_url ?? undefined,
+    experience: row.users?.experience ?? undefined,
   }));
 }

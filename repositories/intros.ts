@@ -70,6 +70,8 @@ interface PublicIntroJoinRow {
     avatar_url?: string | null;
     linkedin_url?: string | null;
     twitter_url?: string | null;
+    bio?: string | null;
+    experience?: import("@/types").Experience[] | null;
   };
 }
 
@@ -154,6 +156,8 @@ function joinedRowToPublicProfile(
     avatarUrl: row.users?.avatar_url ?? undefined,
     userLinkedinUrl: row.users?.linkedin_url ?? undefined,
     userTwitterUrl: row.users?.twitter_url ?? undefined,
+    ownerBioFromProfile: row.users?.bio ?? undefined,
+    ownerExperience: row.users?.experience ?? undefined,
     ownerEmail: row.users?.email ?? undefined,
     startupName: row.startup_name ?? undefined,
     startupOneLiner: row.startup_one_liner ?? undefined,
@@ -276,7 +280,7 @@ export async function update(
 }
 
 const PUBLIC_PROFILE_JOIN_SELECT =
-  "id, user_id, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, pitch_deck_source, pitch_deck_storage_path, pitch_deck_external_url, pitch_deck_file_name, pitch_deck_file_size_bytes, pitch_deck_uploaded_at, attachments, custom_fields, users(name, email, avatar_url, linkedin_url, twitter_url)";
+  "id, user_id, startup_name, startup_one_liner, title, intro_text, website_url, linkedin_url, twitter_url, logo_url, founded_date, location, funding_rounds, owner_start_date, owner_bio, show_owner_email, pitch_deck_source, pitch_deck_storage_path, pitch_deck_external_url, pitch_deck_file_name, pitch_deck_file_size_bytes, pitch_deck_uploaded_at, attachments, custom_fields, users(name, email, avatar_url, linkedin_url, twitter_url, bio, experience)";
 
 /** Joined row includes intro id and user_id for owner resolution */
 type PublicIntroJoinRowWithId = PublicIntroJoinRow & { id: string; user_id: string };

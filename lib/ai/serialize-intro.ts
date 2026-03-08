@@ -1,4 +1,4 @@
-import type { PublicIntroProfile, FundingRound } from "@/types";
+import type { PublicIntroProfile, FundingRound, Experience } from "@/types";
 
 function or(s: string | null | undefined): string {
   return s ?? "";
@@ -8,6 +8,18 @@ function formatFunding(rounds: FundingRound[] | null | undefined): string {
   if (!rounds?.length) return "";
   return rounds
     .map((r) => `${r.roundName}${r.amount ? ` ${r.amount}` : ""}${r.date ? ` (${r.date})` : ""}`)
+    .join("; ");
+}
+
+function formatExperience(experience: Experience[] | null | undefined): string {
+  if (!experience?.length) return "";
+  return experience
+    .slice(0, 5) // cap to avoid token blowout
+    .map((e) => {
+      const dates = [e.startDate, e.current ? "present" : e.endDate].filter(Boolean).join("–");
+      const role = [e.title, e.company].filter(Boolean).join(" at ");
+      return [role, dates].filter(Boolean).join(", ");
+    })
     .join("; ");
 }
 
@@ -25,13 +37,15 @@ export function serializeIntroForLLM(profile: PublicIntroProfile): string {
   // Founder (owner)
   const ownerName = profile.name ?? "";
   const ownerTitle = profile.title ?? "";
-  const ownerBio = profile.ownerBio ?? "";
+  const ownerBio = profile.ownerBio ?? profile.ownerBioFromProfile ?? "";
   if (ownerName || ownerTitle || ownerBio) {
     parts.push(
       `Founder: ${ownerName}${ownerTitle ? `, ${ownerTitle}` : ""}${ownerBio ? `. ${ownerBio}` : ""}`
     );
   }
   if (profile.ownerStartDate) parts.push(`Founder start: ${profile.ownerStartDate}`);
+  const ownerExp = formatExperience(profile.ownerExperience);
+  if (ownerExp) parts.push(`Founder background: ${ownerExp}`);
 
   // Team (collaborators)
   const team = profile.teamMembers ?? [];
@@ -40,7 +54,9 @@ export function serializeIntroForLLM(profile: PublicIntroProfile): string {
       const name = or(m.name);
       const title = or(m.title);
       const bio = or(m.bio);
-      return name ? [name, title, bio].filter(Boolean).join(" · ") : "";
+      const exp = formatExperience(m.experience);
+      const base = name ? [name, title, bio].filter(Boolean).join(" · ") : "";
+      return exp ? `${base} (bg: ${exp})` : base;
     });
     parts.push(`Team: ${teamLines.filter(Boolean).join("; ")}`);
   }
