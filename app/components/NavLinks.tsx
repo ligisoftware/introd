@@ -11,6 +11,9 @@ export function NavLinks({ username }: { username: string }) {
     { href: `/p/${username}`, label: "Profile" },
   ];
 
+  // Hidden for demo — restore by removing the early return below
+  return null;
+
   return (
     <div className="flex items-center gap-1 sm:gap-2">
       {links.map(({ href, label }) => {
