@@ -7,7 +7,7 @@
    --------------------------------------------------------------------------- */
 :root {
   /* Surfaces */
-  --ds-bg: #fafaf9;
+  --ds-bg: #ffffff;
   --ds-bg-elevated: #ffffff;
   --ds-surface: #ffffff;
   --ds-surface-hover: #f5f5f4;
@@ -35,7 +35,7 @@
   --ds-font-mono: ui-monospace, "SF Mono", monospace;
 
   /* Glass surfaces */
-  --ds-glass: rgba(255, 255, 255, 0.3);
+  --ds-glass: rgba(248, 248, 248, 0.4);
   --ds-glass-border: #e7e5e4;
   --ds-glass-highlight: rgba(255, 255, 255, 0.12);
 
@@ -78,7 +78,7 @@
     --ds-error-muted: #1C0D0D;
     --ds-focus-ring: #0D9488;
 
-    --ds-glass: rgba(255, 255, 255, 0.03);
+    --ds-glass: rgba(6.5, 6.5, 6.5, 0.5);
     --ds-glass-border: rgba(255, 255, 255, 0.08);
     --ds-glass-highlight: rgba(255, 255, 255, 0.06);
 
@@ -113,7 +113,7 @@
   --ds-error-muted: #1C0D0D;
   --ds-focus-ring: #0D9488;
 
-  --ds-glass: rgba(255, 255, 255, 0.06);
+  --ds-glass: rgba(6.5, 6.5, 6.5, 0.5);
   --ds-glass-border: rgba(255, 255, 255, 0.12);
   --ds-glass-highlight: rgba(255, 255, 255, 0.08);
 
