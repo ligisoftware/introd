@@ -69,5 +69,13 @@ export function serializeIntroForLLM(profile: PublicIntroProfile): string {
   if (profile.linkedinUrl) parts.push(`LinkedIn: ${profile.linkedinUrl}`);
   if (profile.twitterUrl) parts.push(`Twitter: ${profile.twitterUrl}`);
 
+  // Custom fields (user-defined sections)
+  const custom = profile.customFields ?? [];
+  for (const field of custom) {
+    if (field.title && field.value) {
+      parts.push(`${field.title}: ${field.value}`);
+    }
+  }
+
   return parts.filter(Boolean).join("\n");
 }
