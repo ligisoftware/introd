@@ -40,6 +40,20 @@ describe("serializeIntroForLLM", () => {
     expect(out).toContain("Bob");
   });
 
+  it("includes custom fields", () => {
+    const profile: PublicIntroProfile = {
+      customFields: [
+        { id: "1", title: "Traction", value: "10k MAU" },
+        { id: "2", title: "Ask", value: "$1M seed round" },
+        { id: "3", title: "", value: "orphan value" },
+      ],
+    };
+    const out = serializeIntroForLLM(profile);
+    expect(out).toContain("Traction: 10k MAU");
+    expect(out).toContain("Ask: $1M seed round");
+    expect(out).not.toContain("orphan value");
+  });
+
   it("is deterministic for same input", () => {
     const profile: PublicIntroProfile = {
       startupName: "Test",
